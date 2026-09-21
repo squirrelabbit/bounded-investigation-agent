@@ -15,9 +15,19 @@ class OracleAccessError(RuntimeError):
     """Raised if runtime code ever tries to open the evaluation ground truth."""
 
 
-def _guard_not_oracle(path: str) -> None:
-    if os.path.basename(path) == ORACLE_FILENAME or os.sep + "oracle" + os.sep in path:
+def guard_not_oracle(path: str) -> None:
+    """Refuse any path that resolves to the evaluation ground truth.
+
+    Resolved with realpath and case-folded, so a symlink, a differently-cased
+    parent directory or a `..` traversal cannot walk around the check.
+    """
+    resolved = os.path.realpath(os.path.abspath(path)).lower()
+    parts = resolved.split(os.sep)
+    if parts[-1] == ORACLE_FILENAME or "oracle" in parts[:-1]:
         raise OracleAccessError("runtime code must not read the oracle manifest: %s" % path)
+
+
+_guard_not_oracle = guard_not_oracle
 
 
 def load_metric_rows(path: str) -> List[MetricRow]:

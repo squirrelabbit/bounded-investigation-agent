@@ -37,7 +37,16 @@ FORBIDDEN_CAUSAL_TERMS = (
     "led to",
     "resulted in",
     "responsible for",
+    "비롯",
+    "기인",
+    "stems from",
+    "triggered by",
+    "brought about",
 )
+
+QUOTE_OPEN = "\x02"
+QUOTE_CLOSE = "\x03"
+_QUOTE_SPAN = re.compile(QUOTE_OPEN + "(.*?)" + QUOTE_CLOSE, re.S)
 
 _NUMBER_RE = re.compile(r"\d+(?:\.\d+)?")
 
@@ -77,18 +86,17 @@ class AnswerDocument:
 
     def quote(self, text: str) -> str:
         """Verbatim customer text. Both guards apply to the system's own claims,
-        not to what a customer wrote, so quoted spans are excluded from them."""
+        not to what a customer wrote, so quoted spans are excluded from them.
+
+        The span is delimited rather than matched back by substring: with
+        `str.replace`, one customer writing "late" would strip that word out of
+        every other quote, and the surviving digits of a longer quote would then
+        be read as an unsourced number and abort the run.
+        """
         self.quotes.append(text)
-        return text
+        return QUOTE_OPEN + text + QUOTE_CLOSE
 
-    def claim_text(self) -> str:
-        """The rendered answer with quoted customer text removed."""
-        text = self.render()
-        for quoted in self.quotes:
-            text = text.replace(quoted, "\u2026")
-        return text
-
-    def render(self) -> str:
+    def _raw_render(self) -> str:
         parts = [HEADING_CONFIRMED]
         parts.extend("- " + line for line in self.confirmed)
         parts.append("")
@@ -98,6 +106,13 @@ class AnswerDocument:
         parts.append(HEADING_UNKNOWN)
         parts.extend("- " + line for line in self.unknown)
         return "\n".join(parts) + "\n"
+
+    def claim_text(self) -> str:
+        """The rendered answer with quoted customer text replaced."""
+        return _QUOTE_SPAN.sub("\u2026", self._raw_render())
+
+    def render(self) -> str:
+        return self._raw_render().replace(QUOTE_OPEN, "").replace(QUOTE_CLOSE, "")
 
     def check(self) -> None:
         text = self.claim_text()
@@ -162,7 +177,8 @@ def _write_integrity_facts(doc: AnswerDocument, state: EvidenceState) -> None:
                 % (
                     label,
                     doc.num(len(integrity.missing_days)),
-                    doc.num(", ".join(integrity.missing_days[:5])),
+                    doc.num(", ".join(integrity.missing_days[:5]))
+                    + ("" if len(integrity.missing_days) <= 5 else " 외"),
                 )
             )
 
@@ -207,11 +223,16 @@ def _write_metric_facts(doc: AnswerDocument, state: EvidenceState) -> None:
         doc.confirmed.append("이 비교 구간에서 불만 건수는 증가하지 않았다")
         return
 
-    for dimension, groups in (("제품", state.top_products), ("불만 유형", state.top_complaint_types)):
+    dimensions = (
+        ("제품", state.top_products, metrics.by_product),
+        ("불만 유형", state.top_complaint_types, metrics.by_complaint_type),
+    )
+    for dimension, groups, all_groups in dimensions:
         if not groups:
             continue
+        rising_total = sum(g.delta for g in all_groups if g.delta > 0)
         rendered = ", ".join(
-            "%s %s건 (증가분의 %s%%)"
+            "%s %s건 (늘어난 그룹 합계의 %s%%)"
             % (
                 _display(group.value),
                 doc.num("%+d" % group.delta),
@@ -220,6 +241,17 @@ def _write_metric_facts(doc: AnswerDocument, state: EvidenceState) -> None:
             for group in groups
         )
         doc.confirmed.append("%s별로 증가분이 발생한 위치: %s" % (dimension, rendered))
+        if rising_total != metrics.delta:
+            doc.confirmed.append(
+                "%s별로 늘어난 그룹의 합은 %s건이고 순증가는 %s건이다. "
+                "차이는 같은 구간에 줄어든 그룹이 상쇄한 몫이므로, 위 비율은 순증가가 아니라 "
+                "늘어난 그룹 합계를 기준으로 읽어야 한다"
+                % (
+                    dimension,
+                    doc.num("%+d" % rising_total),
+                    doc.num("%+d" % metrics.delta),
+                )
+            )
 
 
 def _display(value: str) -> str:
@@ -304,6 +336,11 @@ def _write_unknowns(doc: AnswerDocument, state: EvidenceState) -> None:
             doc.unknown.append(
                 "고객 문의 근거의 충분성: 최대 coverage %s로 기준에 미치지 못해 부분 관측으로만 남는다"
                 % doc.num("%.2f" % state.coverage)
+            )
+    for round_ in state.rounds:
+        if round_.truncated:
+            doc.unknown.append(
+                "조회 상한에 걸려 [%s] 구간 문의의 일부만 확인했다" % round_.candidate_label
             )
     uninvestigated = _uninvestigated(state)
     if uninvestigated:

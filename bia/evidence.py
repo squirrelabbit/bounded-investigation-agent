@@ -5,6 +5,7 @@ and whether it may run. A DecisionProvider only returns one candidate_id, or DEF
 """
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence
 
@@ -64,6 +65,7 @@ class EvidenceRound:
     pool_size: int = 0
     coverage: float = 0.0
     sufficient: bool = False
+    truncated: bool = False
 
     def as_dict(self) -> Dict[str, object]:
         return {
@@ -80,12 +82,20 @@ class EvidenceRound:
             "rejected": list(self.rejected),
             "coverage": self.coverage,
             "sufficient": self.sufficient,
+            "truncated": self.truncated,
         }
 
 
 @dataclass
 class EvidenceState:
-    """Everything the run knows so far. Passed read-only to the DecisionProvider."""
+    """Everything the run knows so far.
+
+    The live object stays inside the Controller. A DecisionProvider is handed
+    `view()` — a deep copy — so that mutating what it receives cannot rewrite a
+    computed number, fabricate a round, widen a retrieval filter or erase the
+    violation log. Without that copy every guarantee in this package would rest
+    on the provider adapter being trusted code rather than on a mechanism.
+    """
 
     current_window: Optional[Period]
     baseline_window: Optional[Period]
@@ -136,6 +146,10 @@ class EvidenceState:
             "decision_calls": MAX_DECISION_CALLS - self.decision_calls,
             "retrievals": MAX_RETRIEVALS - self.retrievals,
         }
+
+    def view(self) -> Dict[str, object]:
+        """A read-only snapshot for the DecisionProvider."""
+        return copy.deepcopy(self.as_dict())
 
     def as_dict(self) -> Dict[str, object]:
         return {

@@ -43,6 +43,17 @@ FINISH_RETRIEVAL_BUDGET = "retrieval_budget_exhausted"
 VIOLATION_UNKNOWN_ID = "selection_not_in_offered_candidates"
 VIOLATION_REPEAT = "selection_already_investigated"
 VIOLATION_MALFORMED = "selection_not_a_string"
+VIOLATION_RAISED = "provider_raised"
+
+
+MAX_RECORDED_SELECTION_CHARS = 120
+
+
+def _short(raw) -> str:
+    text = raw if isinstance(raw, str) else repr(raw)
+    if len(text) <= MAX_RECORDED_SELECTION_CHARS:
+        return text
+    return text[: MAX_RECORDED_SELECTION_CHARS - 1] + "\u2026"
 
 
 @dataclass
@@ -117,15 +128,20 @@ def _evidence_loop(
             return
 
         state.decision_calls += 1
-        raw = provider.select_next_evidence(state, list(candidates))
-        chosen, violation = _resolve_selection(raw, candidates, state)
+        try:
+            raw = provider.select_next_evidence(state.view(), list(candidates))
+        except Exception as exc:  # a provider must not be able to abort the run
+            raw = "%s: %s" % (type(exc).__name__, exc)
+            chosen, violation = None, VIOLATION_RAISED
+        else:
+            chosen, violation = _resolve_selection(raw, candidates, state)
 
         round_ = EvidenceRound(
             round_index=round_index,
             candidate_id=chosen.candidate_id if chosen else "",
             candidate_label=chosen.label if chosen else "",
             offered_candidate_ids=[c.candidate_id for c in candidates],
-            selection_raw=raw if isinstance(raw, str) else repr(raw),
+            selection_raw=_short(raw),
             selection_valid=chosen is not None,
             violation=violation,
             retrieved=0,
@@ -148,6 +164,7 @@ def _evidence_loop(
 
         round_.retrieved = len(retrieval.hits)
         round_.pool_size = verification.pool_size
+        round_.truncated = retrieval.truncated
         round_.admitted = verification.admitted
         round_.rejected = verification.rejected
         round_.coverage = verification.coverage

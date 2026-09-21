@@ -8,7 +8,7 @@ from bia import controller as controller_mod
 from bia.controller import investigate
 from bia.decision import DeterministicHeuristicSelector, ScriptedSelector
 from bia.evidence import MAX_DECISION_CALLS, MAX_RETRIEVALS
-from bia.store import OracleAccessError, load_metric_rows
+from bia.store import OracleAccessError, guard_not_oracle, load_metric_rows
 from bia.types import DEFER
 
 from . import support
@@ -111,21 +111,68 @@ class BudgetTests(unittest.TestCase):
         self.assertIn(controller_mod.VIOLATION_UNKNOWN_ID, state.violations[0])
 
 
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ORACLE = os.path.join(REPO_ROOT, "data", "oracle", "oracle.json")
+
+
 class OracleIsolationTests(unittest.TestCase):
     def test_runtime_refuses_to_open_the_oracle_manifest(self):
         with self.assertRaises(OracleAccessError):
             load_metric_rows(os.path.join("data", "oracle", "oracle.json"))
 
+    def test_the_guard_survives_a_symlink_with_an_innocent_name(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            link = os.path.join(tmp, "facts.json")
+            os.symlink(ORACLE, link)
+            with self.assertRaises(OracleAccessError):
+                guard_not_oracle(link)
+
+    def test_the_guard_survives_a_differently_cased_parent_directory(self):
+        import shutil
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = os.path.join(tmp, "Oracle")
+            os.makedirs(folder)
+            copied = os.path.join(folder, "truth.json")
+            shutil.copyfile(ORACLE, copied)
+            with self.assertRaises(OracleAccessError):
+                guard_not_oracle(copied)
+
+    def test_the_guard_survives_a_parent_traversal(self):
+        import shutil
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = os.path.join(tmp, "Oracle")
+            os.makedirs(folder)
+            copied = os.path.join(folder, "truth.json")
+            shutil.copyfile(ORACLE, copied)
+            traversed = os.path.join(folder, "..", "Oracle", "truth.json")
+            with self.assertRaises(OracleAccessError):
+                guard_not_oracle(traversed)
+
+    def test_a_normal_scenario_file_is_not_blocked(self):
+        guard_not_oracle(os.path.join(REPO_ROOT, "data", "scenarios", "S01", "metrics.csv"))
+
     def test_no_runtime_module_mentions_the_oracle_file(self):
         package = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bia")
-        offenders = []
+        mentions = []
         for name in sorted(os.listdir(package)):
-            if not name.endswith(".py") or name in ("store.py", "datagen.py", "scenarios.py"):
+            if not name.endswith(".py"):
                 continue
             with open(os.path.join(package, name), encoding="utf-8") as handle:
                 if "oracle" in handle.read().lower():
-                    offenders.append(name)
-        self.assertEqual(offenders, [], "runtime modules must not reference the oracle: %s" % offenders)
+                    mentions.append(name)
+        # store.py holds the guard; datagen.py writes the manifest; scenarios.py
+        # documents it. Any other module naming it is a leak.
+        self.assertEqual(
+            mentions,
+            ["datagen.py", "scenarios.py", "store.py"],
+            "unexpected module referencing the oracle: %s" % mentions,
+        )
 
 
 if __name__ == "__main__":

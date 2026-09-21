@@ -9,7 +9,7 @@ from typing import List, Optional
 
 from .controller import RunResult, investigate
 from .decision import DeterministicHeuristicSelector
-from .store import load_scenario
+from .store import load_intent, load_scenario
 from .types import AnalysisIntent, Period
 
 DATA_ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
@@ -93,8 +93,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             meta_path = os.path.join(SCENARIO_ROOT, name, "scenario.json")
             if not os.path.isfile(meta_path):
                 continue
-            with open(meta_path, encoding="utf-8") as handle:
-                meta = json.load(handle)
+            _, meta = load_intent(meta_path)
             print("%s  %s" % (name, meta.get("label", "")))
         return 0
 
