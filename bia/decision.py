@@ -7,13 +7,10 @@ search conditions, does not skip verification, and cannot end the run.
 """
 from __future__ import annotations
 
-from typing import List, Sequence
+from typing import Sequence
 
 from .evidence import EvidenceState, MIN_ADMITTED_TICKETS, NOISE_FLOOR_DELTA
 from .types import DEFER, EvidenceCandidate
-
-KIND_PRIORITY = {"cell": 0, "product": 1, "complaint_type": 2}
-
 
 class DecisionProvider:
     """Interface. Implementations must be side-effect free."""
@@ -29,9 +26,15 @@ class DecisionProvider:
 class DeterministicHeuristicSelector(DecisionProvider):
     """The code-only baseline. No network, no model, fully reproducible.
 
-    Rule: among candidates that carry a large enough increase AND have enough
-    retrievable tickets to clear the evidence floor, take the most specific one,
-    breaking ties by the size of the increase. Otherwise defer.
+    Rule: investigate the group that carries the largest part of the increase.
+    If that group cannot clear the evidence floor, defer — do not substitute a
+    smaller group's tickets. Showing P-Alpha's complaints while the increase sits
+    in P-Beta invites the reader to misread association as explanation, which is
+    the failure this system exists to prevent.
+
+    The server also offers broader product-level and type-level candidates. This
+    baseline never takes them; a future probabilistic provider may, and the
+    evaluation's precision metric is what would show whether that helps.
     """
 
     name = "heuristic"
@@ -39,17 +42,15 @@ class DeterministicHeuristicSelector(DecisionProvider):
     def select_next_evidence(
         self, state: EvidenceState, candidates: Sequence[EvidenceCandidate]
     ) -> str:
-        viable: List[EvidenceCandidate] = [
-            c
-            for c in candidates
-            if c.group_delta >= NOISE_FLOOR_DELTA and c.available_tickets >= MIN_ADMITTED_TICKETS
-        ]
-        if not viable:
+        cells = [c for c in candidates if c.kind == "cell"]
+        if not cells:
             return DEFER
-        viable.sort(
-            key=lambda c: (KIND_PRIORITY.get(c.kind, 9), -c.group_delta, c.candidate_id)
-        )
-        return viable[0].candidate_id
+        largest = max(cells, key=lambda c: (c.group_delta, c.candidate_id))
+        if largest.group_delta < NOISE_FLOOR_DELTA:
+            return DEFER
+        if largest.available_tickets < MIN_ADMITTED_TICKETS:
+            return DEFER
+        return largest.candidate_id
 
 
 class ScriptedSelector(DecisionProvider):

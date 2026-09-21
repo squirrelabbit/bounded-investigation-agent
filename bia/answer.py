@@ -169,7 +169,9 @@ def _write_integrity_facts(doc: AnswerDocument, state: EvidenceState) -> None:
 
 def _write_blocked(doc: AnswerDocument, state: EvidenceState) -> None:
     doc.evidence.append("비교가 성립하지 않아 근거 조회를 실행하지 않았다")
-    doc.unknown.append("두 기간의 증감: 계산하지 않았다 — %s" % state.comparability.reason)
+    doc.unknown.append(
+        "두 기간의 증감: 계산하지 않았다 — %s" % doc.num(state.comparability.reason)
+    )
     doc.unknown.append(
         "증가한 그룹과 그 규모: 비교 가능한 구간이 확보되기 전에는 어떤 수치도 제시하지 않는다"
     )
@@ -306,11 +308,12 @@ def _write_unknowns(doc: AnswerDocument, state: EvidenceState) -> None:
     uninvestigated = _uninvestigated(state)
     if uninvestigated:
         doc.unknown.append(
-            "조사하지 않은 후보: %s (조사 호출 %s회, 조회 %s회의 상한에 도달)"
+            "조사하지 않은 후보: %s — 이번 실행은 조사 호출 %s회, 조회 %s회를 쓰고 종료했다 (%s)"
             % (
-                ", ".join(uninvestigated),
+                ", ".join(doc.num(c) for c in uninvestigated),
                 doc.num(state.decision_calls),
                 doc.num(state.retrievals),
+                state.finish_reason,
             )
         )
     doc.unknown.append(

@@ -1,0 +1,42 @@
+{
+  "category": "insufficient_tickets",
+  "complaint_types": [
+    "delivery_delay",
+    "billing_error",
+    "app_crash",
+    "damaged_item",
+    "support_wait"
+  ],
+  "files": {
+    "metrics": "metrics.csv",
+    "tickets": "tickets.jsonl"
+  },
+  "intent": {
+    "baseline_period": {
+      "days": 30,
+      "end": "2026-06-30",
+      "start": "2026-06-01"
+    },
+    "breakdowns": [
+      "product",
+      "complaint_type"
+    ],
+    "claim_policy": "association_only",
+    "current_period": {
+      "days": 30,
+      "end": "2026-07-30",
+      "start": "2026-07-01"
+    },
+    "evidence_source": "support_tickets",
+    "metric": "complaint_count"
+  },
+  "label": "근거 부족 — 해당 셀의 문의가 0건",
+  "notes": "",
+  "products": [
+    "P-Alpha",
+    "P-Beta",
+    "P-Gamma",
+    "P-Delta"
+  ],
+  "scenario_id": "S17"
+}

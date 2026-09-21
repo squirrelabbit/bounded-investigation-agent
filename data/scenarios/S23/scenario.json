@@ -1,0 +1,42 @@
+{
+  "category": "decrease",
+  "complaint_types": [
+    "delivery_delay",
+    "billing_error",
+    "app_crash",
+    "damaged_item",
+    "support_wait"
+  ],
+  "files": {
+    "metrics": "metrics.csv",
+    "tickets": "tickets.jsonl"
+  },
+  "intent": {
+    "baseline_period": {
+      "days": 30,
+      "end": "2026-06-30",
+      "start": "2026-06-01"
+    },
+    "breakdowns": [
+      "product",
+      "complaint_type"
+    ],
+    "claim_policy": "association_only",
+    "current_period": {
+      "days": 30,
+      "end": "2026-07-30",
+      "start": "2026-07-01"
+    },
+    "evidence_source": "support_tickets",
+    "metric": "complaint_count"
+  },
+  "label": "증가 없음 — 전체적으로 감소",
+  "notes": "both decreasing cells are given a high enough base to actually fall by 3/day",
+  "products": [
+    "P-Alpha",
+    "P-Beta",
+    "P-Gamma",
+    "P-Delta"
+  ],
+  "scenario_id": "S23"
+}

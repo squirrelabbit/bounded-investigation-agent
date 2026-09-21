@@ -1,0 +1,1715 @@
+{
+  "scenarios": [
+    {
+      "admitted_count": 54,
+      "category": "normal_increase",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "정상 증가 — 단일 셀",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1696,
+          "current_total": 1903,
+          "delta": 207
+        },
+        "want": {
+          "baseline_total": 1696,
+          "current_total": 1903,
+          "delta": 207
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 1,
+      "scenario_id": "S01",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "delivery_delay",
+            "app_crash",
+            "damaged_item"
+          ],
+          "product": [
+            "P-Beta",
+            "P-Alpha"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "delivery_delay",
+            "app_crash",
+            "damaged_item"
+          ],
+          "product": [
+            "P-Beta",
+            "P-Alpha"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 62,
+      "category": "normal_increase",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "정상 증가 — 두 제품에 분산",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1425,
+          "current_total": 1643,
+          "delta": 218
+        },
+        "want": {
+          "baseline_total": 1425,
+          "current_total": 1643,
+          "delta": 218
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 1,
+      "scenario_id": "S02",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "app_crash",
+            "billing_error"
+          ],
+          "product": [
+            "P-Alpha",
+            "P-Gamma"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "app_crash",
+            "billing_error"
+          ],
+          "product": [
+            "P-Alpha",
+            "P-Gamma"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 45,
+      "category": "normal_increase",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "정상 증가 — 한 제품의 두 유형",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1450,
+          "current_total": 1610,
+          "delta": 160
+        },
+        "want": {
+          "baseline_total": 1450,
+          "current_total": 1610,
+          "delta": 160
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 1,
+      "scenario_id": "S03",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "damaged_item",
+            "support_wait"
+          ],
+          "product": [
+            "P-Delta"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "damaged_item",
+            "support_wait"
+          ],
+          "product": [
+            "P-Delta"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 54,
+      "category": "normal_increase",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "정상 증가 — 한 유형이 두 제품에서",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1355,
+          "current_total": 1545,
+          "delta": 190
+        },
+        "want": {
+          "baseline_total": 1355,
+          "current_total": 1545,
+          "delta": 190
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 1,
+      "scenario_id": "S04",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "billing_error"
+          ],
+          "product": [
+            "P-Beta",
+            "P-Alpha"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "billing_error"
+          ],
+          "product": [
+            "P-Beta",
+            "P-Alpha"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 39,
+      "category": "normal_increase",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "정상 증가 — 완만",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1367,
+          "current_total": 1450,
+          "delta": 83
+        },
+        "want": {
+          "baseline_total": 1367,
+          "current_total": 1450,
+          "delta": 83
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 1,
+      "scenario_id": "S05",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "support_wait"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "support_wait"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 90,
+      "category": "normal_increase",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "정상 증가 — 급증",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1370,
+          "current_total": 1651,
+          "delta": 281
+        },
+        "want": {
+          "baseline_total": 1370,
+          "current_total": 1651,
+          "delta": 281
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 1,
+      "scenario_id": "S06",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "app_crash"
+          ],
+          "product": [
+            "P-Delta"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "app_crash"
+          ],
+          "product": [
+            "P-Delta"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 38,
+      "category": "partial_period",
+      "causal_claims": [],
+      "comparability_mode": "aligned_window",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "부분 기간 — 당월 16일까지만 적재",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 915,
+          "current_total": 942,
+          "delta": 27
+        },
+        "want": {
+          "baseline_total": 915,
+          "current_total": 942,
+          "delta": 27
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 1,
+      "scenario_id": "S07",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "app_crash"
+          ],
+          "product": [
+            "P-Beta"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "app_crash"
+          ],
+          "product": [
+            "P-Beta"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-16",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-16",
+            "start": "2026-07-01"
+          },
+          "mode": "aligned_window"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-16",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-16",
+            "start": "2026-07-01"
+          },
+          "mode": "aligned_window"
+        }
+      }
+    },
+    {
+      "admitted_count": 43,
+      "category": "partial_period",
+      "causal_claims": [],
+      "comparability_mode": "aligned_window",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "부분 기간 — 당월 20일까지만 적재",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 823,
+          "current_total": 943,
+          "delta": 120
+        },
+        "want": {
+          "baseline_total": 823,
+          "current_total": 943,
+          "delta": 120
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 1,
+      "scenario_id": "S08",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "delivery_delay"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "delivery_delay"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-20",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-20",
+            "start": "2026-07-01"
+          },
+          "mode": "aligned_window"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-20",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-20",
+            "start": "2026-07-01"
+          },
+          "mode": "aligned_window"
+        }
+      }
+    },
+    {
+      "admitted_count": 0,
+      "category": "partial_period_blocked",
+      "causal_claims": [],
+      "comparability_mode": "blocked",
+      "crashed": false,
+      "decision_calls": 0,
+      "failures": [],
+      "finish_reason": "data_integrity_blocked",
+      "label": "부분 기간 — 5일치뿐이라 비교 불가",
+      "leaked_rejected_ids": [],
+      "must_defer": true,
+      "numbers": {
+        "got": null,
+        "want": null
+      },
+      "precision": null,
+      "recall": null,
+      "retrievals": 0,
+      "scenario_id": "S09",
+      "status": "abstained",
+      "top_groups": {
+        "got": {
+          "complaint_type": [],
+          "product": []
+        },
+        "want": {
+          "complaint_type": [],
+          "product": []
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": null,
+          "current": null,
+          "mode": "blocked"
+        },
+        "want": {
+          "baseline": null,
+          "current": null,
+          "mode": "blocked"
+        }
+      }
+    },
+    {
+      "admitted_count": 32,
+      "category": "missing_days",
+      "causal_claims": [],
+      "comparability_mode": "aligned_window",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "결측일 — 이틀 누락",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 789,
+          "current_total": 881,
+          "delta": 92
+        },
+        "want": {
+          "baseline_total": 789,
+          "current_total": 881,
+          "delta": 92
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 1,
+      "scenario_id": "S10",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "damaged_item"
+          ],
+          "product": [
+            "P-Alpha"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "damaged_item"
+          ],
+          "product": [
+            "P-Alpha"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-13"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-13"
+          },
+          "mode": "aligned_window"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-13"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-13"
+          },
+          "mode": "aligned_window"
+        }
+      }
+    },
+    {
+      "admitted_count": 0,
+      "category": "missing_days_blocked",
+      "causal_claims": [],
+      "comparability_mode": "blocked",
+      "crashed": false,
+      "decision_calls": 0,
+      "failures": [],
+      "finish_reason": "data_integrity_blocked",
+      "label": "결측일 — 사흘마다 누락으로 연속 구간 소멸",
+      "leaked_rejected_ids": [],
+      "must_defer": true,
+      "numbers": {
+        "got": null,
+        "want": null
+      },
+      "precision": null,
+      "recall": null,
+      "retrievals": 0,
+      "scenario_id": "S11",
+      "status": "abstained",
+      "top_groups": {
+        "got": {
+          "complaint_type": [],
+          "product": []
+        },
+        "want": {
+          "complaint_type": [],
+          "product": []
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": null,
+          "current": null,
+          "mode": "blocked"
+        },
+        "want": {
+          "baseline": null,
+          "current": null,
+          "mode": "blocked"
+        }
+      }
+    },
+    {
+      "admitted_count": 65,
+      "category": "duplicate_rows_exact",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "중복 행 — 완전 동일 40건",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1891,
+          "current_total": 2022,
+          "delta": 131
+        },
+        "want": {
+          "baseline_total": 1891,
+          "current_total": 2022,
+          "delta": 131
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 1,
+      "scenario_id": "S12",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "app_crash"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "app_crash"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 0,
+      "category": "duplicate_rows_conflicting",
+      "causal_claims": [],
+      "comparability_mode": "blocked",
+      "crashed": false,
+      "decision_calls": 0,
+      "failures": [],
+      "finish_reason": "data_integrity_blocked",
+      "label": "중복 행 — 같은 키에 다른 건수 5건",
+      "leaked_rejected_ids": [],
+      "must_defer": true,
+      "numbers": {
+        "got": null,
+        "want": null
+      },
+      "precision": null,
+      "recall": null,
+      "retrievals": 0,
+      "scenario_id": "S13",
+      "status": "abstained",
+      "top_groups": {
+        "got": {
+          "complaint_type": [],
+          "product": []
+        },
+        "want": {
+          "complaint_type": [],
+          "product": []
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": null,
+          "current": null,
+          "mode": "blocked"
+        },
+        "want": {
+          "baseline": null,
+          "current": null,
+          "mode": "blocked"
+        }
+      }
+    },
+    {
+      "admitted_count": 54,
+      "category": "misleading_top_group",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "최대 볼륨 제품이 최대 증가 제품이 아님",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1737,
+          "current_total": 1889,
+          "delta": 152
+        },
+        "want": {
+          "baseline_total": 1737,
+          "current_total": 1889,
+          "delta": 152
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 1,
+      "scenario_id": "S14",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "damaged_item"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "damaged_item"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 61,
+      "category": "misleading_top_group",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "최대 볼륨 유형이 최대 증가 유형이 아님",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 2160,
+          "current_total": 2258,
+          "delta": 98
+        },
+        "want": {
+          "baseline_total": 2160,
+          "current_total": 2258,
+          "delta": 98
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 1,
+      "scenario_id": "S15",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "app_crash"
+          ],
+          "product": [
+            "P-Beta"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "app_crash"
+          ],
+          "product": [
+            "P-Beta"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 66,
+      "category": "mixed_direction",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "증감 혼재 — 한쪽은 증가, 한쪽은 감소",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1519,
+          "current_total": 1621,
+          "delta": 102
+        },
+        "want": {
+          "baseline_total": 1519,
+          "current_total": 1621,
+          "delta": 102
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 1,
+      "scenario_id": "S16",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "delivery_delay"
+          ],
+          "product": [
+            "P-Alpha"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "delivery_delay"
+          ],
+          "product": [
+            "P-Alpha"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 0,
+      "category": "insufficient_tickets",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "provider_deferred",
+      "label": "근거 부족 — 해당 셀의 문의가 0건",
+      "leaked_rejected_ids": [],
+      "must_defer": true,
+      "numbers": {
+        "got": {
+          "baseline_total": 1611,
+          "current_total": 1761,
+          "delta": 150
+        },
+        "want": {
+          "baseline_total": 1611,
+          "current_total": 1761,
+          "delta": 150
+        }
+      },
+      "precision": null,
+      "recall": null,
+      "retrievals": 0,
+      "scenario_id": "S17",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "damaged_item"
+          ],
+          "product": [
+            "P-Beta"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "damaged_item"
+          ],
+          "product": [
+            "P-Beta"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 0,
+      "category": "insufficient_tickets",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "provider_deferred",
+      "label": "근거 부족 — 해당 셀의 문의가 2건뿐",
+      "leaked_rejected_ids": [],
+      "must_defer": true,
+      "numbers": {
+        "got": {
+          "baseline_total": 1498,
+          "current_total": 1665,
+          "delta": 167
+        },
+        "want": {
+          "baseline_total": 1498,
+          "current_total": 1665,
+          "delta": 167
+        }
+      },
+      "precision": null,
+      "recall": 0.0,
+      "retrievals": 0,
+      "scenario_id": "S18",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "support_wait"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "support_wait"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 38,
+      "category": "unsupported_text",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 2,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "라벨 미지지 — 문의는 있으나 본문이 라벨을 뒷받침하지 않음",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1660,
+          "current_total": 1752,
+          "delta": 92
+        },
+        "want": {
+          "baseline_total": 1660,
+          "current_total": 1752,
+          "delta": 92
+        }
+      },
+      "precision": 1.0,
+      "recall": null,
+      "retrievals": 2,
+      "scenario_id": "S19",
+      "status": "reported",
+      "target_cell_admitted": 0,
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "billing_error"
+          ],
+          "product": [
+            "P-Delta"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "billing_error"
+          ],
+          "product": [
+            "P-Delta"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 64,
+      "category": "distractor_heavy",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 2,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "교란 다수 — 해당 셀 문의의 60%가 라벨 불일치",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1444,
+          "current_total": 1553,
+          "delta": 109
+        },
+        "want": {
+          "baseline_total": 1444,
+          "current_total": 1553,
+          "delta": 109
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 2,
+      "scenario_id": "S20",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "app_crash"
+          ],
+          "product": [
+            "P-Alpha"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "app_crash"
+          ],
+          "product": [
+            "P-Alpha"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 61,
+      "category": "distractor_volume",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "교란 물량 — 증가와 무관한 셀에 문의가 집중",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1387,
+          "current_total": 1588,
+          "delta": 201
+        },
+        "want": {
+          "baseline_total": 1387,
+          "current_total": 1588,
+          "delta": 201
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 1,
+      "scenario_id": "S21",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "support_wait",
+            "damaged_item"
+          ],
+          "product": [
+            "P-Beta"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "support_wait",
+            "damaged_item"
+          ],
+          "product": [
+            "P-Beta"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 36,
+      "category": "bad_source",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "label": "허용되지 않은 출처 — 해당 셀 문의의 40%가 legacy_import",
+      "leaked_rejected_ids": [],
+      "must_defer": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1840,
+          "current_total": 1964,
+          "delta": 124
+        },
+        "want": {
+          "baseline_total": 1840,
+          "current_total": 1964,
+          "delta": 124
+        }
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "retrievals": 1,
+      "scenario_id": "S22",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "billing_error"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "billing_error"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 0,
+      "category": "decrease",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 0,
+      "failures": [],
+      "finish_reason": "no_increase_to_investigate",
+      "label": "증가 없음 — 전체적으로 감소",
+      "leaked_rejected_ids": [],
+      "must_defer": true,
+      "numbers": {
+        "got": {
+          "baseline_total": 1583,
+          "current_total": 1408,
+          "delta": -175
+        },
+        "want": {
+          "baseline_total": 1583,
+          "current_total": 1408,
+          "delta": -175
+        }
+      },
+      "precision": null,
+      "recall": null,
+      "retrievals": 0,
+      "scenario_id": "S23",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "support_wait"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "support_wait"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    },
+    {
+      "admitted_count": 0,
+      "category": "flat",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 0,
+      "failures": [],
+      "finish_reason": "no_increase_to_investigate",
+      "label": "증가 없음 — 두 기간이 완전히 동일",
+      "leaked_rejected_ids": [],
+      "must_defer": true,
+      "numbers": {
+        "got": {
+          "baseline_total": 1632,
+          "current_total": 1632,
+          "delta": 0
+        },
+        "want": {
+          "baseline_total": 1632,
+          "current_total": 1632,
+          "delta": 0
+        }
+      },
+      "precision": null,
+      "recall": null,
+      "retrievals": 0,
+      "scenario_id": "S24",
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [],
+          "product": []
+        },
+        "want": {
+          "complaint_type": [],
+          "product": []
+        }
+      },
+      "violations": [],
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      }
+    }
+  ],
+  "selector": "heuristic",
+  "summary": {
+    "Q-1_numeric_accuracy": "24/24",
+    "Q-2_period_accuracy": "24/24",
+    "Q-3_contribution_accuracy": "24/24",
+    "Q-4_evidence_recall_macro": 0.9412,
+    "Q-5_evidence_precision_macro": 1.0,
+    "Q-6_correct_defer": "7/7",
+    "Q-7_budget_exceeded": 0,
+    "Q-8_latency_and_model_cost": "not_measured",
+    "S-1_wrong_confident_numbers": 0,
+    "S-2_unsupported_causal_claims": 0,
+    "S-3_partial_period_as_full": 0,
+    "S-4_verification_leak": 0,
+    "crashed": 0,
+    "passed": true,
+    "real_model_calls": 0,
+    "scenarios": 24,
+    "total_decision_calls": 21,
+    "total_retrievals": 19,
+    "verdict": {
+      "Q-1": true,
+      "Q-2": true,
+      "Q-3": true,
+      "Q-4": true,
+      "Q-5": true,
+      "Q-6": true,
+      "Q-7": true,
+      "S-1": true,
+      "S-2": true,
+      "S-3": true,
+      "S-4": true
+    }
+  }
+}

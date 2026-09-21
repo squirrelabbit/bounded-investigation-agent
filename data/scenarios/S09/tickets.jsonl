@@ -1,0 +1,554 @@
+{"complaint_type":"app_crash","day":"2026-06-01","product":"P-Alpha","source":"web_form","text":"[synthetic] The outer box was damaged on all sides. (product P-Alpha)","ticket_id":"T-000001"}
+{"complaint_type":"delivery_delay","day":"2026-06-01","product":"P-Alpha","source":"email","text":"[synthetic] I was charged twice for one month. (product P-Alpha)","ticket_id":"T-000002"}
+{"complaint_type":"support_wait","day":"2026-06-01","product":"P-Alpha","source":"in_app","text":"[synthetic] The order was delayed by several days. (product P-Alpha)","ticket_id":"T-000003"}
+{"complaint_type":"app_crash","day":"2026-06-01","product":"P-Beta","source":"web_form","text":"[synthetic] The outer box was damaged on all sides. (product P-Beta)","ticket_id":"T-000004"}
+{"complaint_type":"billing_error","day":"2026-06-01","product":"P-Beta","source":"email","text":"[synthetic] The app crashes when opening the main tab. (product P-Beta)","ticket_id":"T-000005"}
+{"complaint_type":"damaged_item","day":"2026-06-01","product":"P-Beta","source":"in_app","text":"[synthetic] Still waiting for an agent to pick up. (product P-Beta)","ticket_id":"T-000006"}
+{"complaint_type":"app_crash","day":"2026-06-01","product":"P-Delta","source":"web_form","text":"[synthetic] The outer box was damaged on all sides. (product P-Delta)","ticket_id":"T-000007"}
+{"complaint_type":"billing_error","day":"2026-06-01","product":"P-Delta","source":"email","text":"[synthetic] The app crashes when opening the main tab. (product P-Delta)","ticket_id":"T-000008"}
+{"complaint_type":"damaged_item","day":"2026-06-01","product":"P-Delta","source":"in_app","text":"[synthetic] Still waiting for an agent to pick up. (product P-Delta)","ticket_id":"T-000009"}
+{"complaint_type":"damaged_item","day":"2026-06-01","product":"P-Delta","source":"web_form","text":"[synthetic] The casing is cracked near the edge. (product P-Delta)","ticket_id":"T-000010"}
+{"complaint_type":"delivery_delay","day":"2026-06-01","product":"P-Delta","source":"email","text":"[synthetic] I was charged twice for one month. (product P-Delta)","ticket_id":"T-000011"}
+{"complaint_type":"support_wait","day":"2026-06-01","product":"P-Delta","source":"in_app","text":"[synthetic] The order was delayed by several days. (product P-Delta)","ticket_id":"T-000012"}
+{"complaint_type":"app_crash","day":"2026-06-01","product":"P-Gamma","source":"web_form","text":"[synthetic] The outer box was damaged on all sides. (product P-Gamma)","ticket_id":"T-000013"}
+{"complaint_type":"billing_error","day":"2026-06-01","product":"P-Gamma","source":"email","text":"[synthetic] The app crashes when opening the main tab. (product P-Gamma)","ticket_id":"T-000014"}
+{"complaint_type":"delivery_delay","day":"2026-06-01","product":"P-Gamma","source":"in_app","text":"[synthetic] I was charged twice for one month. (product P-Gamma)","ticket_id":"T-000015"}
+{"complaint_type":"app_crash","day":"2026-06-02","product":"P-Alpha","source":"web_form","text":"[synthetic] It freezes right after sign in. (product P-Alpha)","ticket_id":"T-000016"}
+{"complaint_type":"delivery_delay","day":"2026-06-02","product":"P-Alpha","source":"email","text":"[synthetic] Shipping status has not changed since Monday. (product P-Alpha)","ticket_id":"T-000017"}
+{"complaint_type":"support_wait","day":"2026-06-02","product":"P-Alpha","source":"in_app","text":"[synthetic] No reply after three follow ups. (product P-Alpha)","ticket_id":"T-000018"}
+{"complaint_type":"app_crash","day":"2026-06-02","product":"P-Beta","source":"web_form","text":"[synthetic] It freezes right after sign in. (product P-Beta)","ticket_id":"T-000019"}
+{"complaint_type":"billing_error","day":"2026-06-02","product":"P-Beta","source":"email","text":"[synthetic] The invoice shows a wrong amount. (product P-Beta)","ticket_id":"T-000020"}
+{"complaint_type":"damaged_item","day":"2026-06-02","product":"P-Beta","source":"in_app","text":"[synthetic] The casing is cracked near the edge. (product P-Beta)","ticket_id":"T-000021"}
+{"complaint_type":"app_crash","day":"2026-06-02","product":"P-Delta","source":"web_form","text":"[synthetic] It freezes right after sign in. (product P-Delta)","ticket_id":"T-000022"}
+{"complaint_type":"billing_error","day":"2026-06-02","product":"P-Delta","source":"email","text":"[synthetic] The invoice shows a wrong amount. (product P-Delta)","ticket_id":"T-000023"}
+{"complaint_type":"damaged_item","day":"2026-06-02","product":"P-Delta","source":"in_app","text":"[synthetic] The handle was broken off completely. (product P-Delta)","ticket_id":"T-000024"}
+{"complaint_type":"delivery_delay","day":"2026-06-02","product":"P-Delta","source":"web_form","text":"[synthetic] Shipping status has not changed since Monday. (product P-Delta)","ticket_id":"T-000025"}
+{"complaint_type":"support_wait","day":"2026-06-02","product":"P-Delta","source":"email","text":"[synthetic] No reply after three follow ups. (product P-Delta)","ticket_id":"T-000026"}
+{"complaint_type":"app_crash","day":"2026-06-02","product":"P-Gamma","source":"in_app","text":"[synthetic] It freezes right after sign in. (product P-Gamma)","ticket_id":"T-000027"}
+{"complaint_type":"billing_error","day":"2026-06-02","product":"P-Gamma","source":"web_form","text":"[synthetic] The invoice shows a wrong amount. (product P-Gamma)","ticket_id":"T-000028"}
+{"complaint_type":"delivery_delay","day":"2026-06-02","product":"P-Gamma","source":"email","text":"[synthetic] Shipping status has not changed since Monday. (product P-Gamma)","ticket_id":"T-000029"}
+{"complaint_type":"app_crash","day":"2026-06-03","product":"P-Alpha","source":"in_app","text":"[synthetic] An error screen appears every time. (product P-Alpha)","ticket_id":"T-000030"}
+{"complaint_type":"app_crash","day":"2026-06-03","product":"P-Alpha","source":"web_form","text":"[synthetic] The client keeps hitting a force close. (product P-Alpha)","ticket_id":"T-000031"}
+{"complaint_type":"billing_error","day":"2026-06-03","product":"P-Alpha","source":"email","text":"[synthetic] The app crashes when opening the main tab. (product P-Alpha)","ticket_id":"T-000032"}
+{"complaint_type":"damaged_item","day":"2026-06-03","product":"P-Alpha","source":"in_app","text":"[synthetic] Still waiting for an agent to pick up. (product P-Alpha)","ticket_id":"T-000033"}
+{"complaint_type":"delivery_delay","day":"2026-06-03","product":"P-Alpha","source":"web_form","text":"[synthetic] The parcel has not arrived yet. (product P-Alpha)","ticket_id":"T-000034"}
+{"complaint_type":"support_wait","day":"2026-06-03","product":"P-Alpha","source":"email","text":"[synthetic] I was left on hold for a long stretch. (product P-Alpha)","ticket_id":"T-000035"}
+{"complaint_type":"app_crash","day":"2026-06-03","product":"P-Beta","source":"in_app","text":"[synthetic] An error screen appears every time. (product P-Beta)","ticket_id":"T-000036"}
+{"complaint_type":"damaged_item","day":"2026-06-03","product":"P-Beta","source":"web_form","text":"[synthetic] The handle was broken off completely. (product P-Beta)","ticket_id":"T-000037"}
+{"complaint_type":"support_wait","day":"2026-06-03","product":"P-Beta","source":"email","text":"[synthetic] The order was delayed by several days. (product P-Beta)","ticket_id":"T-000038"}
+{"complaint_type":"app_crash","day":"2026-06-03","product":"P-Delta","source":"in_app","text":"[synthetic] An error screen appears every time. (product P-Delta)","ticket_id":"T-000039"}
+{"complaint_type":"billing_error","day":"2026-06-03","product":"P-Delta","source":"web_form","text":"[synthetic] Billing does not match the selected plan. (product P-Delta)","ticket_id":"T-000040"}
+{"complaint_type":"damaged_item","day":"2026-06-03","product":"P-Delta","source":"email","text":"[synthetic] The metal frame is dented. (product P-Delta)","ticket_id":"T-000041"}
+{"complaint_type":"delivery_delay","day":"2026-06-03","product":"P-Delta","source":"in_app","text":"[synthetic] The parcel has not arrived yet. (product P-Delta)","ticket_id":"T-000042"}
+{"complaint_type":"support_wait","day":"2026-06-03","product":"P-Delta","source":"web_form","text":"[synthetic] I was left on hold for a long stretch. (product P-Delta)","ticket_id":"T-000043"}
+{"complaint_type":"app_crash","day":"2026-06-03","product":"P-Gamma","source":"email","text":"[synthetic] An error screen appears every time. (product P-Gamma)","ticket_id":"T-000044"}
+{"complaint_type":"billing_error","day":"2026-06-03","product":"P-Gamma","source":"in_app","text":"[synthetic] Billing does not match the selected plan. (product P-Gamma)","ticket_id":"T-000045"}
+{"complaint_type":"delivery_delay","day":"2026-06-03","product":"P-Gamma","source":"web_form","text":"[synthetic] The parcel has not arrived yet. (product P-Gamma)","ticket_id":"T-000046"}
+{"complaint_type":"support_wait","day":"2026-06-03","product":"P-Gamma","source":"email","text":"[synthetic] The order was delayed by several days. (product P-Gamma)","ticket_id":"T-000047"}
+{"complaint_type":"app_crash","day":"2026-06-04","product":"P-Alpha","source":"in_app","text":"[synthetic] The app crash repeats on every launch. (product P-Alpha)","ticket_id":"T-000048"}
+{"complaint_type":"delivery_delay","day":"2026-06-04","product":"P-Alpha","source":"web_form","text":"[synthetic] Dispatch was pushed back twice. (product P-Alpha)","ticket_id":"T-000049"}
+{"complaint_type":"support_wait","day":"2026-06-04","product":"P-Alpha","source":"email","text":"[synthetic] The response time keeps getting worse. (product P-Alpha)","ticket_id":"T-000050"}
+{"complaint_type":"app_crash","day":"2026-06-04","product":"P-Beta","source":"in_app","text":"[synthetic] The client keeps hitting a force close. (product P-Beta)","ticket_id":"T-000051"}
+{"complaint_type":"billing_error","day":"2026-06-04","product":"P-Beta","source":"web_form","text":"[synthetic] Billing does not match the selected plan. (product P-Beta)","ticket_id":"T-000052"}
+{"complaint_type":"damaged_item","day":"2026-06-04","product":"P-Beta","source":"email","text":"[synthetic] The metal frame is dented. (product P-Beta)","ticket_id":"T-000053"}
+{"complaint_type":"support_wait","day":"2026-06-04","product":"P-Beta","source":"in_app","text":"[synthetic] No reply after three follow ups. (product P-Beta)","ticket_id":"T-000054"}
+{"complaint_type":"app_crash","day":"2026-06-04","product":"P-Delta","source":"web_form","text":"[synthetic] The client keeps hitting a force close. (product P-Delta)","ticket_id":"T-000055"}
+{"complaint_type":"damaged_item","day":"2026-06-04","product":"P-Delta","source":"email","text":"[synthetic] The wrapping was torn open. (product P-Delta)","ticket_id":"T-000056"}
+{"complaint_type":"delivery_delay","day":"2026-06-04","product":"P-Delta","source":"in_app","text":"[synthetic] Dispatch was pushed back twice. (product P-Delta)","ticket_id":"T-000057"}
+{"complaint_type":"support_wait","day":"2026-06-04","product":"P-Delta","source":"web_form","text":"[synthetic] The response time keeps getting worse. (product P-Delta)","ticket_id":"T-000058"}
+{"complaint_type":"app_crash","day":"2026-06-04","product":"P-Gamma","source":"email","text":"[synthetic] The client keeps hitting a force close. (product P-Gamma)","ticket_id":"T-000059"}
+{"complaint_type":"billing_error","day":"2026-06-04","product":"P-Gamma","source":"in_app","text":"[synthetic] A double charge appeared on my statement. (product P-Gamma)","ticket_id":"T-000060"}
+{"complaint_type":"delivery_delay","day":"2026-06-04","product":"P-Gamma","source":"web_form","text":"[synthetic] Dispatch was pushed back twice. (product P-Gamma)","ticket_id":"T-000061"}
+{"complaint_type":"app_crash","day":"2026-06-05","product":"P-Alpha","source":"email","text":"[synthetic] The app crashes when opening the main tab. (product P-Alpha)","ticket_id":"T-000062"}
+{"complaint_type":"app_crash","day":"2026-06-05","product":"P-Alpha","source":"in_app","text":"[synthetic] It freezes right after sign in. (product P-Alpha)","ticket_id":"T-000063"}
+{"complaint_type":"billing_error","day":"2026-06-05","product":"P-Alpha","source":"web_form","text":"[synthetic] The invoice shows a wrong amount. (product P-Alpha)","ticket_id":"T-000064"}
+{"complaint_type":"delivery_delay","day":"2026-06-05","product":"P-Alpha","source":"email","text":"[synthetic] Delivery is late again this week. (product P-Alpha)","ticket_id":"T-000065"}
+{"complaint_type":"support_wait","day":"2026-06-05","product":"P-Alpha","source":"in_app","text":"[synthetic] My request is still unanswered. (product P-Alpha)","ticket_id":"T-000066"}
+{"complaint_type":"app_crash","day":"2026-06-05","product":"P-Beta","source":"web_form","text":"[synthetic] The app crash repeats on every launch. (product P-Beta)","ticket_id":"T-000067"}
+{"complaint_type":"billing_error","day":"2026-06-05","product":"P-Beta","source":"email","text":"[synthetic] A double charge appeared on my statement. (product P-Beta)","ticket_id":"T-000068"}
+{"complaint_type":"damaged_item","day":"2026-06-05","product":"P-Beta","source":"in_app","text":"[synthetic] The wrapping was torn open. (product P-Beta)","ticket_id":"T-000069"}
+{"complaint_type":"app_crash","day":"2026-06-05","product":"P-Delta","source":"web_form","text":"[synthetic] The app crash repeats on every launch. (product P-Delta)","ticket_id":"T-000070"}
+{"complaint_type":"damaged_item","day":"2026-06-05","product":"P-Delta","source":"email","text":"[synthetic] The outer box was damaged on all sides. (product P-Delta)","ticket_id":"T-000071"}
+{"complaint_type":"damaged_item","day":"2026-06-05","product":"P-Delta","source":"in_app","text":"[synthetic] The casing is cracked near the edge. (product P-Delta)","ticket_id":"T-000072"}
+{"complaint_type":"delivery_delay","day":"2026-06-05","product":"P-Delta","source":"web_form","text":"[synthetic] Delivery is late again this week. (product P-Delta)","ticket_id":"T-000073"}
+{"complaint_type":"app_crash","day":"2026-06-05","product":"P-Gamma","source":"email","text":"[synthetic] The app crash repeats on every launch. (product P-Gamma)","ticket_id":"T-000074"}
+{"complaint_type":"billing_error","day":"2026-06-05","product":"P-Gamma","source":"in_app","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Gamma)","ticket_id":"T-000075"}
+{"complaint_type":"damaged_item","day":"2026-06-05","product":"P-Gamma","source":"web_form","text":"[synthetic] Still waiting for an agent to pick up. (product P-Gamma)","ticket_id":"T-000076"}
+{"complaint_type":"delivery_delay","day":"2026-06-05","product":"P-Gamma","source":"email","text":"[synthetic] Delivery is late again this week. (product P-Gamma)","ticket_id":"T-000077"}
+{"complaint_type":"support_wait","day":"2026-06-05","product":"P-Gamma","source":"in_app","text":"[synthetic] No reply after three follow ups. (product P-Gamma)","ticket_id":"T-000078"}
+{"complaint_type":"app_crash","day":"2026-06-06","product":"P-Alpha","source":"web_form","text":"[synthetic] An error screen appears every time. (product P-Alpha)","ticket_id":"T-000079"}
+{"complaint_type":"delivery_delay","day":"2026-06-06","product":"P-Alpha","source":"email","text":"[synthetic] The order was delayed by several days. (product P-Alpha)","ticket_id":"T-000080"}
+{"complaint_type":"support_wait","day":"2026-06-06","product":"P-Alpha","source":"in_app","text":"[synthetic] Still waiting for an agent to pick up. (product P-Alpha)","ticket_id":"T-000081"}
+{"complaint_type":"app_crash","day":"2026-06-06","product":"P-Beta","source":"web_form","text":"[synthetic] The app crashes when opening the main tab. (product P-Beta)","ticket_id":"T-000082"}
+{"complaint_type":"damaged_item","day":"2026-06-06","product":"P-Beta","source":"email","text":"[synthetic] The outer box was damaged on all sides. (product P-Beta)","ticket_id":"T-000083"}
+{"complaint_type":"support_wait","day":"2026-06-06","product":"P-Beta","source":"in_app","text":"[synthetic] I was left on hold for a long stretch. (product P-Beta)","ticket_id":"T-000084"}
+{"complaint_type":"app_crash","day":"2026-06-06","product":"P-Delta","source":"web_form","text":"[synthetic] The app crashes when opening the main tab. (product P-Delta)","ticket_id":"T-000085"}
+{"complaint_type":"billing_error","day":"2026-06-06","product":"P-Delta","source":"email","text":"[synthetic] A double charge appeared on my statement. (product P-Delta)","ticket_id":"T-000086"}
+{"complaint_type":"damaged_item","day":"2026-06-06","product":"P-Delta","source":"in_app","text":"[synthetic] The handle was broken off completely. (product P-Delta)","ticket_id":"T-000087"}
+{"complaint_type":"damaged_item","day":"2026-06-06","product":"P-Delta","source":"web_form","text":"[synthetic] The metal frame is dented. (product P-Delta)","ticket_id":"T-000088"}
+{"complaint_type":"delivery_delay","day":"2026-06-06","product":"P-Delta","source":"email","text":"[synthetic] The order was delayed by several days. (product P-Delta)","ticket_id":"T-000089"}
+{"complaint_type":"app_crash","day":"2026-06-06","product":"P-Gamma","source":"in_app","text":"[synthetic] The app crashes when opening the main tab. (product P-Gamma)","ticket_id":"T-000090"}
+{"complaint_type":"billing_error","day":"2026-06-06","product":"P-Gamma","source":"web_form","text":"[synthetic] I was charged twice for one month. (product P-Gamma)","ticket_id":"T-000091"}
+{"complaint_type":"damaged_item","day":"2026-06-06","product":"P-Gamma","source":"email","text":"[synthetic] The casing is cracked near the edge. (product P-Gamma)","ticket_id":"T-000092"}
+{"complaint_type":"delivery_delay","day":"2026-06-06","product":"P-Gamma","source":"in_app","text":"[synthetic] The order was delayed by several days. (product P-Gamma)","ticket_id":"T-000093"}
+{"complaint_type":"support_wait","day":"2026-06-06","product":"P-Gamma","source":"web_form","text":"[synthetic] I was left on hold for a long stretch. (product P-Gamma)","ticket_id":"T-000094"}
+{"complaint_type":"app_crash","day":"2026-06-07","product":"P-Alpha","source":"email","text":"[synthetic] The client keeps hitting a force close. (product P-Alpha)","ticket_id":"T-000095"}
+{"complaint_type":"damaged_item","day":"2026-06-07","product":"P-Alpha","source":"in_app","text":"[synthetic] The casing is cracked near the edge. (product P-Alpha)","ticket_id":"T-000096"}
+{"complaint_type":"delivery_delay","day":"2026-06-07","product":"P-Alpha","source":"web_form","text":"[synthetic] Shipping status has not changed since Monday. (product P-Alpha)","ticket_id":"T-000097"}
+{"complaint_type":"support_wait","day":"2026-06-07","product":"P-Alpha","source":"email","text":"[synthetic] No reply after three follow ups. (product P-Alpha)","ticket_id":"T-000098"}
+{"complaint_type":"app_crash","day":"2026-06-07","product":"P-Beta","source":"in_app","text":"[synthetic] It freezes right after sign in. (product P-Beta)","ticket_id":"T-000099"}
+{"complaint_type":"billing_error","day":"2026-06-07","product":"P-Beta","source":"web_form","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Beta)","ticket_id":"T-000100"}
+{"complaint_type":"damaged_item","day":"2026-06-07","product":"P-Beta","source":"email","text":"[synthetic] The casing is cracked near the edge. (product P-Beta)","ticket_id":"T-000101"}
+{"complaint_type":"support_wait","day":"2026-06-07","product":"P-Beta","source":"in_app","text":"[synthetic] The response time keeps getting worse. (product P-Beta)","ticket_id":"T-000102"}
+{"complaint_type":"app_crash","day":"2026-06-07","product":"P-Delta","source":"web_form","text":"[synthetic] It freezes right after sign in. (product P-Delta)","ticket_id":"T-000103"}
+{"complaint_type":"billing_error","day":"2026-06-07","product":"P-Delta","source":"email","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Delta)","ticket_id":"T-000104"}
+{"complaint_type":"damaged_item","day":"2026-06-07","product":"P-Delta","source":"in_app","text":"[synthetic] The wrapping was torn open. (product P-Delta)","ticket_id":"T-000105"}
+{"complaint_type":"delivery_delay","day":"2026-06-07","product":"P-Delta","source":"web_form","text":"[synthetic] Shipping status has not changed since Monday. (product P-Delta)","ticket_id":"T-000106"}
+{"complaint_type":"billing_error","day":"2026-06-07","product":"P-Gamma","source":"email","text":"[synthetic] The invoice shows a wrong amount. (product P-Gamma)","ticket_id":"T-000107"}
+{"complaint_type":"delivery_delay","day":"2026-06-07","product":"P-Gamma","source":"in_app","text":"[synthetic] Shipping status has not changed since Monday. (product P-Gamma)","ticket_id":"T-000108"}
+{"complaint_type":"app_crash","day":"2026-06-08","product":"P-Alpha","source":"web_form","text":"[synthetic] The app crash repeats on every launch. (product P-Alpha)","ticket_id":"T-000109"}
+{"complaint_type":"delivery_delay","day":"2026-06-08","product":"P-Alpha","source":"email","text":"[synthetic] The parcel has not arrived yet. (product P-Alpha)","ticket_id":"T-000110"}
+{"complaint_type":"support_wait","day":"2026-06-08","product":"P-Alpha","source":"in_app","text":"[synthetic] I was left on hold for a long stretch. (product P-Alpha)","ticket_id":"T-000111"}
+{"complaint_type":"app_crash","day":"2026-06-08","product":"P-Beta","source":"web_form","text":"[synthetic] An error screen appears every time. (product P-Beta)","ticket_id":"T-000112"}
+{"complaint_type":"billing_error","day":"2026-06-08","product":"P-Beta","source":"email","text":"[synthetic] I was charged twice for one month. (product P-Beta)","ticket_id":"T-000113"}
+{"complaint_type":"damaged_item","day":"2026-06-08","product":"P-Beta","source":"in_app","text":"[synthetic] The handle was broken off completely. (product P-Beta)","ticket_id":"T-000114"}
+{"complaint_type":"damaged_item","day":"2026-06-08","product":"P-Beta","source":"web_form","text":"[synthetic] The metal frame is dented. (product P-Beta)","ticket_id":"T-000115"}
+{"complaint_type":"app_crash","day":"2026-06-08","product":"P-Delta","source":"email","text":"[synthetic] An error screen appears every time. (product P-Delta)","ticket_id":"T-000116"}
+{"complaint_type":"damaged_item","day":"2026-06-08","product":"P-Delta","source":"in_app","text":"[synthetic] Still waiting for an agent to pick up. (product P-Delta)","ticket_id":"T-000117"}
+{"complaint_type":"delivery_delay","day":"2026-06-08","product":"P-Delta","source":"web_form","text":"[synthetic] The parcel has not arrived yet. (product P-Delta)","ticket_id":"T-000118"}
+{"complaint_type":"support_wait","day":"2026-06-08","product":"P-Delta","source":"email","text":"[synthetic] My request is still unanswered. (product P-Delta)","ticket_id":"T-000119"}
+{"complaint_type":"app_crash","day":"2026-06-08","product":"P-Gamma","source":"in_app","text":"[synthetic] It freezes right after sign in. (product P-Gamma)","ticket_id":"T-000120"}
+{"complaint_type":"billing_error","day":"2026-06-08","product":"P-Gamma","source":"web_form","text":"[synthetic] Billing does not match the selected plan. (product P-Gamma)","ticket_id":"T-000121"}
+{"complaint_type":"delivery_delay","day":"2026-06-08","product":"P-Gamma","source":"email","text":"[synthetic] The parcel has not arrived yet. (product P-Gamma)","ticket_id":"T-000122"}
+{"complaint_type":"app_crash","day":"2026-06-09","product":"P-Alpha","source":"in_app","text":"[synthetic] The outer box was damaged on all sides. (product P-Alpha)","ticket_id":"T-000123"}
+{"complaint_type":"app_crash","day":"2026-06-09","product":"P-Alpha","source":"web_form","text":"[synthetic] It freezes right after sign in. (product P-Alpha)","ticket_id":"T-000124"}
+{"complaint_type":"damaged_item","day":"2026-06-09","product":"P-Alpha","source":"email","text":"[synthetic] The handle was broken off completely. (product P-Alpha)","ticket_id":"T-000125"}
+{"complaint_type":"delivery_delay","day":"2026-06-09","product":"P-Alpha","source":"in_app","text":"[synthetic] Dispatch was pushed back twice. (product P-Alpha)","ticket_id":"T-000126"}
+{"complaint_type":"support_wait","day":"2026-06-09","product":"P-Alpha","source":"web_form","text":"[synthetic] The response time keeps getting worse. (product P-Alpha)","ticket_id":"T-000127"}
+{"complaint_type":"app_crash","day":"2026-06-09","product":"P-Beta","source":"email","text":"[synthetic] The client keeps hitting a force close. (product P-Beta)","ticket_id":"T-000128"}
+{"complaint_type":"billing_error","day":"2026-06-09","product":"P-Beta","source":"in_app","text":"[synthetic] The invoice shows a wrong amount. (product P-Beta)","ticket_id":"T-000129"}
+{"complaint_type":"damaged_item","day":"2026-06-09","product":"P-Beta","source":"web_form","text":"[synthetic] The wrapping was torn open. (product P-Beta)","ticket_id":"T-000130"}
+{"complaint_type":"damaged_item","day":"2026-06-09","product":"P-Beta","source":"email","text":"[synthetic] Still waiting for an agent to pick up. (product P-Beta)","ticket_id":"T-000131"}
+{"complaint_type":"app_crash","day":"2026-06-09","product":"P-Delta","source":"in_app","text":"[synthetic] The client keeps hitting a force close. (product P-Delta)","ticket_id":"T-000132"}
+{"complaint_type":"damaged_item","day":"2026-06-09","product":"P-Delta","source":"web_form","text":"[synthetic] The casing is cracked near the edge. (product P-Delta)","ticket_id":"T-000133"}
+{"complaint_type":"delivery_delay","day":"2026-06-09","product":"P-Delta","source":"email","text":"[synthetic] Dispatch was pushed back twice. (product P-Delta)","ticket_id":"T-000134"}
+{"complaint_type":"support_wait","day":"2026-06-09","product":"P-Delta","source":"in_app","text":"[synthetic] Still waiting for an agent to pick up. (product P-Delta)","ticket_id":"T-000135"}
+{"complaint_type":"billing_error","day":"2026-06-09","product":"P-Gamma","source":"web_form","text":"[synthetic] A double charge appeared on my statement. (product P-Gamma)","ticket_id":"T-000136"}
+{"complaint_type":"delivery_delay","day":"2026-06-09","product":"P-Gamma","source":"email","text":"[synthetic] Dispatch was pushed back twice. (product P-Gamma)","ticket_id":"T-000137"}
+{"complaint_type":"app_crash","day":"2026-06-10","product":"P-Alpha","source":"in_app","text":"[synthetic] An error screen appears every time. (product P-Alpha)","ticket_id":"T-000138"}
+{"complaint_type":"app_crash","day":"2026-06-10","product":"P-Alpha","source":"web_form","text":"[synthetic] The client keeps hitting a force close. (product P-Alpha)","ticket_id":"T-000139"}
+{"complaint_type":"delivery_delay","day":"2026-06-10","product":"P-Alpha","source":"email","text":"[synthetic] Delivery is late again this week. (product P-Alpha)","ticket_id":"T-000140"}
+{"complaint_type":"support_wait","day":"2026-06-10","product":"P-Alpha","source":"in_app","text":"[synthetic] My request is still unanswered. (product P-Alpha)","ticket_id":"T-000141"}
+{"complaint_type":"app_crash","day":"2026-06-10","product":"P-Beta","source":"web_form","text":"[synthetic] The app crash repeats on every launch. (product P-Beta)","ticket_id":"T-000142"}
+{"complaint_type":"damaged_item","day":"2026-06-10","product":"P-Beta","source":"email","text":"[synthetic] The casing is cracked near the edge. (product P-Beta)","ticket_id":"T-000143"}
+{"complaint_type":"damaged_item","day":"2026-06-10","product":"P-Beta","source":"in_app","text":"[synthetic] The handle was broken off completely. (product P-Beta)","ticket_id":"T-000144"}
+{"complaint_type":"support_wait","day":"2026-06-10","product":"P-Beta","source":"web_form","text":"[synthetic] My request is still unanswered. (product P-Beta)","ticket_id":"T-000145"}
+{"complaint_type":"app_crash","day":"2026-06-10","product":"P-Delta","source":"email","text":"[synthetic] The app crash repeats on every launch. (product P-Delta)","ticket_id":"T-000146"}
+{"complaint_type":"damaged_item","day":"2026-06-10","product":"P-Delta","source":"in_app","text":"[synthetic] The handle was broken off completely. (product P-Delta)","ticket_id":"T-000147"}
+{"complaint_type":"damaged_item","day":"2026-06-10","product":"P-Delta","source":"web_form","text":"[synthetic] The metal frame is dented. (product P-Delta)","ticket_id":"T-000148"}
+{"complaint_type":"delivery_delay","day":"2026-06-10","product":"P-Delta","source":"email","text":"[synthetic] Delivery is late again this week. (product P-Delta)","ticket_id":"T-000149"}
+{"complaint_type":"app_crash","day":"2026-06-10","product":"P-Gamma","source":"in_app","text":"[synthetic] An error screen appears every time. (product P-Gamma)","ticket_id":"T-000150"}
+{"complaint_type":"billing_error","day":"2026-06-10","product":"P-Gamma","source":"web_form","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Gamma)","ticket_id":"T-000151"}
+{"complaint_type":"delivery_delay","day":"2026-06-10","product":"P-Gamma","source":"email","text":"[synthetic] Delivery is late again this week. (product P-Gamma)","ticket_id":"T-000152"}
+{"complaint_type":"support_wait","day":"2026-06-10","product":"P-Gamma","source":"in_app","text":"[synthetic] The response time keeps getting worse. (product P-Gamma)","ticket_id":"T-000153"}
+{"complaint_type":"app_crash","day":"2026-06-11","product":"P-Alpha","source":"web_form","text":"[synthetic] The app crash repeats on every launch. (product P-Alpha)","ticket_id":"T-000154"}
+{"complaint_type":"app_crash","day":"2026-06-11","product":"P-Alpha","source":"email","text":"[synthetic] The app crashes when opening the main tab. (product P-Alpha)","ticket_id":"T-000155"}
+{"complaint_type":"delivery_delay","day":"2026-06-11","product":"P-Alpha","source":"in_app","text":"[synthetic] I was charged twice for one month. (product P-Alpha)","ticket_id":"T-000156"}
+{"complaint_type":"support_wait","day":"2026-06-11","product":"P-Alpha","source":"web_form","text":"[synthetic] The order was delayed by several days. (product P-Alpha)","ticket_id":"T-000157"}
+{"complaint_type":"app_crash","day":"2026-06-11","product":"P-Beta","source":"email","text":"[synthetic] The outer box was damaged on all sides. (product P-Beta)","ticket_id":"T-000158"}
+{"complaint_type":"billing_error","day":"2026-06-11","product":"P-Beta","source":"in_app","text":"[synthetic] Billing does not match the selected plan. (product P-Beta)","ticket_id":"T-000159"}
+{"complaint_type":"damaged_item","day":"2026-06-11","product":"P-Beta","source":"web_form","text":"[synthetic] The metal frame is dented. (product P-Beta)","ticket_id":"T-000160"}
+{"complaint_type":"support_wait","day":"2026-06-11","product":"P-Beta","source":"email","text":"[synthetic] Still waiting for an agent to pick up. (product P-Beta)","ticket_id":"T-000161"}
+{"complaint_type":"app_crash","day":"2026-06-11","product":"P-Delta","source":"in_app","text":"[synthetic] The outer box was damaged on all sides. (product P-Delta)","ticket_id":"T-000162"}
+{"complaint_type":"damaged_item","day":"2026-06-11","product":"P-Delta","source":"web_form","text":"[synthetic] The wrapping was torn open. (product P-Delta)","ticket_id":"T-000163"}
+{"complaint_type":"delivery_delay","day":"2026-06-11","product":"P-Delta","source":"email","text":"[synthetic] I was charged twice for one month. (product P-Delta)","ticket_id":"T-000164"}
+{"complaint_type":"support_wait","day":"2026-06-11","product":"P-Delta","source":"in_app","text":"[synthetic] No reply after three follow ups. (product P-Delta)","ticket_id":"T-000165"}
+{"complaint_type":"billing_error","day":"2026-06-11","product":"P-Gamma","source":"web_form","text":"[synthetic] The app crashes when opening the main tab. (product P-Gamma)","ticket_id":"T-000166"}
+{"complaint_type":"delivery_delay","day":"2026-06-11","product":"P-Gamma","source":"email","text":"[synthetic] I was charged twice for one month. (product P-Gamma)","ticket_id":"T-000167"}
+{"complaint_type":"support_wait","day":"2026-06-11","product":"P-Gamma","source":"in_app","text":"[synthetic] My request is still unanswered. (product P-Gamma)","ticket_id":"T-000168"}
+{"complaint_type":"app_crash","day":"2026-06-12","product":"P-Alpha","source":"web_form","text":"[synthetic] It freezes right after sign in. (product P-Alpha)","ticket_id":"T-000169"}
+{"complaint_type":"delivery_delay","day":"2026-06-12","product":"P-Alpha","source":"email","text":"[synthetic] Shipping status has not changed since Monday. (product P-Alpha)","ticket_id":"T-000170"}
+{"complaint_type":"support_wait","day":"2026-06-12","product":"P-Alpha","source":"in_app","text":"[synthetic] No reply after three follow ups. (product P-Alpha)","ticket_id":"T-000171"}
+{"complaint_type":"app_crash","day":"2026-06-12","product":"P-Beta","source":"web_form","text":"[synthetic] It freezes right after sign in. (product P-Beta)","ticket_id":"T-000172"}
+{"complaint_type":"billing_error","day":"2026-06-12","product":"P-Beta","source":"email","text":"[synthetic] A double charge appeared on my statement. (product P-Beta)","ticket_id":"T-000173"}
+{"complaint_type":"damaged_item","day":"2026-06-12","product":"P-Beta","source":"in_app","text":"[synthetic] The wrapping was torn open. (product P-Beta)","ticket_id":"T-000174"}
+{"complaint_type":"damaged_item","day":"2026-06-12","product":"P-Beta","source":"web_form","text":"[synthetic] The outer box was damaged on all sides. (product P-Beta)","ticket_id":"T-000175"}
+{"complaint_type":"app_crash","day":"2026-06-12","product":"P-Delta","source":"email","text":"[synthetic] It freezes right after sign in. (product P-Delta)","ticket_id":"T-000176"}
+{"complaint_type":"billing_error","day":"2026-06-12","product":"P-Delta","source":"in_app","text":"[synthetic] I was charged twice for one month. (product P-Delta)","ticket_id":"T-000177"}
+{"complaint_type":"damaged_item","day":"2026-06-12","product":"P-Delta","source":"web_form","text":"[synthetic] The outer box was damaged on all sides. (product P-Delta)","ticket_id":"T-000178"}
+{"complaint_type":"delivery_delay","day":"2026-06-12","product":"P-Delta","source":"email","text":"[synthetic] Shipping status has not changed since Monday. (product P-Delta)","ticket_id":"T-000179"}
+{"complaint_type":"support_wait","day":"2026-06-12","product":"P-Delta","source":"in_app","text":"[synthetic] I was left on hold for a long stretch. (product P-Delta)","ticket_id":"T-000180"}
+{"complaint_type":"app_crash","day":"2026-06-12","product":"P-Gamma","source":"web_form","text":"[synthetic] The client keeps hitting a force close. (product P-Gamma)","ticket_id":"T-000181"}
+{"complaint_type":"billing_error","day":"2026-06-12","product":"P-Gamma","source":"email","text":"[synthetic] The invoice shows a wrong amount. (product P-Gamma)","ticket_id":"T-000182"}
+{"complaint_type":"delivery_delay","day":"2026-06-12","product":"P-Gamma","source":"in_app","text":"[synthetic] Shipping status has not changed since Monday. (product P-Gamma)","ticket_id":"T-000183"}
+{"complaint_type":"support_wait","day":"2026-06-12","product":"P-Gamma","source":"web_form","text":"[synthetic] Still waiting for an agent to pick up. (product P-Gamma)","ticket_id":"T-000184"}
+{"complaint_type":"app_crash","day":"2026-06-13","product":"P-Alpha","source":"email","text":"[synthetic] An error screen appears every time. (product P-Alpha)","ticket_id":"T-000185"}
+{"complaint_type":"damaged_item","day":"2026-06-13","product":"P-Alpha","source":"in_app","text":"[synthetic] The metal frame is dented. (product P-Alpha)","ticket_id":"T-000186"}
+{"complaint_type":"delivery_delay","day":"2026-06-13","product":"P-Alpha","source":"web_form","text":"[synthetic] The parcel has not arrived yet. (product P-Alpha)","ticket_id":"T-000187"}
+{"complaint_type":"support_wait","day":"2026-06-13","product":"P-Alpha","source":"email","text":"[synthetic] I was left on hold for a long stretch. (product P-Alpha)","ticket_id":"T-000188"}
+{"complaint_type":"app_crash","day":"2026-06-13","product":"P-Beta","source":"in_app","text":"[synthetic] An error screen appears every time. (product P-Beta)","ticket_id":"T-000189"}
+{"complaint_type":"billing_error","day":"2026-06-13","product":"P-Beta","source":"web_form","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Beta)","ticket_id":"T-000190"}
+{"complaint_type":"damaged_item","day":"2026-06-13","product":"P-Beta","source":"email","text":"[synthetic] The casing is cracked near the edge. (product P-Beta)","ticket_id":"T-000191"}
+{"complaint_type":"delivery_delay","day":"2026-06-13","product":"P-Beta","source":"in_app","text":"[synthetic] I was charged twice for one month. (product P-Beta)","ticket_id":"T-000192"}
+{"complaint_type":"app_crash","day":"2026-06-13","product":"P-Delta","source":"web_form","text":"[synthetic] An error screen appears every time. (product P-Delta)","ticket_id":"T-000193"}
+{"complaint_type":"damaged_item","day":"2026-06-13","product":"P-Delta","source":"email","text":"[synthetic] The casing is cracked near the edge. (product P-Delta)","ticket_id":"T-000194"}
+{"complaint_type":"delivery_delay","day":"2026-06-13","product":"P-Delta","source":"in_app","text":"[synthetic] The parcel has not arrived yet. (product P-Delta)","ticket_id":"T-000195"}
+{"complaint_type":"app_crash","day":"2026-06-13","product":"P-Gamma","source":"web_form","text":"[synthetic] The app crash repeats on every launch. (product P-Gamma)","ticket_id":"T-000196"}
+{"complaint_type":"billing_error","day":"2026-06-13","product":"P-Gamma","source":"email","text":"[synthetic] Billing does not match the selected plan. (product P-Gamma)","ticket_id":"T-000197"}
+{"complaint_type":"delivery_delay","day":"2026-06-13","product":"P-Gamma","source":"in_app","text":"[synthetic] The parcel has not arrived yet. (product P-Gamma)","ticket_id":"T-000198"}
+{"complaint_type":"app_crash","day":"2026-06-14","product":"P-Alpha","source":"web_form","text":"[synthetic] The client keeps hitting a force close. (product P-Alpha)","ticket_id":"T-000199"}
+{"complaint_type":"damaged_item","day":"2026-06-14","product":"P-Alpha","source":"email","text":"[synthetic] The wrapping was torn open. (product P-Alpha)","ticket_id":"T-000200"}
+{"complaint_type":"delivery_delay","day":"2026-06-14","product":"P-Alpha","source":"in_app","text":"[synthetic] Dispatch was pushed back twice. (product P-Alpha)","ticket_id":"T-000201"}
+{"complaint_type":"support_wait","day":"2026-06-14","product":"P-Alpha","source":"web_form","text":"[synthetic] The response time keeps getting worse. (product P-Alpha)","ticket_id":"T-000202"}
+{"complaint_type":"app_crash","day":"2026-06-14","product":"P-Beta","source":"email","text":"[synthetic] The client keeps hitting a force close. (product P-Beta)","ticket_id":"T-000203"}
+{"complaint_type":"billing_error","day":"2026-06-14","product":"P-Beta","source":"in_app","text":"[synthetic] The app crashes when opening the main tab. (product P-Beta)","ticket_id":"T-000204"}
+{"complaint_type":"damaged_item","day":"2026-06-14","product":"P-Beta","source":"web_form","text":"[synthetic] The handle was broken off completely. (product P-Beta)","ticket_id":"T-000205"}
+{"complaint_type":"support_wait","day":"2026-06-14","product":"P-Beta","source":"email","text":"[synthetic] No reply after three follow ups. (product P-Beta)","ticket_id":"T-000206"}
+{"complaint_type":"app_crash","day":"2026-06-14","product":"P-Delta","source":"in_app","text":"[synthetic] The client keeps hitting a force close. (product P-Delta)","ticket_id":"T-000207"}
+{"complaint_type":"damaged_item","day":"2026-06-14","product":"P-Delta","source":"web_form","text":"[synthetic] The handle was broken off completely. (product P-Delta)","ticket_id":"T-000208"}
+{"complaint_type":"delivery_delay","day":"2026-06-14","product":"P-Delta","source":"email","text":"[synthetic] Dispatch was pushed back twice. (product P-Delta)","ticket_id":"T-000209"}
+{"complaint_type":"support_wait","day":"2026-06-14","product":"P-Delta","source":"in_app","text":"[synthetic] The response time keeps getting worse. (product P-Delta)","ticket_id":"T-000210"}
+{"complaint_type":"app_crash","day":"2026-06-14","product":"P-Gamma","source":"web_form","text":"[synthetic] The outer box was damaged on all sides. (product P-Gamma)","ticket_id":"T-000211"}
+{"complaint_type":"billing_error","day":"2026-06-14","product":"P-Gamma","source":"email","text":"[synthetic] A double charge appeared on my statement. (product P-Gamma)","ticket_id":"T-000212"}
+{"complaint_type":"damaged_item","day":"2026-06-14","product":"P-Gamma","source":"in_app","text":"[synthetic] The handle was broken off completely. (product P-Gamma)","ticket_id":"T-000213"}
+{"complaint_type":"delivery_delay","day":"2026-06-14","product":"P-Gamma","source":"web_form","text":"[synthetic] Dispatch was pushed back twice. (product P-Gamma)","ticket_id":"T-000214"}
+{"complaint_type":"support_wait","day":"2026-06-14","product":"P-Gamma","source":"email","text":"[synthetic] No reply after three follow ups. (product P-Gamma)","ticket_id":"T-000215"}
+{"complaint_type":"app_crash","day":"2026-06-15","product":"P-Alpha","source":"in_app","text":"[synthetic] The app crash repeats on every launch. (product P-Alpha)","ticket_id":"T-000216"}
+{"complaint_type":"billing_error","day":"2026-06-15","product":"P-Alpha","source":"web_form","text":"[synthetic] Billing does not match the selected plan. (product P-Alpha)","ticket_id":"T-000217"}
+{"complaint_type":"delivery_delay","day":"2026-06-15","product":"P-Alpha","source":"email","text":"[synthetic] Delivery is late again this week. (product P-Alpha)","ticket_id":"T-000218"}
+{"complaint_type":"support_wait","day":"2026-06-15","product":"P-Alpha","source":"in_app","text":"[synthetic] My request is still unanswered. (product P-Alpha)","ticket_id":"T-000219"}
+{"complaint_type":"app_crash","day":"2026-06-15","product":"P-Beta","source":"web_form","text":"[synthetic] The app crash repeats on every launch. (product P-Beta)","ticket_id":"T-000220"}
+{"complaint_type":"billing_error","day":"2026-06-15","product":"P-Beta","source":"email","text":"[synthetic] The invoice shows a wrong amount. (product P-Beta)","ticket_id":"T-000221"}
+{"complaint_type":"damaged_item","day":"2026-06-15","product":"P-Beta","source":"in_app","text":"[synthetic] The metal frame is dented. (product P-Beta)","ticket_id":"T-000222"}
+{"complaint_type":"delivery_delay","day":"2026-06-15","product":"P-Beta","source":"web_form","text":"[synthetic] Shipping status has not changed since Monday. (product P-Beta)","ticket_id":"T-000223"}
+{"complaint_type":"support_wait","day":"2026-06-15","product":"P-Beta","source":"email","text":"[synthetic] I was left on hold for a long stretch. (product P-Beta)","ticket_id":"T-000224"}
+{"complaint_type":"app_crash","day":"2026-06-15","product":"P-Delta","source":"in_app","text":"[synthetic] The app crash repeats on every launch. (product P-Delta)","ticket_id":"T-000225"}
+{"complaint_type":"damaged_item","day":"2026-06-15","product":"P-Delta","source":"web_form","text":"[synthetic] The metal frame is dented. (product P-Delta)","ticket_id":"T-000226"}
+{"complaint_type":"delivery_delay","day":"2026-06-15","product":"P-Delta","source":"email","text":"[synthetic] Delivery is late again this week. (product P-Delta)","ticket_id":"T-000227"}
+{"complaint_type":"app_crash","day":"2026-06-15","product":"P-Gamma","source":"in_app","text":"[synthetic] It freezes right after sign in. (product P-Gamma)","ticket_id":"T-000228"}
+{"complaint_type":"billing_error","day":"2026-06-15","product":"P-Gamma","source":"web_form","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Gamma)","ticket_id":"T-000229"}
+{"complaint_type":"damaged_item","day":"2026-06-15","product":"P-Gamma","source":"email","text":"[synthetic] The metal frame is dented. (product P-Gamma)","ticket_id":"T-000230"}
+{"complaint_type":"delivery_delay","day":"2026-06-15","product":"P-Gamma","source":"in_app","text":"[synthetic] Delivery is late again this week. (product P-Gamma)","ticket_id":"T-000231"}
+{"complaint_type":"app_crash","day":"2026-06-16","product":"P-Alpha","source":"web_form","text":"[synthetic] The outer box was damaged on all sides. (product P-Alpha)","ticket_id":"T-000232"}
+{"complaint_type":"delivery_delay","day":"2026-06-16","product":"P-Alpha","source":"email","text":"[synthetic] The order was delayed by several days. (product P-Alpha)","ticket_id":"T-000233"}
+{"complaint_type":"support_wait","day":"2026-06-16","product":"P-Alpha","source":"in_app","text":"[synthetic] Still waiting for an agent to pick up. (product P-Alpha)","ticket_id":"T-000234"}
+{"complaint_type":"app_crash","day":"2026-06-16","product":"P-Beta","source":"web_form","text":"[synthetic] The app crashes when opening the main tab. (product P-Beta)","ticket_id":"T-000235"}
+{"complaint_type":"billing_error","day":"2026-06-16","product":"P-Beta","source":"email","text":"[synthetic] Billing does not match the selected plan. (product P-Beta)","ticket_id":"T-000236"}
+{"complaint_type":"damaged_item","day":"2026-06-16","product":"P-Beta","source":"in_app","text":"[synthetic] The wrapping was torn open. (product P-Beta)","ticket_id":"T-000237"}
+{"complaint_type":"app_crash","day":"2026-06-16","product":"P-Delta","source":"web_form","text":"[synthetic] The app crashes when opening the main tab. (product P-Delta)","ticket_id":"T-000238"}
+{"complaint_type":"billing_error","day":"2026-06-16","product":"P-Delta","source":"email","text":"[synthetic] The invoice shows a wrong amount. (product P-Delta)","ticket_id":"T-000239"}
+{"complaint_type":"damaged_item","day":"2026-06-16","product":"P-Delta","source":"in_app","text":"[synthetic] The wrapping was torn open. (product P-Delta)","ticket_id":"T-000240"}
+{"complaint_type":"delivery_delay","day":"2026-06-16","product":"P-Delta","source":"web_form","text":"[synthetic] The order was delayed by several days. (product P-Delta)","ticket_id":"T-000241"}
+{"complaint_type":"support_wait","day":"2026-06-16","product":"P-Delta","source":"email","text":"[synthetic] My request is still unanswered. (product P-Delta)","ticket_id":"T-000242"}
+{"complaint_type":"billing_error","day":"2026-06-16","product":"P-Gamma","source":"in_app","text":"[synthetic] I was charged twice for one month. (product P-Gamma)","ticket_id":"T-000243"}
+{"complaint_type":"damaged_item","day":"2026-06-16","product":"P-Gamma","source":"web_form","text":"[synthetic] The wrapping was torn open. (product P-Gamma)","ticket_id":"T-000244"}
+{"complaint_type":"delivery_delay","day":"2026-06-16","product":"P-Gamma","source":"email","text":"[synthetic] The order was delayed by several days. (product P-Gamma)","ticket_id":"T-000245"}
+{"complaint_type":"support_wait","day":"2026-06-16","product":"P-Gamma","source":"in_app","text":"[synthetic] I was left on hold for a long stretch. (product P-Gamma)","ticket_id":"T-000246"}
+{"complaint_type":"app_crash","day":"2026-06-17","product":"P-Alpha","source":"web_form","text":"[synthetic] It freezes right after sign in. (product P-Alpha)","ticket_id":"T-000247"}
+{"complaint_type":"billing_error","day":"2026-06-17","product":"P-Alpha","source":"email","text":"[synthetic] A double charge appeared on my statement. (product P-Alpha)","ticket_id":"T-000248"}
+{"complaint_type":"delivery_delay","day":"2026-06-17","product":"P-Alpha","source":"in_app","text":"[synthetic] Shipping status has not changed since Monday. (product P-Alpha)","ticket_id":"T-000249"}
+{"complaint_type":"support_wait","day":"2026-06-17","product":"P-Alpha","source":"web_form","text":"[synthetic] No reply after three follow ups. (product P-Alpha)","ticket_id":"T-000250"}
+{"complaint_type":"app_crash","day":"2026-06-17","product":"P-Beta","source":"email","text":"[synthetic] It freezes right after sign in. (product P-Beta)","ticket_id":"T-000251"}
+{"complaint_type":"damaged_item","day":"2026-06-17","product":"P-Beta","source":"in_app","text":"[synthetic] Still waiting for an agent to pick up. (product P-Beta)","ticket_id":"T-000252"}
+{"complaint_type":"delivery_delay","day":"2026-06-17","product":"P-Beta","source":"web_form","text":"[synthetic] The parcel has not arrived yet. (product P-Beta)","ticket_id":"T-000253"}
+{"complaint_type":"support_wait","day":"2026-06-17","product":"P-Beta","source":"email","text":"[synthetic] The response time keeps getting worse. (product P-Beta)","ticket_id":"T-000254"}
+{"complaint_type":"app_crash","day":"2026-06-17","product":"P-Delta","source":"in_app","text":"[synthetic] It freezes right after sign in. (product P-Delta)","ticket_id":"T-000255"}
+{"complaint_type":"billing_error","day":"2026-06-17","product":"P-Delta","source":"web_form","text":"[synthetic] Billing does not match the selected plan. (product P-Delta)","ticket_id":"T-000256"}
+{"complaint_type":"damaged_item","day":"2026-06-17","product":"P-Delta","source":"email","text":"[synthetic] Still waiting for an agent to pick up. (product P-Delta)","ticket_id":"T-000257"}
+{"complaint_type":"delivery_delay","day":"2026-06-17","product":"P-Delta","source":"in_app","text":"[synthetic] Shipping status has not changed since Monday. (product P-Delta)","ticket_id":"T-000258"}
+{"complaint_type":"support_wait","day":"2026-06-17","product":"P-Delta","source":"web_form","text":"[synthetic] The order was delayed by several days. (product P-Delta)","ticket_id":"T-000259"}
+{"complaint_type":"billing_error","day":"2026-06-17","product":"P-Gamma","source":"email","text":"[synthetic] The invoice shows a wrong amount. (product P-Gamma)","ticket_id":"T-000260"}
+{"complaint_type":"damaged_item","day":"2026-06-17","product":"P-Gamma","source":"in_app","text":"[synthetic] The outer box was damaged on all sides. (product P-Gamma)","ticket_id":"T-000261"}
+{"complaint_type":"delivery_delay","day":"2026-06-17","product":"P-Gamma","source":"web_form","text":"[synthetic] Shipping status has not changed since Monday. (product P-Gamma)","ticket_id":"T-000262"}
+{"complaint_type":"app_crash","day":"2026-06-18","product":"P-Alpha","source":"email","text":"[synthetic] An error screen appears every time. (product P-Alpha)","ticket_id":"T-000263"}
+{"complaint_type":"app_crash","day":"2026-06-18","product":"P-Alpha","source":"in_app","text":"[synthetic] The client keeps hitting a force close. (product P-Alpha)","ticket_id":"T-000264"}
+{"complaint_type":"delivery_delay","day":"2026-06-18","product":"P-Alpha","source":"web_form","text":"[synthetic] The parcel has not arrived yet. (product P-Alpha)","ticket_id":"T-000265"}
+{"complaint_type":"support_wait","day":"2026-06-18","product":"P-Alpha","source":"email","text":"[synthetic] I was left on hold for a long stretch. (product P-Alpha)","ticket_id":"T-000266"}
+{"complaint_type":"app_crash","day":"2026-06-18","product":"P-Beta","source":"in_app","text":"[synthetic] An error screen appears every time. (product P-Beta)","ticket_id":"T-000267"}
+{"complaint_type":"billing_error","day":"2026-06-18","product":"P-Beta","source":"web_form","text":"[synthetic] A double charge appeared on my statement. (product P-Beta)","ticket_id":"T-000268"}
+{"complaint_type":"damaged_item","day":"2026-06-18","product":"P-Beta","source":"email","text":"[synthetic] The casing is cracked near the edge. (product P-Beta)","ticket_id":"T-000269"}
+{"complaint_type":"app_crash","day":"2026-06-18","product":"P-Delta","source":"in_app","text":"[synthetic] An error screen appears every time. (product P-Delta)","ticket_id":"T-000270"}
+{"complaint_type":"billing_error","day":"2026-06-18","product":"P-Delta","source":"web_form","text":"[synthetic] A double charge appeared on my statement. (product P-Delta)","ticket_id":"T-000271"}
+{"complaint_type":"damaged_item","day":"2026-06-18","product":"P-Delta","source":"email","text":"[synthetic] The casing is cracked near the edge. (product P-Delta)","ticket_id":"T-000272"}
+{"complaint_type":"delivery_delay","day":"2026-06-18","product":"P-Delta","source":"in_app","text":"[synthetic] The parcel has not arrived yet. (product P-Delta)","ticket_id":"T-000273"}
+{"complaint_type":"support_wait","day":"2026-06-18","product":"P-Delta","source":"web_form","text":"[synthetic] No reply after three follow ups. (product P-Delta)","ticket_id":"T-000274"}
+{"complaint_type":"billing_error","day":"2026-06-18","product":"P-Gamma","source":"email","text":"[synthetic] Billing does not match the selected plan. (product P-Gamma)","ticket_id":"T-000275"}
+{"complaint_type":"delivery_delay","day":"2026-06-18","product":"P-Gamma","source":"in_app","text":"[synthetic] The parcel has not arrived yet. (product P-Gamma)","ticket_id":"T-000276"}
+{"complaint_type":"app_crash","day":"2026-06-19","product":"P-Alpha","source":"web_form","text":"[synthetic] The app crash repeats on every launch. (product P-Alpha)","ticket_id":"T-000277"}
+{"complaint_type":"billing_error","day":"2026-06-19","product":"P-Alpha","source":"email","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Alpha)","ticket_id":"T-000278"}
+{"complaint_type":"damaged_item","day":"2026-06-19","product":"P-Alpha","source":"in_app","text":"[synthetic] The outer box was damaged on all sides. (product P-Alpha)","ticket_id":"T-000279"}
+{"complaint_type":"delivery_delay","day":"2026-06-19","product":"P-Alpha","source":"web_form","text":"[synthetic] Dispatch was pushed back twice. (product P-Alpha)","ticket_id":"T-000280"}
+{"complaint_type":"support_wait","day":"2026-06-19","product":"P-Alpha","source":"email","text":"[synthetic] The response time keeps getting worse. (product P-Alpha)","ticket_id":"T-000281"}
+{"complaint_type":"app_crash","day":"2026-06-19","product":"P-Beta","source":"in_app","text":"[synthetic] The client keeps hitting a force close. (product P-Beta)","ticket_id":"T-000282"}
+{"complaint_type":"billing_error","day":"2026-06-19","product":"P-Beta","source":"web_form","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Beta)","ticket_id":"T-000283"}
+{"complaint_type":"damaged_item","day":"2026-06-19","product":"P-Beta","source":"email","text":"[synthetic] The handle was broken off completely. (product P-Beta)","ticket_id":"T-000284"}
+{"complaint_type":"support_wait","day":"2026-06-19","product":"P-Beta","source":"in_app","text":"[synthetic] My request is still unanswered. (product P-Beta)","ticket_id":"T-000285"}
+{"complaint_type":"app_crash","day":"2026-06-19","product":"P-Delta","source":"web_form","text":"[synthetic] The client keeps hitting a force close. (product P-Delta)","ticket_id":"T-000286"}
+{"complaint_type":"damaged_item","day":"2026-06-19","product":"P-Delta","source":"email","text":"[synthetic] The handle was broken off completely. (product P-Delta)","ticket_id":"T-000287"}
+{"complaint_type":"delivery_delay","day":"2026-06-19","product":"P-Delta","source":"in_app","text":"[synthetic] Dispatch was pushed back twice. (product P-Delta)","ticket_id":"T-000288"}
+{"complaint_type":"support_wait","day":"2026-06-19","product":"P-Delta","source":"web_form","text":"[synthetic] I was left on hold for a long stretch. (product P-Delta)","ticket_id":"T-000289"}
+{"complaint_type":"app_crash","day":"2026-06-19","product":"P-Gamma","source":"email","text":"[synthetic] An error screen appears every time. (product P-Gamma)","ticket_id":"T-000290"}
+{"complaint_type":"billing_error","day":"2026-06-19","product":"P-Gamma","source":"in_app","text":"[synthetic] A double charge appeared on my statement. (product P-Gamma)","ticket_id":"T-000291"}
+{"complaint_type":"delivery_delay","day":"2026-06-19","product":"P-Gamma","source":"web_form","text":"[synthetic] Dispatch was pushed back twice. (product P-Gamma)","ticket_id":"T-000292"}
+{"complaint_type":"app_crash","day":"2026-06-20","product":"P-Alpha","source":"email","text":"[synthetic] The app crashes when opening the main tab. (product P-Alpha)","ticket_id":"T-000293"}
+{"complaint_type":"app_crash","day":"2026-06-20","product":"P-Alpha","source":"in_app","text":"[synthetic] It freezes right after sign in. (product P-Alpha)","ticket_id":"T-000294"}
+{"complaint_type":"billing_error","day":"2026-06-20","product":"P-Alpha","source":"web_form","text":"[synthetic] I was charged twice for one month. (product P-Alpha)","ticket_id":"T-000295"}
+{"complaint_type":"delivery_delay","day":"2026-06-20","product":"P-Alpha","source":"email","text":"[synthetic] Delivery is late again this week. (product P-Alpha)","ticket_id":"T-000296"}
+{"complaint_type":"support_wait","day":"2026-06-20","product":"P-Alpha","source":"in_app","text":"[synthetic] My request is still unanswered. (product P-Alpha)","ticket_id":"T-000297"}
+{"complaint_type":"app_crash","day":"2026-06-20","product":"P-Beta","source":"web_form","text":"[synthetic] The app crash repeats on every launch. (product P-Beta)","ticket_id":"T-000298"}
+{"complaint_type":"damaged_item","day":"2026-06-20","product":"P-Beta","source":"email","text":"[synthetic] The metal frame is dented. (product P-Beta)","ticket_id":"T-000299"}
+{"complaint_type":"app_crash","day":"2026-06-20","product":"P-Delta","source":"in_app","text":"[synthetic] The app crash repeats on every launch. (product P-Delta)","ticket_id":"T-000300"}
+{"complaint_type":"billing_error","day":"2026-06-20","product":"P-Delta","source":"web_form","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Delta)","ticket_id":"T-000301"}
+{"complaint_type":"damaged_item","day":"2026-06-20","product":"P-Delta","source":"email","text":"[synthetic] The metal frame is dented. (product P-Delta)","ticket_id":"T-000302"}
+{"complaint_type":"delivery_delay","day":"2026-06-20","product":"P-Delta","source":"in_app","text":"[synthetic] Delivery is late again this week. (product P-Delta)","ticket_id":"T-000303"}
+{"complaint_type":"billing_error","day":"2026-06-20","product":"P-Gamma","source":"web_form","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Gamma)","ticket_id":"T-000304"}
+{"complaint_type":"delivery_delay","day":"2026-06-20","product":"P-Gamma","source":"email","text":"[synthetic] Delivery is late again this week. (product P-Gamma)","ticket_id":"T-000305"}
+{"complaint_type":"app_crash","day":"2026-06-21","product":"P-Alpha","source":"in_app","text":"[synthetic] An error screen appears every time. (product P-Alpha)","ticket_id":"T-000306"}
+{"complaint_type":"app_crash","day":"2026-06-21","product":"P-Alpha","source":"web_form","text":"[synthetic] The client keeps hitting a force close. (product P-Alpha)","ticket_id":"T-000307"}
+{"complaint_type":"billing_error","day":"2026-06-21","product":"P-Alpha","source":"email","text":"[synthetic] The invoice shows a wrong amount. (product P-Alpha)","ticket_id":"T-000308"}
+{"complaint_type":"damaged_item","day":"2026-06-21","product":"P-Alpha","source":"in_app","text":"[synthetic] The casing is cracked near the edge. (product P-Alpha)","ticket_id":"T-000309"}
+{"complaint_type":"delivery_delay","day":"2026-06-21","product":"P-Alpha","source":"web_form","text":"[synthetic] I was charged twice for one month. (product P-Alpha)","ticket_id":"T-000310"}
+{"complaint_type":"support_wait","day":"2026-06-21","product":"P-Alpha","source":"email","text":"[synthetic] The order was delayed by several days. (product P-Alpha)","ticket_id":"T-000311"}
+{"complaint_type":"app_crash","day":"2026-06-21","product":"P-Beta","source":"in_app","text":"[synthetic] The outer box was damaged on all sides. (product P-Beta)","ticket_id":"T-000312"}
+{"complaint_type":"billing_error","day":"2026-06-21","product":"P-Beta","source":"web_form","text":"[synthetic] I was charged twice for one month. (product P-Beta)","ticket_id":"T-000313"}
+{"complaint_type":"damaged_item","day":"2026-06-21","product":"P-Beta","source":"email","text":"[synthetic] The wrapping was torn open. (product P-Beta)","ticket_id":"T-000314"}
+{"complaint_type":"support_wait","day":"2026-06-21","product":"P-Beta","source":"in_app","text":"[synthetic] The order was delayed by several days. (product P-Beta)","ticket_id":"T-000315"}
+{"complaint_type":"app_crash","day":"2026-06-21","product":"P-Delta","source":"web_form","text":"[synthetic] The outer box was damaged on all sides. (product P-Delta)","ticket_id":"T-000316"}
+{"complaint_type":"billing_error","day":"2026-06-21","product":"P-Delta","source":"email","text":"[synthetic] The app crashes when opening the main tab. (product P-Delta)","ticket_id":"T-000317"}
+{"complaint_type":"damaged_item","day":"2026-06-21","product":"P-Delta","source":"in_app","text":"[synthetic] The wrapping was torn open. (product P-Delta)","ticket_id":"T-000318"}
+{"complaint_type":"delivery_delay","day":"2026-06-21","product":"P-Delta","source":"web_form","text":"[synthetic] I was charged twice for one month. (product P-Delta)","ticket_id":"T-000319"}
+{"complaint_type":"support_wait","day":"2026-06-21","product":"P-Delta","source":"email","text":"[synthetic] The response time keeps getting worse. (product P-Delta)","ticket_id":"T-000320"}
+{"complaint_type":"billing_error","day":"2026-06-21","product":"P-Gamma","source":"in_app","text":"[synthetic] The app crashes when opening the main tab. (product P-Gamma)","ticket_id":"T-000321"}
+{"complaint_type":"delivery_delay","day":"2026-06-21","product":"P-Gamma","source":"web_form","text":"[synthetic] I was charged twice for one month. (product P-Gamma)","ticket_id":"T-000322"}
+{"complaint_type":"app_crash","day":"2026-06-22","product":"P-Alpha","source":"email","text":"[synthetic] The app crash repeats on every launch. (product P-Alpha)","ticket_id":"T-000323"}
+{"complaint_type":"app_crash","day":"2026-06-22","product":"P-Alpha","source":"in_app","text":"[synthetic] The outer box was damaged on all sides. (product P-Alpha)","ticket_id":"T-000324"}
+{"complaint_type":"damaged_item","day":"2026-06-22","product":"P-Alpha","source":"web_form","text":"[synthetic] The handle was broken off completely. (product P-Alpha)","ticket_id":"T-000325"}
+{"complaint_type":"delivery_delay","day":"2026-06-22","product":"P-Alpha","source":"email","text":"[synthetic] Shipping status has not changed since Monday. (product P-Alpha)","ticket_id":"T-000326"}
+{"complaint_type":"support_wait","day":"2026-06-22","product":"P-Alpha","source":"in_app","text":"[synthetic] No reply after three follow ups. (product P-Alpha)","ticket_id":"T-000327"}
+{"complaint_type":"app_crash","day":"2026-06-22","product":"P-Beta","source":"web_form","text":"[synthetic] It freezes right after sign in. (product P-Beta)","ticket_id":"T-000328"}
+{"complaint_type":"billing_error","day":"2026-06-22","product":"P-Beta","source":"email","text":"[synthetic] The invoice shows a wrong amount. (product P-Beta)","ticket_id":"T-000329"}
+{"complaint_type":"damaged_item","day":"2026-06-22","product":"P-Beta","source":"in_app","text":"[synthetic] The outer box was damaged on all sides. (product P-Beta)","ticket_id":"T-000330"}
+{"complaint_type":"app_crash","day":"2026-06-22","product":"P-Delta","source":"web_form","text":"[synthetic] It freezes right after sign in. (product P-Delta)","ticket_id":"T-000331"}
+{"complaint_type":"billing_error","day":"2026-06-22","product":"P-Delta","source":"email","text":"[synthetic] The invoice shows a wrong amount. (product P-Delta)","ticket_id":"T-000332"}
+{"complaint_type":"damaged_item","day":"2026-06-22","product":"P-Delta","source":"in_app","text":"[synthetic] The outer box was damaged on all sides. (product P-Delta)","ticket_id":"T-000333"}
+{"complaint_type":"damaged_item","day":"2026-06-22","product":"P-Delta","source":"web_form","text":"[synthetic] The casing is cracked near the edge. (product P-Delta)","ticket_id":"T-000334"}
+{"complaint_type":"delivery_delay","day":"2026-06-22","product":"P-Delta","source":"email","text":"[synthetic] Shipping status has not changed since Monday. (product P-Delta)","ticket_id":"T-000335"}
+{"complaint_type":"app_crash","day":"2026-06-22","product":"P-Gamma","source":"in_app","text":"[synthetic] The client keeps hitting a force close. (product P-Gamma)","ticket_id":"T-000336"}
+{"complaint_type":"billing_error","day":"2026-06-22","product":"P-Gamma","source":"web_form","text":"[synthetic] The invoice shows a wrong amount. (product P-Gamma)","ticket_id":"T-000337"}
+{"complaint_type":"damaged_item","day":"2026-06-22","product":"P-Gamma","source":"email","text":"[synthetic] The casing is cracked near the edge. (product P-Gamma)","ticket_id":"T-000338"}
+{"complaint_type":"delivery_delay","day":"2026-06-22","product":"P-Gamma","source":"in_app","text":"[synthetic] Shipping status has not changed since Monday. (product P-Gamma)","ticket_id":"T-000339"}
+{"complaint_type":"app_crash","day":"2026-06-23","product":"P-Alpha","source":"web_form","text":"[synthetic] It freezes right after sign in. (product P-Alpha)","ticket_id":"T-000340"}
+{"complaint_type":"billing_error","day":"2026-06-23","product":"P-Alpha","source":"email","text":"[synthetic] Billing does not match the selected plan. (product P-Alpha)","ticket_id":"T-000341"}
+{"complaint_type":"delivery_delay","day":"2026-06-23","product":"P-Alpha","source":"in_app","text":"[synthetic] The parcel has not arrived yet. (product P-Alpha)","ticket_id":"T-000342"}
+{"complaint_type":"support_wait","day":"2026-06-23","product":"P-Alpha","source":"web_form","text":"[synthetic] I was left on hold for a long stretch. (product P-Alpha)","ticket_id":"T-000343"}
+{"complaint_type":"app_crash","day":"2026-06-23","product":"P-Beta","source":"email","text":"[synthetic] An error screen appears every time. (product P-Beta)","ticket_id":"T-000344"}
+{"complaint_type":"billing_error","day":"2026-06-23","product":"P-Beta","source":"in_app","text":"[synthetic] Billing does not match the selected plan. (product P-Beta)","ticket_id":"T-000345"}
+{"complaint_type":"damaged_item","day":"2026-06-23","product":"P-Beta","source":"web_form","text":"[synthetic] The casing is cracked near the edge. (product P-Beta)","ticket_id":"T-000346"}
+{"complaint_type":"delivery_delay","day":"2026-06-23","product":"P-Beta","source":"email","text":"[synthetic] Dispatch was pushed back twice. (product P-Beta)","ticket_id":"T-000347"}
+{"complaint_type":"app_crash","day":"2026-06-23","product":"P-Delta","source":"in_app","text":"[synthetic] An error screen appears every time. (product P-Delta)","ticket_id":"T-000348"}
+{"complaint_type":"damaged_item","day":"2026-06-23","product":"P-Delta","source":"web_form","text":"[synthetic] The handle was broken off completely. (product P-Delta)","ticket_id":"T-000349"}
+{"complaint_type":"delivery_delay","day":"2026-06-23","product":"P-Delta","source":"email","text":"[synthetic] The parcel has not arrived yet. (product P-Delta)","ticket_id":"T-000350"}
+{"complaint_type":"app_crash","day":"2026-06-23","product":"P-Gamma","source":"in_app","text":"[synthetic] The app crash repeats on every launch. (product P-Gamma)","ticket_id":"T-000351"}
+{"complaint_type":"billing_error","day":"2026-06-23","product":"P-Gamma","source":"web_form","text":"[synthetic] Billing does not match the selected plan. (product P-Gamma)","ticket_id":"T-000352"}
+{"complaint_type":"delivery_delay","day":"2026-06-23","product":"P-Gamma","source":"email","text":"[synthetic] The parcel has not arrived yet. (product P-Gamma)","ticket_id":"T-000353"}
+{"complaint_type":"app_crash","day":"2026-06-24","product":"P-Alpha","source":"in_app","text":"[synthetic] An error screen appears every time. (product P-Alpha)","ticket_id":"T-000354"}
+{"complaint_type":"billing_error","day":"2026-06-24","product":"P-Alpha","source":"web_form","text":"[synthetic] A double charge appeared on my statement. (product P-Alpha)","ticket_id":"T-000355"}
+{"complaint_type":"damaged_item","day":"2026-06-24","product":"P-Alpha","source":"email","text":"[synthetic] The metal frame is dented. (product P-Alpha)","ticket_id":"T-000356"}
+{"complaint_type":"delivery_delay","day":"2026-06-24","product":"P-Alpha","source":"in_app","text":"[synthetic] Dispatch was pushed back twice. (product P-Alpha)","ticket_id":"T-000357"}
+{"complaint_type":"support_wait","day":"2026-06-24","product":"P-Alpha","source":"web_form","text":"[synthetic] The response time keeps getting worse. (product P-Alpha)","ticket_id":"T-000358"}
+{"complaint_type":"app_crash","day":"2026-06-24","product":"P-Beta","source":"email","text":"[synthetic] The client keeps hitting a force close. (product P-Beta)","ticket_id":"T-000359"}
+{"complaint_type":"damaged_item","day":"2026-06-24","product":"P-Beta","source":"in_app","text":"[synthetic] The handle was broken off completely. (product P-Beta)","ticket_id":"T-000360"}
+{"complaint_type":"damaged_item","day":"2026-06-24","product":"P-Beta","source":"web_form","text":"[synthetic] The metal frame is dented. (product P-Beta)","ticket_id":"T-000361"}
+{"complaint_type":"support_wait","day":"2026-06-24","product":"P-Beta","source":"email","text":"[synthetic] No reply after three follow ups. (product P-Beta)","ticket_id":"T-000362"}
+{"complaint_type":"app_crash","day":"2026-06-24","product":"P-Delta","source":"in_app","text":"[synthetic] The client keeps hitting a force close. (product P-Delta)","ticket_id":"T-000363"}
+{"complaint_type":"billing_error","day":"2026-06-24","product":"P-Delta","source":"web_form","text":"[synthetic] Billing does not match the selected plan. (product P-Delta)","ticket_id":"T-000364"}
+{"complaint_type":"damaged_item","day":"2026-06-24","product":"P-Delta","source":"email","text":"[synthetic] The metal frame is dented. (product P-Delta)","ticket_id":"T-000365"}
+{"complaint_type":"delivery_delay","day":"2026-06-24","product":"P-Delta","source":"in_app","text":"[synthetic] Dispatch was pushed back twice. (product P-Delta)","ticket_id":"T-000366"}
+{"complaint_type":"app_crash","day":"2026-06-24","product":"P-Gamma","source":"web_form","text":"[synthetic] The app crashes when opening the main tab. (product P-Gamma)","ticket_id":"T-000367"}
+{"complaint_type":"billing_error","day":"2026-06-24","product":"P-Gamma","source":"email","text":"[synthetic] A double charge appeared on my statement. (product P-Gamma)","ticket_id":"T-000368"}
+{"complaint_type":"delivery_delay","day":"2026-06-24","product":"P-Gamma","source":"in_app","text":"[synthetic] Dispatch was pushed back twice. (product P-Gamma)","ticket_id":"T-000369"}
+{"complaint_type":"support_wait","day":"2026-06-24","product":"P-Gamma","source":"web_form","text":"[synthetic] The response time keeps getting worse. (product P-Gamma)","ticket_id":"T-000370"}
+{"complaint_type":"app_crash","day":"2026-06-25","product":"P-Alpha","source":"email","text":"[synthetic] The client keeps hitting a force close. (product P-Alpha)","ticket_id":"T-000371"}
+{"complaint_type":"app_crash","day":"2026-06-25","product":"P-Alpha","source":"in_app","text":"[synthetic] The app crash repeats on every launch. (product P-Alpha)","ticket_id":"T-000372"}
+{"complaint_type":"billing_error","day":"2026-06-25","product":"P-Alpha","source":"web_form","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Alpha)","ticket_id":"T-000373"}
+{"complaint_type":"delivery_delay","day":"2026-06-25","product":"P-Alpha","source":"email","text":"[synthetic] Delivery is late again this week. (product P-Alpha)","ticket_id":"T-000374"}
+{"complaint_type":"support_wait","day":"2026-06-25","product":"P-Alpha","source":"in_app","text":"[synthetic] My request is still unanswered. (product P-Alpha)","ticket_id":"T-000375"}
+{"complaint_type":"app_crash","day":"2026-06-25","product":"P-Beta","source":"web_form","text":"[synthetic] The app crash repeats on every launch. (product P-Beta)","ticket_id":"T-000376"}
+{"complaint_type":"damaged_item","day":"2026-06-25","product":"P-Beta","source":"email","text":"[synthetic] The wrapping was torn open. (product P-Beta)","ticket_id":"T-000377"}
+{"complaint_type":"damaged_item","day":"2026-06-25","product":"P-Beta","source":"in_app","text":"[synthetic] Still waiting for an agent to pick up. (product P-Beta)","ticket_id":"T-000378"}
+{"complaint_type":"support_wait","day":"2026-06-25","product":"P-Beta","source":"web_form","text":"[synthetic] I was left on hold for a long stretch. (product P-Beta)","ticket_id":"T-000379"}
+{"complaint_type":"app_crash","day":"2026-06-25","product":"P-Delta","source":"email","text":"[synthetic] The app crash repeats on every launch. (product P-Delta)","ticket_id":"T-000380"}
+{"complaint_type":"damaged_item","day":"2026-06-25","product":"P-Delta","source":"in_app","text":"[synthetic] The wrapping was torn open. (product P-Delta)","ticket_id":"T-000381"}
+{"complaint_type":"damaged_item","day":"2026-06-25","product":"P-Delta","source":"web_form","text":"[synthetic] Still waiting for an agent to pick up. (product P-Delta)","ticket_id":"T-000382"}
+{"complaint_type":"delivery_delay","day":"2026-06-25","product":"P-Delta","source":"email","text":"[synthetic] Delivery is late again this week. (product P-Delta)","ticket_id":"T-000383"}
+{"complaint_type":"support_wait","day":"2026-06-25","product":"P-Delta","source":"in_app","text":"[synthetic] My request is still unanswered. (product P-Delta)","ticket_id":"T-000384"}
+{"complaint_type":"app_crash","day":"2026-06-25","product":"P-Gamma","source":"web_form","text":"[synthetic] It freezes right after sign in. (product P-Gamma)","ticket_id":"T-000385"}
+{"complaint_type":"billing_error","day":"2026-06-25","product":"P-Gamma","source":"email","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Gamma)","ticket_id":"T-000386"}
+{"complaint_type":"damaged_item","day":"2026-06-25","product":"P-Gamma","source":"in_app","text":"[synthetic] The handle was broken off completely. (product P-Gamma)","ticket_id":"T-000387"}
+{"complaint_type":"delivery_delay","day":"2026-06-25","product":"P-Gamma","source":"web_form","text":"[synthetic] Delivery is late again this week. (product P-Gamma)","ticket_id":"T-000388"}
+{"complaint_type":"support_wait","day":"2026-06-25","product":"P-Gamma","source":"email","text":"[synthetic] My request is still unanswered. (product P-Gamma)","ticket_id":"T-000389"}
+{"complaint_type":"app_crash","day":"2026-06-26","product":"P-Alpha","source":"in_app","text":"[synthetic] The app crashes when opening the main tab. (product P-Alpha)","ticket_id":"T-000390"}
+{"complaint_type":"billing_error","day":"2026-06-26","product":"P-Alpha","source":"web_form","text":"[synthetic] The app crashes when opening the main tab. (product P-Alpha)","ticket_id":"T-000391"}
+{"complaint_type":"delivery_delay","day":"2026-06-26","product":"P-Alpha","source":"email","text":"[synthetic] The order was delayed by several days. (product P-Alpha)","ticket_id":"T-000392"}
+{"complaint_type":"support_wait","day":"2026-06-26","product":"P-Alpha","source":"in_app","text":"[synthetic] Still waiting for an agent to pick up. (product P-Alpha)","ticket_id":"T-000393"}
+{"complaint_type":"app_crash","day":"2026-06-26","product":"P-Beta","source":"web_form","text":"[synthetic] The app crashes when opening the main tab. (product P-Beta)","ticket_id":"T-000394"}
+{"complaint_type":"billing_error","day":"2026-06-26","product":"P-Beta","source":"email","text":"[synthetic] A double charge appeared on my statement. (product P-Beta)","ticket_id":"T-000395"}
+{"complaint_type":"damaged_item","day":"2026-06-26","product":"P-Beta","source":"in_app","text":"[synthetic] The casing is cracked near the edge. (product P-Beta)","ticket_id":"T-000396"}
+{"complaint_type":"support_wait","day":"2026-06-26","product":"P-Beta","source":"web_form","text":"[synthetic] The response time keeps getting worse. (product P-Beta)","ticket_id":"T-000397"}
+{"complaint_type":"app_crash","day":"2026-06-26","product":"P-Delta","source":"email","text":"[synthetic] The app crashes when opening the main tab. (product P-Delta)","ticket_id":"T-000398"}
+{"complaint_type":"billing_error","day":"2026-06-26","product":"P-Delta","source":"in_app","text":"[synthetic] A double charge appeared on my statement. (product P-Delta)","ticket_id":"T-000399"}
+{"complaint_type":"damaged_item","day":"2026-06-26","product":"P-Delta","source":"web_form","text":"[synthetic] The casing is cracked near the edge. (product P-Delta)","ticket_id":"T-000400"}
+{"complaint_type":"delivery_delay","day":"2026-06-26","product":"P-Delta","source":"email","text":"[synthetic] The order was delayed by several days. (product P-Delta)","ticket_id":"T-000401"}
+{"complaint_type":"support_wait","day":"2026-06-26","product":"P-Delta","source":"in_app","text":"[synthetic] Still waiting for an agent to pick up. (product P-Delta)","ticket_id":"T-000402"}
+{"complaint_type":"app_crash","day":"2026-06-26","product":"P-Gamma","source":"web_form","text":"[synthetic] An error screen appears every time. (product P-Gamma)","ticket_id":"T-000403"}
+{"complaint_type":"billing_error","day":"2026-06-26","product":"P-Gamma","source":"email","text":"[synthetic] I was charged twice for one month. (product P-Gamma)","ticket_id":"T-000404"}
+{"complaint_type":"damaged_item","day":"2026-06-26","product":"P-Gamma","source":"in_app","text":"[synthetic] The metal frame is dented. (product P-Gamma)","ticket_id":"T-000405"}
+{"complaint_type":"delivery_delay","day":"2026-06-26","product":"P-Gamma","source":"web_form","text":"[synthetic] The order was delayed by several days. (product P-Gamma)","ticket_id":"T-000406"}
+{"complaint_type":"app_crash","day":"2026-06-27","product":"P-Alpha","source":"email","text":"[synthetic] It freezes right after sign in. (product P-Alpha)","ticket_id":"T-000407"}
+{"complaint_type":"delivery_delay","day":"2026-06-27","product":"P-Alpha","source":"in_app","text":"[synthetic] Shipping status has not changed since Monday. (product P-Alpha)","ticket_id":"T-000408"}
+{"complaint_type":"support_wait","day":"2026-06-27","product":"P-Alpha","source":"web_form","text":"[synthetic] No reply after three follow ups. (product P-Alpha)","ticket_id":"T-000409"}
+{"complaint_type":"app_crash","day":"2026-06-27","product":"P-Beta","source":"email","text":"[synthetic] It freezes right after sign in. (product P-Beta)","ticket_id":"T-000410"}
+{"complaint_type":"damaged_item","day":"2026-06-27","product":"P-Beta","source":"in_app","text":"[synthetic] The handle was broken off completely. (product P-Beta)","ticket_id":"T-000411"}
+{"complaint_type":"support_wait","day":"2026-06-27","product":"P-Beta","source":"web_form","text":"[synthetic] My request is still unanswered. (product P-Beta)","ticket_id":"T-000412"}
+{"complaint_type":"app_crash","day":"2026-06-27","product":"P-Delta","source":"email","text":"[synthetic] It freezes right after sign in. (product P-Delta)","ticket_id":"T-000413"}
+{"complaint_type":"damaged_item","day":"2026-06-27","product":"P-Delta","source":"in_app","text":"[synthetic] The handle was broken off completely. (product P-Delta)","ticket_id":"T-000414"}
+{"complaint_type":"damaged_item","day":"2026-06-27","product":"P-Delta","source":"web_form","text":"[synthetic] The metal frame is dented. (product P-Delta)","ticket_id":"T-000415"}
+{"complaint_type":"delivery_delay","day":"2026-06-27","product":"P-Delta","source":"email","text":"[synthetic] Shipping status has not changed since Monday. (product P-Delta)","ticket_id":"T-000416"}
+{"complaint_type":"support_wait","day":"2026-06-27","product":"P-Delta","source":"in_app","text":"[synthetic] No reply after three follow ups. (product P-Delta)","ticket_id":"T-000417"}
+{"complaint_type":"app_crash","day":"2026-06-27","product":"P-Gamma","source":"web_form","text":"[synthetic] The client keeps hitting a force close. (product P-Gamma)","ticket_id":"T-000418"}
+{"complaint_type":"billing_error","day":"2026-06-27","product":"P-Gamma","source":"email","text":"[synthetic] The invoice shows a wrong amount. (product P-Gamma)","ticket_id":"T-000419"}
+{"complaint_type":"delivery_delay","day":"2026-06-27","product":"P-Gamma","source":"in_app","text":"[synthetic] Shipping status has not changed since Monday. (product P-Gamma)","ticket_id":"T-000420"}
+{"complaint_type":"support_wait","day":"2026-06-27","product":"P-Gamma","source":"web_form","text":"[synthetic] The order was delayed by several days. (product P-Gamma)","ticket_id":"T-000421"}
+{"complaint_type":"app_crash","day":"2026-06-28","product":"P-Alpha","source":"email","text":"[synthetic] An error screen appears every time. (product P-Alpha)","ticket_id":"T-000422"}
+{"complaint_type":"damaged_item","day":"2026-06-28","product":"P-Alpha","source":"in_app","text":"[synthetic] The wrapping was torn open. (product P-Alpha)","ticket_id":"T-000423"}
+{"complaint_type":"delivery_delay","day":"2026-06-28","product":"P-Alpha","source":"web_form","text":"[synthetic] The parcel has not arrived yet. (product P-Alpha)","ticket_id":"T-000424"}
+{"complaint_type":"support_wait","day":"2026-06-28","product":"P-Alpha","source":"email","text":"[synthetic] I was left on hold for a long stretch. (product P-Alpha)","ticket_id":"T-000425"}
+{"complaint_type":"app_crash","day":"2026-06-28","product":"P-Beta","source":"in_app","text":"[synthetic] An error screen appears every time. (product P-Beta)","ticket_id":"T-000426"}
+{"complaint_type":"billing_error","day":"2026-06-28","product":"P-Beta","source":"web_form","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Beta)","ticket_id":"T-000427"}
+{"complaint_type":"damaged_item","day":"2026-06-28","product":"P-Beta","source":"email","text":"[synthetic] The metal frame is dented. (product P-Beta)","ticket_id":"T-000428"}
+{"complaint_type":"app_crash","day":"2026-06-28","product":"P-Delta","source":"in_app","text":"[synthetic] An error screen appears every time. (product P-Delta)","ticket_id":"T-000429"}
+{"complaint_type":"damaged_item","day":"2026-06-28","product":"P-Delta","source":"web_form","text":"[synthetic] The wrapping was torn open. (product P-Delta)","ticket_id":"T-000430"}
+{"complaint_type":"delivery_delay","day":"2026-06-28","product":"P-Delta","source":"email","text":"[synthetic] The parcel has not arrived yet. (product P-Delta)","ticket_id":"T-000431"}
+{"complaint_type":"support_wait","day":"2026-06-28","product":"P-Delta","source":"in_app","text":"[synthetic] I was left on hold for a long stretch. (product P-Delta)","ticket_id":"T-000432"}
+{"complaint_type":"billing_error","day":"2026-06-28","product":"P-Gamma","source":"web_form","text":"[synthetic] Billing does not match the selected plan. (product P-Gamma)","ticket_id":"T-000433"}
+{"complaint_type":"delivery_delay","day":"2026-06-28","product":"P-Gamma","source":"email","text":"[synthetic] The parcel has not arrived yet. (product P-Gamma)","ticket_id":"T-000434"}
+{"complaint_type":"app_crash","day":"2026-06-29","product":"P-Alpha","source":"in_app","text":"[synthetic] The client keeps hitting a force close. (product P-Alpha)","ticket_id":"T-000435"}
+{"complaint_type":"damaged_item","day":"2026-06-29","product":"P-Alpha","source":"web_form","text":"[synthetic] Still waiting for an agent to pick up. (product P-Alpha)","ticket_id":"T-000436"}
+{"complaint_type":"delivery_delay","day":"2026-06-29","product":"P-Alpha","source":"email","text":"[synthetic] Dispatch was pushed back twice. (product P-Alpha)","ticket_id":"T-000437"}
+{"complaint_type":"support_wait","day":"2026-06-29","product":"P-Alpha","source":"in_app","text":"[synthetic] The response time keeps getting worse. (product P-Alpha)","ticket_id":"T-000438"}
+{"complaint_type":"app_crash","day":"2026-06-29","product":"P-Beta","source":"web_form","text":"[synthetic] The client keeps hitting a force close. (product P-Beta)","ticket_id":"T-000439"}
+{"complaint_type":"billing_error","day":"2026-06-29","product":"P-Beta","source":"email","text":"[synthetic] The app crashes when opening the main tab. (product P-Beta)","ticket_id":"T-000440"}
+{"complaint_type":"damaged_item","day":"2026-06-29","product":"P-Beta","source":"in_app","text":"[synthetic] The wrapping was torn open. (product P-Beta)","ticket_id":"T-000441"}
+{"complaint_type":"damaged_item","day":"2026-06-29","product":"P-Beta","source":"web_form","text":"[synthetic] The outer box was damaged on all sides. (product P-Beta)","ticket_id":"T-000442"}
+{"complaint_type":"support_wait","day":"2026-06-29","product":"P-Beta","source":"email","text":"[synthetic] Still waiting for an agent to pick up. (product P-Beta)","ticket_id":"T-000443"}
+{"complaint_type":"app_crash","day":"2026-06-29","product":"P-Delta","source":"in_app","text":"[synthetic] The client keeps hitting a force close. (product P-Delta)","ticket_id":"T-000444"}
+{"complaint_type":"billing_error","day":"2026-06-29","product":"P-Delta","source":"web_form","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Delta)","ticket_id":"T-000445"}
+{"complaint_type":"damaged_item","day":"2026-06-29","product":"P-Delta","source":"email","text":"[synthetic] The outer box was damaged on all sides. (product P-Delta)","ticket_id":"T-000446"}
+{"complaint_type":"delivery_delay","day":"2026-06-29","product":"P-Delta","source":"in_app","text":"[synthetic] Dispatch was pushed back twice. (product P-Delta)","ticket_id":"T-000447"}
+{"complaint_type":"support_wait","day":"2026-06-29","product":"P-Delta","source":"web_form","text":"[synthetic] The response time keeps getting worse. (product P-Delta)","ticket_id":"T-000448"}
+{"complaint_type":"billing_error","day":"2026-06-29","product":"P-Gamma","source":"email","text":"[synthetic] A double charge appeared on my statement. (product P-Gamma)","ticket_id":"T-000449"}
+{"complaint_type":"delivery_delay","day":"2026-06-29","product":"P-Gamma","source":"in_app","text":"[synthetic] Dispatch was pushed back twice. (product P-Gamma)","ticket_id":"T-000450"}
+{"complaint_type":"app_crash","day":"2026-06-30","product":"P-Alpha","source":"web_form","text":"[synthetic] The app crash repeats on every launch. (product P-Alpha)","ticket_id":"T-000451"}
+{"complaint_type":"app_crash","day":"2026-06-30","product":"P-Alpha","source":"email","text":"[synthetic] The outer box was damaged on all sides. (product P-Alpha)","ticket_id":"T-000452"}
+{"complaint_type":"billing_error","day":"2026-06-30","product":"P-Alpha","source":"in_app","text":"[synthetic] The invoice shows a wrong amount. (product P-Alpha)","ticket_id":"T-000453"}
+{"complaint_type":"delivery_delay","day":"2026-06-30","product":"P-Alpha","source":"web_form","text":"[synthetic] Delivery is late again this week. (product P-Alpha)","ticket_id":"T-000454"}
+{"complaint_type":"support_wait","day":"2026-06-30","product":"P-Alpha","source":"email","text":"[synthetic] My request is still unanswered. (product P-Alpha)","ticket_id":"T-000455"}
+{"complaint_type":"app_crash","day":"2026-06-30","product":"P-Beta","source":"in_app","text":"[synthetic] The app crash repeats on every launch. (product P-Beta)","ticket_id":"T-000456"}
+{"complaint_type":"damaged_item","day":"2026-06-30","product":"P-Beta","source":"web_form","text":"[synthetic] The casing is cracked near the edge. (product P-Beta)","ticket_id":"T-000457"}
+{"complaint_type":"support_wait","day":"2026-06-30","product":"P-Beta","source":"email","text":"[synthetic] No reply after three follow ups. (product P-Beta)","ticket_id":"T-000458"}
+{"complaint_type":"app_crash","day":"2026-06-30","product":"P-Delta","source":"in_app","text":"[synthetic] The app crash repeats on every launch. (product P-Delta)","ticket_id":"T-000459"}
+{"complaint_type":"damaged_item","day":"2026-06-30","product":"P-Delta","source":"web_form","text":"[synthetic] The casing is cracked near the edge. (product P-Delta)","ticket_id":"T-000460"}
+{"complaint_type":"damaged_item","day":"2026-06-30","product":"P-Delta","source":"email","text":"[synthetic] The handle was broken off completely. (product P-Delta)","ticket_id":"T-000461"}
+{"complaint_type":"delivery_delay","day":"2026-06-30","product":"P-Delta","source":"in_app","text":"[synthetic] Delivery is late again this week. (product P-Delta)","ticket_id":"T-000462"}
+{"complaint_type":"support_wait","day":"2026-06-30","product":"P-Delta","source":"web_form","text":"[synthetic] My request is still unanswered. (product P-Delta)","ticket_id":"T-000463"}
+{"complaint_type":"app_crash","day":"2026-06-30","product":"P-Gamma","source":"email","text":"[synthetic] The app crash repeats on every launch. (product P-Gamma)","ticket_id":"T-000464"}
+{"complaint_type":"billing_error","day":"2026-06-30","product":"P-Gamma","source":"in_app","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Gamma)","ticket_id":"T-000465"}
+{"complaint_type":"damaged_item","day":"2026-06-30","product":"P-Gamma","source":"web_form","text":"[synthetic] The wrapping was torn open. (product P-Gamma)","ticket_id":"T-000466"}
+{"complaint_type":"delivery_delay","day":"2026-06-30","product":"P-Gamma","source":"email","text":"[synthetic] Delivery is late again this week. (product P-Gamma)","ticket_id":"T-000467"}
+{"complaint_type":"support_wait","day":"2026-06-30","product":"P-Gamma","source":"in_app","text":"[synthetic] No reply after three follow ups. (product P-Gamma)","ticket_id":"T-000468"}
+{"complaint_type":"app_crash","day":"2026-07-01","product":"P-Alpha","source":"web_form","text":"[synthetic] The outer box was damaged on all sides. (product P-Alpha)","ticket_id":"T-000469"}
+{"complaint_type":"app_crash","day":"2026-07-01","product":"P-Alpha","source":"email","text":"[synthetic] It freezes right after sign in. (product P-Alpha)","ticket_id":"T-000470"}
+{"complaint_type":"billing_error","day":"2026-07-01","product":"P-Alpha","source":"in_app","text":"[synthetic] The app crashes when opening the main tab. (product P-Alpha)","ticket_id":"T-000471"}
+{"complaint_type":"damaged_item","day":"2026-07-01","product":"P-Alpha","source":"web_form","text":"[synthetic] Still waiting for an agent to pick up. (product P-Alpha)","ticket_id":"T-000472"}
+{"complaint_type":"delivery_delay","day":"2026-07-01","product":"P-Alpha","source":"email","text":"[synthetic] I was charged twice for one month. (product P-Alpha)","ticket_id":"T-000473"}
+{"complaint_type":"delivery_delay","day":"2026-07-01","product":"P-Alpha","source":"in_app","text":"[synthetic] Shipping status has not changed since Monday. (product P-Alpha)","ticket_id":"T-000474"}
+{"complaint_type":"support_wait","day":"2026-07-01","product":"P-Alpha","source":"web_form","text":"[synthetic] The order was delayed by several days. (product P-Alpha)","ticket_id":"T-000475"}
+{"complaint_type":"app_crash","day":"2026-07-01","product":"P-Beta","source":"email","text":"[synthetic] The outer box was damaged on all sides. (product P-Beta)","ticket_id":"T-000476"}
+{"complaint_type":"damaged_item","day":"2026-07-01","product":"P-Beta","source":"in_app","text":"[synthetic] Still waiting for an agent to pick up. (product P-Beta)","ticket_id":"T-000477"}
+{"complaint_type":"delivery_delay","day":"2026-07-01","product":"P-Beta","source":"web_form","text":"[synthetic] I was charged twice for one month. (product P-Beta)","ticket_id":"T-000478"}
+{"complaint_type":"app_crash","day":"2026-07-01","product":"P-Delta","source":"email","text":"[synthetic] The outer box was damaged on all sides. (product P-Delta)","ticket_id":"T-000479"}
+{"complaint_type":"billing_error","day":"2026-07-01","product":"P-Delta","source":"in_app","text":"[synthetic] The app crashes when opening the main tab. (product P-Delta)","ticket_id":"T-000480"}
+{"complaint_type":"damaged_item","day":"2026-07-01","product":"P-Delta","source":"web_form","text":"[synthetic] Still waiting for an agent to pick up. (product P-Delta)","ticket_id":"T-000481"}
+{"complaint_type":"delivery_delay","day":"2026-07-01","product":"P-Delta","source":"email","text":"[synthetic] I was charged twice for one month. (product P-Delta)","ticket_id":"T-000482"}
+{"complaint_type":"support_wait","day":"2026-07-01","product":"P-Delta","source":"in_app","text":"[synthetic] The order was delayed by several days. (product P-Delta)","ticket_id":"T-000483"}
+{"complaint_type":"app_crash","day":"2026-07-01","product":"P-Gamma","source":"web_form","text":"[synthetic] The outer box was damaged on all sides. (product P-Gamma)","ticket_id":"T-000484"}
+{"complaint_type":"billing_error","day":"2026-07-01","product":"P-Gamma","source":"email","text":"[synthetic] The app crashes when opening the main tab. (product P-Gamma)","ticket_id":"T-000485"}
+{"complaint_type":"damaged_item","day":"2026-07-01","product":"P-Gamma","source":"in_app","text":"[synthetic] Still waiting for an agent to pick up. (product P-Gamma)","ticket_id":"T-000486"}
+{"complaint_type":"delivery_delay","day":"2026-07-01","product":"P-Gamma","source":"web_form","text":"[synthetic] I was charged twice for one month. (product P-Gamma)","ticket_id":"T-000487"}
+{"complaint_type":"app_crash","day":"2026-07-02","product":"P-Alpha","source":"email","text":"[synthetic] An error screen appears every time. (product P-Alpha)","ticket_id":"T-000488"}
+{"complaint_type":"billing_error","day":"2026-07-02","product":"P-Alpha","source":"in_app","text":"[synthetic] The invoice shows a wrong amount. (product P-Alpha)","ticket_id":"T-000489"}
+{"complaint_type":"damaged_item","day":"2026-07-02","product":"P-Alpha","source":"web_form","text":"[synthetic] The casing is cracked near the edge. (product P-Alpha)","ticket_id":"T-000490"}
+{"complaint_type":"delivery_delay","day":"2026-07-02","product":"P-Alpha","source":"email","text":"[synthetic] The parcel has not arrived yet. (product P-Alpha)","ticket_id":"T-000491"}
+{"complaint_type":"delivery_delay","day":"2026-07-02","product":"P-Alpha","source":"in_app","text":"[synthetic] Dispatch was pushed back twice. (product P-Alpha)","ticket_id":"T-000492"}
+{"complaint_type":"support_wait","day":"2026-07-02","product":"P-Alpha","source":"web_form","text":"[synthetic] No reply after three follow ups. (product P-Alpha)","ticket_id":"T-000493"}
+{"complaint_type":"app_crash","day":"2026-07-02","product":"P-Beta","source":"email","text":"[synthetic] It freezes right after sign in. (product P-Beta)","ticket_id":"T-000494"}
+{"complaint_type":"billing_error","day":"2026-07-02","product":"P-Beta","source":"in_app","text":"[synthetic] The app crashes when opening the main tab. (product P-Beta)","ticket_id":"T-000495"}
+{"complaint_type":"damaged_item","day":"2026-07-02","product":"P-Beta","source":"web_form","text":"[synthetic] The casing is cracked near the edge. (product P-Beta)","ticket_id":"T-000496"}
+{"complaint_type":"delivery_delay","day":"2026-07-02","product":"P-Beta","source":"email","text":"[synthetic] Shipping status has not changed since Monday. (product P-Beta)","ticket_id":"T-000497"}
+{"complaint_type":"support_wait","day":"2026-07-02","product":"P-Beta","source":"in_app","text":"[synthetic] The order was delayed by several days. (product P-Beta)","ticket_id":"T-000498"}
+{"complaint_type":"app_crash","day":"2026-07-02","product":"P-Delta","source":"web_form","text":"[synthetic] It freezes right after sign in. (product P-Delta)","ticket_id":"T-000499"}
+{"complaint_type":"billing_error","day":"2026-07-02","product":"P-Delta","source":"email","text":"[synthetic] The invoice shows a wrong amount. (product P-Delta)","ticket_id":"T-000500"}
+{"complaint_type":"damaged_item","day":"2026-07-02","product":"P-Delta","source":"in_app","text":"[synthetic] The casing is cracked near the edge. (product P-Delta)","ticket_id":"T-000501"}
+{"complaint_type":"delivery_delay","day":"2026-07-02","product":"P-Delta","source":"web_form","text":"[synthetic] Shipping status has not changed since Monday. (product P-Delta)","ticket_id":"T-000502"}
+{"complaint_type":"support_wait","day":"2026-07-02","product":"P-Delta","source":"email","text":"[synthetic] No reply after three follow ups. (product P-Delta)","ticket_id":"T-000503"}
+{"complaint_type":"app_crash","day":"2026-07-02","product":"P-Gamma","source":"in_app","text":"[synthetic] It freezes right after sign in. (product P-Gamma)","ticket_id":"T-000504"}
+{"complaint_type":"billing_error","day":"2026-07-02","product":"P-Gamma","source":"web_form","text":"[synthetic] The invoice shows a wrong amount. (product P-Gamma)","ticket_id":"T-000505"}
+{"complaint_type":"delivery_delay","day":"2026-07-02","product":"P-Gamma","source":"email","text":"[synthetic] Shipping status has not changed since Monday. (product P-Gamma)","ticket_id":"T-000506"}
+{"complaint_type":"support_wait","day":"2026-07-02","product":"P-Gamma","source":"in_app","text":"[synthetic] The order was delayed by several days. (product P-Gamma)","ticket_id":"T-000507"}
+{"complaint_type":"app_crash","day":"2026-07-03","product":"P-Alpha","source":"web_form","text":"[synthetic] The client keeps hitting a force close. (product P-Alpha)","ticket_id":"T-000508"}
+{"complaint_type":"delivery_delay","day":"2026-07-03","product":"P-Alpha","source":"email","text":"[synthetic] Delivery is late again this week. (product P-Alpha)","ticket_id":"T-000509"}
+{"complaint_type":"delivery_delay","day":"2026-07-03","product":"P-Alpha","source":"in_app","text":"[synthetic] The order was delayed by several days. (product P-Alpha)","ticket_id":"T-000510"}
+{"complaint_type":"support_wait","day":"2026-07-03","product":"P-Alpha","source":"web_form","text":"[synthetic] I was left on hold for a long stretch. (product P-Alpha)","ticket_id":"T-000511"}
+{"complaint_type":"app_crash","day":"2026-07-03","product":"P-Beta","source":"email","text":"[synthetic] An error screen appears every time. (product P-Beta)","ticket_id":"T-000512"}
+{"complaint_type":"billing_error","day":"2026-07-03","product":"P-Beta","source":"in_app","text":"[synthetic] The invoice shows a wrong amount. (product P-Beta)","ticket_id":"T-000513"}
+{"complaint_type":"damaged_item","day":"2026-07-03","product":"P-Beta","source":"web_form","text":"[synthetic] The handle was broken off completely. (product P-Beta)","ticket_id":"T-000514"}
+{"complaint_type":"damaged_item","day":"2026-07-03","product":"P-Beta","source":"email","text":"[synthetic] The metal frame is dented. (product P-Beta)","ticket_id":"T-000515"}
+{"complaint_type":"app_crash","day":"2026-07-03","product":"P-Delta","source":"in_app","text":"[synthetic] An error screen appears every time. (product P-Delta)","ticket_id":"T-000516"}
+{"complaint_type":"damaged_item","day":"2026-07-03","product":"P-Delta","source":"web_form","text":"[synthetic] The handle was broken off completely. (product P-Delta)","ticket_id":"T-000517"}
+{"complaint_type":"delivery_delay","day":"2026-07-03","product":"P-Delta","source":"email","text":"[synthetic] The parcel has not arrived yet. (product P-Delta)","ticket_id":"T-000518"}
+{"complaint_type":"billing_error","day":"2026-07-03","product":"P-Gamma","source":"in_app","text":"[synthetic] Billing does not match the selected plan. (product P-Gamma)","ticket_id":"T-000519"}
+{"complaint_type":"delivery_delay","day":"2026-07-03","product":"P-Gamma","source":"web_form","text":"[synthetic] The parcel has not arrived yet. (product P-Gamma)","ticket_id":"T-000520"}
+{"complaint_type":"support_wait","day":"2026-07-03","product":"P-Gamma","source":"email","text":"[synthetic] No reply after three follow ups. (product P-Gamma)","ticket_id":"T-000521"}
+{"complaint_type":"app_crash","day":"2026-07-04","product":"P-Alpha","source":"in_app","text":"[synthetic] The app crash repeats on every launch. (product P-Alpha)","ticket_id":"T-000522"}
+{"complaint_type":"billing_error","day":"2026-07-04","product":"P-Alpha","source":"web_form","text":"[synthetic] Billing does not match the selected plan. (product P-Alpha)","ticket_id":"T-000523"}
+{"complaint_type":"delivery_delay","day":"2026-07-04","product":"P-Alpha","source":"email","text":"[synthetic] Shipping status has not changed since Monday. (product P-Alpha)","ticket_id":"T-000524"}
+{"complaint_type":"delivery_delay","day":"2026-07-04","product":"P-Alpha","source":"in_app","text":"[synthetic] The parcel has not arrived yet. (product P-Alpha)","ticket_id":"T-000525"}
+{"complaint_type":"support_wait","day":"2026-07-04","product":"P-Alpha","source":"web_form","text":"[synthetic] The response time keeps getting worse. (product P-Alpha)","ticket_id":"T-000526"}
+{"complaint_type":"app_crash","day":"2026-07-04","product":"P-Beta","source":"email","text":"[synthetic] The client keeps hitting a force close. (product P-Beta)","ticket_id":"T-000527"}
+{"complaint_type":"billing_error","day":"2026-07-04","product":"P-Beta","source":"in_app","text":"[synthetic] Billing does not match the selected plan. (product P-Beta)","ticket_id":"T-000528"}
+{"complaint_type":"damaged_item","day":"2026-07-04","product":"P-Beta","source":"web_form","text":"[synthetic] The wrapping was torn open. (product P-Beta)","ticket_id":"T-000529"}
+{"complaint_type":"damaged_item","day":"2026-07-04","product":"P-Beta","source":"email","text":"[synthetic] The outer box was damaged on all sides. (product P-Beta)","ticket_id":"T-000530"}
+{"complaint_type":"app_crash","day":"2026-07-04","product":"P-Delta","source":"in_app","text":"[synthetic] The client keeps hitting a force close. (product P-Delta)","ticket_id":"T-000531"}
+{"complaint_type":"damaged_item","day":"2026-07-04","product":"P-Delta","source":"web_form","text":"[synthetic] The metal frame is dented. (product P-Delta)","ticket_id":"T-000532"}
+{"complaint_type":"delivery_delay","day":"2026-07-04","product":"P-Delta","source":"email","text":"[synthetic] Dispatch was pushed back twice. (product P-Delta)","ticket_id":"T-000533"}
+{"complaint_type":"support_wait","day":"2026-07-04","product":"P-Delta","source":"in_app","text":"[synthetic] I was left on hold for a long stretch. (product P-Delta)","ticket_id":"T-000534"}
+{"complaint_type":"billing_error","day":"2026-07-04","product":"P-Gamma","source":"web_form","text":"[synthetic] A double charge appeared on my statement. (product P-Gamma)","ticket_id":"T-000535"}
+{"complaint_type":"delivery_delay","day":"2026-07-04","product":"P-Gamma","source":"email","text":"[synthetic] Dispatch was pushed back twice. (product P-Gamma)","ticket_id":"T-000536"}
+{"complaint_type":"app_crash","day":"2026-07-05","product":"P-Alpha","source":"in_app","text":"[synthetic] The app crashes when opening the main tab. (product P-Alpha)","ticket_id":"T-000537"}
+{"complaint_type":"app_crash","day":"2026-07-05","product":"P-Alpha","source":"web_form","text":"[synthetic] It freezes right after sign in. (product P-Alpha)","ticket_id":"T-000538"}
+{"complaint_type":"billing_error","day":"2026-07-05","product":"P-Alpha","source":"email","text":"[synthetic] A double charge appeared on my statement. (product P-Alpha)","ticket_id":"T-000539"}
+{"complaint_type":"delivery_delay","day":"2026-07-05","product":"P-Alpha","source":"in_app","text":"[synthetic] Dispatch was pushed back twice. (product P-Alpha)","ticket_id":"T-000540"}
+{"complaint_type":"delivery_delay","day":"2026-07-05","product":"P-Alpha","source":"web_form","text":"[synthetic] Delivery is late again this week. (product P-Alpha)","ticket_id":"T-000541"}
+{"complaint_type":"support_wait","day":"2026-07-05","product":"P-Alpha","source":"email","text":"[synthetic] My request is still unanswered. (product P-Alpha)","ticket_id":"T-000542"}
+{"complaint_type":"app_crash","day":"2026-07-05","product":"P-Beta","source":"in_app","text":"[synthetic] The app crash repeats on every launch. (product P-Beta)","ticket_id":"T-000543"}
+{"complaint_type":"billing_error","day":"2026-07-05","product":"P-Beta","source":"web_form","text":"[synthetic] A double charge appeared on my statement. (product P-Beta)","ticket_id":"T-000544"}
+{"complaint_type":"damaged_item","day":"2026-07-05","product":"P-Beta","source":"email","text":"[synthetic] The casing is cracked near the edge. (product P-Beta)","ticket_id":"T-000545"}
+{"complaint_type":"delivery_delay","day":"2026-07-05","product":"P-Beta","source":"in_app","text":"[synthetic] The parcel has not arrived yet. (product P-Beta)","ticket_id":"T-000546"}
+{"complaint_type":"support_wait","day":"2026-07-05","product":"P-Beta","source":"web_form","text":"[synthetic] No reply after three follow ups. (product P-Beta)","ticket_id":"T-000547"}
+{"complaint_type":"app_crash","day":"2026-07-05","product":"P-Delta","source":"email","text":"[synthetic] The app crash repeats on every launch. (product P-Delta)","ticket_id":"T-000548"}
+{"complaint_type":"damaged_item","day":"2026-07-05","product":"P-Delta","source":"in_app","text":"[synthetic] The wrapping was torn open. (product P-Delta)","ticket_id":"T-000549"}
+{"complaint_type":"delivery_delay","day":"2026-07-05","product":"P-Delta","source":"web_form","text":"[synthetic] Delivery is late again this week. (product P-Delta)","ticket_id":"T-000550"}
+{"complaint_type":"support_wait","day":"2026-07-05","product":"P-Delta","source":"email","text":"[synthetic] The response time keeps getting worse. (product P-Delta)","ticket_id":"T-000551"}
+{"complaint_type":"billing_error","day":"2026-07-05","product":"P-Gamma","source":"in_app","text":"[synthetic] The monthly invoice total looks incorrect. (product P-Gamma)","ticket_id":"T-000552"}
+{"complaint_type":"delivery_delay","day":"2026-07-05","product":"P-Gamma","source":"web_form","text":"[synthetic] Delivery is late again this week. (product P-Gamma)","ticket_id":"T-000553"}
+{"complaint_type":"support_wait","day":"2026-07-05","product":"P-Gamma","source":"email","text":"[synthetic] I was left on hold for a long stretch. (product P-Gamma)","ticket_id":"T-000554"}

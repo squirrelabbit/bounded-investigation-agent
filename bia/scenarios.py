@@ -114,13 +114,13 @@ SCENARIOS: Tuple[ScenarioSpec, ...] = (
     ),
     ScenarioSpec(
         scenario_id="S07",
-        label="부분 기간 — 당월 15일까지만 적재",
+        label="부분 기간 — 당월 16일까지만 적재",
         category="partial_period",
         uplift=(("P-Beta", "app_crash", 5),),
-        current_offsets=tuple(range(15)),
+        current_offsets=tuple(range(16)),
         notes=(
-            "delivered window is exactly the minimum comparable length (15 days), "
-            "so this scenario pins the accept side of the threshold"
+            "16 delivered days sits just above the 15-day minimum comparable "
+            "length, so this scenario pins the accept side of the threshold"
         ),
     ),
     ScenarioSpec(
