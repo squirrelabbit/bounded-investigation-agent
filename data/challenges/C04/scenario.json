@@ -1,0 +1,43 @@
+{
+  "category": "type_wide",
+  "challenge_id": "C04",
+  "complaint_types": [
+    "delivery_delay",
+    "billing_error",
+    "app_crash",
+    "damaged_item",
+    "support_wait"
+  ],
+  "files": {
+    "metrics": "metrics.csv",
+    "tickets": "tickets.jsonl"
+  },
+  "intent": {
+    "baseline_period": {
+      "days": 30,
+      "end": "2026-06-30",
+      "start": "2026-06-01"
+    },
+    "breakdowns": [
+      "product",
+      "complaint_type"
+    ],
+    "claim_policy": "association_only",
+    "current_period": {
+      "days": 30,
+      "end": "2026-07-30",
+      "start": "2026-07-01"
+    },
+    "evidence_source": "support_tickets",
+    "metric": "complaint_count"
+  },
+  "label": "유형 전반 확산 — 한 불만 유형이 4개 제품에서 증가",
+  "notes": "the complaint_type filter is the only candidate that reaches all of it",
+  "products": [
+    "P-Alpha",
+    "P-Beta",
+    "P-Gamma",
+    "P-Delta"
+  ],
+  "scenario_id": "C04"
+}

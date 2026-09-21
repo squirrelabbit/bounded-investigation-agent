@@ -166,11 +166,11 @@ class OracleIsolationTests(unittest.TestCase):
             with open(os.path.join(package, name), encoding="utf-8") as handle:
                 if "oracle" in handle.read().lower():
                     mentions.append(name)
-        # store.py holds the guard; datagen.py writes the manifest; scenarios.py
-        # documents it. Any other module naming it is a leak.
+        # store.py holds the guard; the two generators write their manifests and
+        # the two spec modules document them. Any other module naming it is a leak.
         self.assertEqual(
             mentions,
-            ["datagen.py", "scenarios.py", "store.py"],
+            ["challengegen.py", "challenges.py", "datagen.py", "scenarios.py", "store.py"],
             "unexpected module referencing the oracle: %s" % mentions,
         )
 

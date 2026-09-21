@@ -1,0 +1,43 @@
+{
+  "category": "trap_defer",
+  "challenge_id": "C05",
+  "complaint_types": [
+    "delivery_delay",
+    "billing_error",
+    "app_crash",
+    "damaged_item",
+    "support_wait"
+  ],
+  "files": {
+    "metrics": "metrics.csv",
+    "tickets": "tickets.jsonl"
+  },
+  "intent": {
+    "baseline_period": {
+      "days": 30,
+      "end": "2026-06-30",
+      "start": "2026-06-01"
+    },
+    "breakdowns": [
+      "product",
+      "complaint_type"
+    ],
+    "claim_policy": "association_only",
+    "current_period": {
+      "days": 30,
+      "end": "2026-07-30",
+      "start": "2026-07-01"
+    },
+    "evidence_source": "support_tickets",
+    "metric": "complaint_count"
+  },
+  "label": "함정 — 유일한 증가 셀의 문의가 전부 허용되지 않은 출처",
+  "notes": "mirrored draws pin every other cell's delta at exactly 0, so the trap cell is the only positive-delta cell and it admits nothing",
+  "products": [
+    "P-Alpha",
+    "P-Beta",
+    "P-Gamma",
+    "P-Delta"
+  ],
+  "scenario_id": "C05"
+}
