@@ -158,15 +158,21 @@ def _counts(spec: ChallengeSpec, index: int):
     baseline_jitter = _draw_grid(rng)
     current_jitter = baseline_jitter if spec.mirror_draws else _draw_grid(rng)
 
+    # Cells whose current period reuses their own baseline draws. The full grid
+    # is still drawn either way, so mirroring one cell never shifts the random
+    # stream for the rest of the world.
+    mirrored = set(spec.mirror_draw_cells)
+
     uplift = spec.uplift_map()
     baseline_counts: Dict[Tuple[int, Tuple[str, str]], int] = {}
     current_counts: Dict[Tuple[int, Tuple[str, str]], int] = {}
     for offset in range(PERIOD_DAYS):
         for cell in CELLS:
             mean = base_mean[cell]
+            jitter = baseline_jitter if cell in mirrored else current_jitter
             baseline_counts[(offset, cell)] = max(0, mean + baseline_jitter[(offset, cell)])
             current_counts[(offset, cell)] = max(
-                0, mean + current_jitter[(offset, cell)] + uplift.get(cell, 0)
+                0, mean + jitter[(offset, cell)] + uplift.get(cell, 0)
             )
     return baseline_counts, current_counts
 

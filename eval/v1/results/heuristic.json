@@ -636,8 +636,8 @@
     {
       "admitted_count": 54,
       "admitted_unique_count": 54,
-      "best_single_filter_yield": 323,
-      "best_two_filter_yield": 413,
+      "best_single_filter_yield": 90,
+      "best_two_filter_yield": 99,
       "case_id": "C08",
       "category": "volume_decoy",
       "causal_claims": [],
@@ -660,13 +660,13 @@
       "numbers": {
         "got": {
           "baseline_total": 1897,
-          "current_total": 2000,
-          "delta": 103
+          "current_total": 1971,
+          "delta": 74
         },
         "want": {
           "baseline_total": 1897,
-          "current_total": 2000,
-          "delta": 103
+          "current_total": 1971,
+          "delta": 74
         }
       },
       "precision": 1.0,
@@ -692,7 +692,7 @@
         }
       },
       "useful_admitted_count": 54,
-      "useful_total": 433,
+      "useful_total": 110,
       "wasted_retrievals": 0,
       "window": {
         "got": {
@@ -718,7 +718,7 @@
           "mode": "full"
         }
       },
-      "yield": 0.1308
+      "yield": 0.5455
     }
   ],
   "selector": "heuristic",
@@ -728,7 +728,7 @@
     "S-3_partial_period_as_full": 0,
     "S-4_verification_leak": 0,
     "V-1_fact_accuracy": "8/8",
-    "V-2_evidence_yield_macro": 0.3126,
+    "V-2_evidence_yield_macro": 0.3718,
     "V-2_included_cases": 7,
     "V-3_evidence_precision_macro": 1.0,
     "V-3_included_cases": 7,

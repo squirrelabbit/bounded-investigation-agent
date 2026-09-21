@@ -643,7 +643,7 @@ day,product,complaint_type,count
 2026-07-03,P-Alpha,billing_error,3
 2026-07-03,P-Alpha,damaged_item,3
 2026-07-03,P-Alpha,delivery_delay,4
-2026-07-03,P-Alpha,support_wait,14
+2026-07-03,P-Alpha,support_wait,12
 2026-07-03,P-Beta,app_crash,2
 2026-07-03,P-Beta,billing_error,0
 2026-07-03,P-Beta,damaged_item,2
@@ -663,7 +663,7 @@ day,product,complaint_type,count
 2026-07-04,P-Alpha,billing_error,2
 2026-07-04,P-Alpha,damaged_item,1
 2026-07-04,P-Alpha,delivery_delay,2
-2026-07-04,P-Alpha,support_wait,14
+2026-07-04,P-Alpha,support_wait,12
 2026-07-04,P-Beta,app_crash,1
 2026-07-04,P-Beta,billing_error,1
 2026-07-04,P-Beta,damaged_item,4
@@ -683,7 +683,7 @@ day,product,complaint_type,count
 2026-07-05,P-Alpha,billing_error,3
 2026-07-05,P-Alpha,damaged_item,1
 2026-07-05,P-Alpha,delivery_delay,2
-2026-07-05,P-Alpha,support_wait,13
+2026-07-05,P-Alpha,support_wait,12
 2026-07-05,P-Beta,app_crash,3
 2026-07-05,P-Beta,billing_error,2
 2026-07-05,P-Beta,damaged_item,3
@@ -723,7 +723,7 @@ day,product,complaint_type,count
 2026-07-07,P-Alpha,billing_error,3
 2026-07-07,P-Alpha,damaged_item,1
 2026-07-07,P-Alpha,delivery_delay,2
-2026-07-07,P-Alpha,support_wait,12
+2026-07-07,P-Alpha,support_wait,11
 2026-07-07,P-Beta,app_crash,1
 2026-07-07,P-Beta,billing_error,1
 2026-07-07,P-Beta,damaged_item,2
@@ -763,7 +763,7 @@ day,product,complaint_type,count
 2026-07-09,P-Alpha,billing_error,2
 2026-07-09,P-Alpha,damaged_item,2
 2026-07-09,P-Alpha,delivery_delay,2
-2026-07-09,P-Alpha,support_wait,13
+2026-07-09,P-Alpha,support_wait,12
 2026-07-09,P-Beta,app_crash,3
 2026-07-09,P-Beta,billing_error,0
 2026-07-09,P-Beta,damaged_item,4
@@ -783,7 +783,7 @@ day,product,complaint_type,count
 2026-07-10,P-Alpha,billing_error,2
 2026-07-10,P-Alpha,damaged_item,2
 2026-07-10,P-Alpha,delivery_delay,2
-2026-07-10,P-Alpha,support_wait,14
+2026-07-10,P-Alpha,support_wait,12
 2026-07-10,P-Beta,app_crash,3
 2026-07-10,P-Beta,billing_error,0
 2026-07-10,P-Beta,damaged_item,4
@@ -803,7 +803,7 @@ day,product,complaint_type,count
 2026-07-11,P-Alpha,billing_error,3
 2026-07-11,P-Alpha,damaged_item,3
 2026-07-11,P-Alpha,delivery_delay,4
-2026-07-11,P-Alpha,support_wait,14
+2026-07-11,P-Alpha,support_wait,11
 2026-07-11,P-Beta,app_crash,2
 2026-07-11,P-Beta,billing_error,2
 2026-07-11,P-Beta,damaged_item,3
@@ -823,7 +823,7 @@ day,product,complaint_type,count
 2026-07-12,P-Alpha,billing_error,1
 2026-07-12,P-Alpha,damaged_item,1
 2026-07-12,P-Alpha,delivery_delay,3
-2026-07-12,P-Alpha,support_wait,13
+2026-07-12,P-Alpha,support_wait,11
 2026-07-12,P-Beta,app_crash,2
 2026-07-12,P-Beta,billing_error,0
 2026-07-12,P-Beta,damaged_item,2
@@ -863,7 +863,7 @@ day,product,complaint_type,count
 2026-07-14,P-Alpha,billing_error,1
 2026-07-14,P-Alpha,damaged_item,1
 2026-07-14,P-Alpha,delivery_delay,4
-2026-07-14,P-Alpha,support_wait,14
+2026-07-14,P-Alpha,support_wait,13
 2026-07-14,P-Beta,app_crash,1
 2026-07-14,P-Beta,billing_error,0
 2026-07-14,P-Beta,damaged_item,2
@@ -883,7 +883,7 @@ day,product,complaint_type,count
 2026-07-15,P-Alpha,billing_error,1
 2026-07-15,P-Alpha,damaged_item,3
 2026-07-15,P-Alpha,delivery_delay,4
-2026-07-15,P-Alpha,support_wait,13
+2026-07-15,P-Alpha,support_wait,11
 2026-07-15,P-Beta,app_crash,2
 2026-07-15,P-Beta,billing_error,1
 2026-07-15,P-Beta,damaged_item,2
@@ -903,7 +903,7 @@ day,product,complaint_type,count
 2026-07-16,P-Alpha,billing_error,3
 2026-07-16,P-Alpha,damaged_item,2
 2026-07-16,P-Alpha,delivery_delay,4
-2026-07-16,P-Alpha,support_wait,12
+2026-07-16,P-Alpha,support_wait,13
 2026-07-16,P-Beta,app_crash,1
 2026-07-16,P-Beta,billing_error,0
 2026-07-16,P-Beta,damaged_item,4
@@ -923,7 +923,7 @@ day,product,complaint_type,count
 2026-07-17,P-Alpha,billing_error,2
 2026-07-17,P-Alpha,damaged_item,2
 2026-07-17,P-Alpha,delivery_delay,2
-2026-07-17,P-Alpha,support_wait,14
+2026-07-17,P-Alpha,support_wait,12
 2026-07-17,P-Beta,app_crash,3
 2026-07-17,P-Beta,billing_error,2
 2026-07-17,P-Beta,damaged_item,3
@@ -943,7 +943,7 @@ day,product,complaint_type,count
 2026-07-18,P-Alpha,billing_error,1
 2026-07-18,P-Alpha,damaged_item,1
 2026-07-18,P-Alpha,delivery_delay,2
-2026-07-18,P-Alpha,support_wait,14
+2026-07-18,P-Alpha,support_wait,11
 2026-07-18,P-Beta,app_crash,2
 2026-07-18,P-Beta,billing_error,1
 2026-07-18,P-Beta,damaged_item,3
@@ -963,7 +963,7 @@ day,product,complaint_type,count
 2026-07-19,P-Alpha,billing_error,3
 2026-07-19,P-Alpha,damaged_item,2
 2026-07-19,P-Alpha,delivery_delay,3
-2026-07-19,P-Alpha,support_wait,12
+2026-07-19,P-Alpha,support_wait,11
 2026-07-19,P-Beta,app_crash,3
 2026-07-19,P-Beta,billing_error,0
 2026-07-19,P-Beta,damaged_item,3
@@ -983,7 +983,7 @@ day,product,complaint_type,count
 2026-07-20,P-Alpha,billing_error,1
 2026-07-20,P-Alpha,damaged_item,3
 2026-07-20,P-Alpha,delivery_delay,4
-2026-07-20,P-Alpha,support_wait,12
+2026-07-20,P-Alpha,support_wait,11
 2026-07-20,P-Beta,app_crash,1
 2026-07-20,P-Beta,billing_error,0
 2026-07-20,P-Beta,damaged_item,2
@@ -1003,7 +1003,7 @@ day,product,complaint_type,count
 2026-07-21,P-Alpha,billing_error,1
 2026-07-21,P-Alpha,damaged_item,1
 2026-07-21,P-Alpha,delivery_delay,2
-2026-07-21,P-Alpha,support_wait,13
+2026-07-21,P-Alpha,support_wait,12
 2026-07-21,P-Beta,app_crash,3
 2026-07-21,P-Beta,billing_error,0
 2026-07-21,P-Beta,damaged_item,4
@@ -1023,7 +1023,7 @@ day,product,complaint_type,count
 2026-07-22,P-Alpha,billing_error,3
 2026-07-22,P-Alpha,damaged_item,2
 2026-07-22,P-Alpha,delivery_delay,4
-2026-07-22,P-Alpha,support_wait,14
+2026-07-22,P-Alpha,support_wait,13
 2026-07-22,P-Beta,app_crash,1
 2026-07-22,P-Beta,billing_error,2
 2026-07-22,P-Beta,damaged_item,3
@@ -1083,7 +1083,7 @@ day,product,complaint_type,count
 2026-07-25,P-Alpha,billing_error,3
 2026-07-25,P-Alpha,damaged_item,2
 2026-07-25,P-Alpha,delivery_delay,3
-2026-07-25,P-Alpha,support_wait,12
+2026-07-25,P-Alpha,support_wait,13
 2026-07-25,P-Beta,app_crash,1
 2026-07-25,P-Beta,billing_error,1
 2026-07-25,P-Beta,damaged_item,3
@@ -1123,7 +1123,7 @@ day,product,complaint_type,count
 2026-07-27,P-Alpha,billing_error,3
 2026-07-27,P-Alpha,damaged_item,3
 2026-07-27,P-Alpha,delivery_delay,4
-2026-07-27,P-Alpha,support_wait,12
+2026-07-27,P-Alpha,support_wait,11
 2026-07-27,P-Beta,app_crash,1
 2026-07-27,P-Beta,billing_error,2
 2026-07-27,P-Beta,damaged_item,3
@@ -1143,7 +1143,7 @@ day,product,complaint_type,count
 2026-07-28,P-Alpha,billing_error,3
 2026-07-28,P-Alpha,damaged_item,1
 2026-07-28,P-Alpha,delivery_delay,4
-2026-07-28,P-Alpha,support_wait,14
+2026-07-28,P-Alpha,support_wait,11
 2026-07-28,P-Beta,app_crash,2
 2026-07-28,P-Beta,billing_error,2
 2026-07-28,P-Beta,damaged_item,2
@@ -1163,7 +1163,7 @@ day,product,complaint_type,count
 2026-07-29,P-Alpha,billing_error,1
 2026-07-29,P-Alpha,damaged_item,1
 2026-07-29,P-Alpha,delivery_delay,3
-2026-07-29,P-Alpha,support_wait,13
+2026-07-29,P-Alpha,support_wait,12
 2026-07-29,P-Beta,app_crash,1
 2026-07-29,P-Beta,billing_error,2
 2026-07-29,P-Beta,damaged_item,2

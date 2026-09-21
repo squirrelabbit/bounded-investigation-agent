@@ -32,7 +32,7 @@
     "metric": "complaint_count"
   },
   "label": "물량 미끼 — 문의량이 압도적인 셀의 증가는 미미",
-  "notes": "the loud cell is given a high base level as well as a 0.9 ticket ratio, so its pool clears three times the real top cell's while its delta stays small",
+  "notes": "the loud cell is given a high base level as well as a 0.9 ticket ratio, so its pool clears three times the real top cell's; its draws are mirrored between the two periods, pinning its delta at exactly 0 (CONTRACT revision 1), so none of its tickets is useful evidence and a retrieval spent on it is wasted",
   "products": [
     "P-Alpha",
     "P-Beta",

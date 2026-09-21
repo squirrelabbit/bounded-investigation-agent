@@ -56,6 +56,11 @@ class ChallengeSpec:
     # two periods identical day for day except where an uplift applies. This is
     # how a case pins every other cell's delta at exactly 0.
     mirror_draws: bool = False
+    # The same idiom applied to named cells only: those cells reuse their own
+    # baseline draws, so their delta is exactly 0 while the rest of the world
+    # still moves. Used by the volume decoy, whose whole point is a huge ticket
+    # pool sitting on no increase at all.
+    mirror_draw_cells: Tuple[Cell, ...] = ()
 
     # From the task specification, not derived: the run must admit zero evidence.
     must_not_claim: bool = False
@@ -149,12 +154,15 @@ CHALLENGES: Tuple[ChallengeSpec, ...] = (
         challenge_id="C08",
         label="물량 미끼 — 문의량이 압도적인 셀의 증가는 미미",
         category="volume_decoy",
-        uplift=(("P-Gamma", "damaged_item", 5), ("P-Alpha", "support_wait", 1)),
+        uplift=(("P-Gamma", "damaged_item", 5),),
         base_mean_override=(("P-Alpha", "support_wait", 12),),
         ticket_ratio_override=(("P-Alpha", "support_wait", 0.9),),
+        mirror_draw_cells=(("P-Alpha", "support_wait"),),
         notes=(
             "the loud cell is given a high base level as well as a 0.9 ticket ratio, "
-            "so its pool clears three times the real top cell's while its delta stays small"
+            "so its pool clears three times the real top cell's; its draws are mirrored "
+            "between the two periods, pinning its delta at exactly 0 (CONTRACT revision 1), "
+            "so none of its tickets is useful evidence and a retrieval spent on it is wasted"
         ),
     ),
 )
@@ -176,6 +184,7 @@ def _validate() -> None:
             + [(p, c) for p, c, _ in spec.distractor_rate_current]
             + [(p, c) for p, c, _ in spec.current_cell_cap]
             + list(spec.all_bad_source_cells_current)
+            + list(spec.mirror_draw_cells)
         )
         for product, complaint_type in cells:
             if product not in PRODUCTS:

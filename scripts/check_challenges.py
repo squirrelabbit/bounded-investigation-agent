@@ -596,30 +596,127 @@ def main():
         ratio,
     )
 
-    # C08: the loud cell is loud but barely grew.
+    # C08: the loud cell is loud and did not grow at all (CONTRACT revision 1).
+    # Every number below is recomputed from the written files, not read out of
+    # the oracle, so the decoy cannot be declared harmless by the generator.
     m = measured["C08"]
+    entry = m["entry"]
     real_top = m["top_cell_filter"]
-    loud = entry_filter(m["entry"], "cell", "P-Alpha", "support_wait")
-    loud_delta = [
-        c["delta"]
-        for c in m["entry"]["positive_delta_cells"]
-        if (c["product"], c["complaint_type"]) == ("P-Alpha", "support_wait")
+    loud_cell = ("P-Alpha", "support_wait")
+    window = entry["expect_current_window"]
+    base_window = entry["expect_baseline_window"]
+    rows = load_rows("C08")
+    loud_current = sum(
+        c
+        for day, product, complaint_type, c in rows
+        if (product, complaint_type) == loud_cell and in_window(day, window)
+    )
+    loud_baseline = sum(
+        c
+        for day, product, complaint_type, c in rows
+        if (product, complaint_type) == loud_cell and in_window(day, base_window)
+    )
+    loud_delta = loud_current - loud_baseline
+    check(
+        loud_delta == 0,
+        "C08: loud cell delta recomputed from the CSV is %d (%d vs %d), expected exactly 0"
+        % (loud_delta, loud_current, loud_baseline),
+    )
+    check(
+        not any(
+            (c["product"], c["complaint_type"]) == loud_cell
+            for c in entry["positive_delta_cells"]
+        ),
+        "C08: the loud cell is listed among the positive-delta cells",
+    )
+
+    c08_tickets = load_tickets("C08")
+    loud_pool = [
+        t
+        for t in c08_tickets
+        if (t["product"], t["complaint_type"]) == loud_cell and in_window(t["day"], window)
+    ]
+    top_pool = [
+        t
+        for t in c08_tickets
+        if (t["product"], t["complaint_type"]) == (m["top_cell"]["product"], m["top_cell"]["complaint_type"])
+        and in_window(t["day"], window)
     ]
     check(
-        loud is not None and loud["pool"] >= 3 * real_top["pool"],
-        "C08: loud cell pool %s is not >= 3x the top cell's %d"
-        % (loud["pool"] if loud else None, real_top["pool"]),
+        len(loud_pool) >= 3 * len(top_pool),
+        "C08: loud cell pool %d is not >= 3x the real top cell's %d"
+        % (len(loud_pool), len(top_pool)),
+    )
+    useful_ids = set(entry["useful_ticket_ids"])
+    loud_useful = [t["ticket_id"] for t in loud_pool if t["ticket_id"] in useful_ids]
+    check(
+        not loud_useful,
+        "C08: %d loud-cell tickets are counted as useful evidence (e.g. %s)"
+        % (len(loud_useful), loud_useful[:3]),
+    )
+    # the filter that retrieves the loud cell and nothing else yields nothing
+    loud_only_useful = len(
+        [
+            t
+            for t in c08_tickets
+            if in_window(t["day"], window)
+            and (t["product"], t["complaint_type"]) == loud_cell
+            and t["ticket_id"] in useful_ids
+        ]
     )
     check(
-        bool(loud_delta) and m["top_cell"]["delta"] > loud_delta[0],
-        "C08: top cell delta %d is not strictly larger than the loud cell's %s"
-        % (m["top_cell"]["delta"], loud_delta),
+        loud_only_useful == 0,
+        "C08: a loud-cell-only retrieval would yield %d useful tickets, expected 0"
+        % loud_only_useful,
     )
-    properties["C08"] = "loud pool=%d (delta %d) vs top pool=%d (delta %d)" % (
-        loud["pool"],
-        loud_delta[0],
-        real_top["pool"],
-        m["top_cell"]["delta"],
+    offered_loud = entry_filter(entry, "cell", loud_cell[0], loud_cell[1])
+    check(
+        offered_loud is None or offered_loud["useful"] == 0,
+        "C08: the loud cell is offered as a candidate with useful %s"
+        % (offered_loud["useful"] if offered_loud else None),
+    )
+
+    # the yields must come from the real top cell's side, not from the decoy
+    top_useful_ids = {t["ticket_id"] for t in top_pool if t["ticket_id"] in useful_ids}
+    single = entry["best_single_filter_yield"]
+    two = entry["best_two_filter_yield"]
+    check(
+        single == real_top["useful"] or single > real_top["useful"],
+        "C08: best_single %d is below the real top cell's own yield %d"
+        % (single, real_top["useful"]),
+    )
+    best_filters = [f for f in entry["offerable_filters"] if f["useful"] == single]
+    for f in best_filters:
+        reached = {
+            t["ticket_id"]
+            for t in c08_tickets
+            if in_window(t["day"], window)
+            and t["ticket_id"] in useful_ids
+            and (f["product"] is None or t["product"] == f["product"])
+            and (f["complaint_type"] is None or t["complaint_type"] == f["complaint_type"])
+        }
+        check(
+            bool(reached & top_useful_ids),
+            "C08: the best single filter %s/%s reaches none of the real top cell's evidence"
+            % (f["product"], f["complaint_type"]),
+        )
+    check(
+        two >= single and two >= len(top_useful_ids),
+        "C08: best_two %d does not cover the real top cell's %d useful tickets"
+        % (two, len(top_useful_ids)),
+    )
+    properties["C08"] = (
+        "loud pool=%d delta=%d useful=%d; top cell pool=%d delta=%d useful=%d; single=%d two=%d"
+        % (
+            len(loud_pool),
+            loud_delta,
+            len(loud_useful),
+            len(top_pool),
+            m["top_cell"]["delta"],
+            len(top_useful_ids),
+            single,
+            two,
+        )
     )
 
     # ------------------------------------------------------------------
