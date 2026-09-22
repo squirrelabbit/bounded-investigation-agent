@@ -23,6 +23,7 @@ from bia.decision import (  # noqa: E402
     GreedyEvidenceSelector,
 )
 from bia.evidence import MAX_DECISION_CALLS, MAX_RETRIEVALS  # noqa: E402
+from bia.jev import CallBudget, FakeTransport, JevSelector  # noqa: E402
 from bia.store import load_scenario  # noqa: E402
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -30,9 +31,36 @@ ORACLE_PATH = os.path.join(REPO_ROOT, "data", "oracle", "challenge_oracle.json")
 CHALLENGE_ROOT = os.path.join(REPO_ROOT, "data", "challenges")
 RESULTS_DIR = os.path.join(REPO_ROOT, "eval", "v1", "results")
 
+# One budget for the whole process, not one per case. The scorer builds a new
+# selector for each of the 8 cases; a per-selector budget would silently reset
+# and the contract's "16 calls in total" would never bind.
+_JEV_PROCESS_BUDGET = CallBudget()
+
+
+def build_jev_selector() -> JevSelector:
+    """JEV stays locked here. A live run is a separate, approved decision.
+
+    §7-C's execution lock has three conditions, and the third — a fresh price
+    check — was not met on 2026-09-22 (the model is priced, with no free-tier
+    statement reproducible on vercel.com). So asking for a live run by setting
+    both BIA_JEV_LIVE=1 and a key does not start one: it stops the scorer and
+    says the approval is missing. Without that pair the scorer runs against a
+    FakeTransport, which cannot open a socket.
+    """
+    live_requested = os.environ.get("BIA_JEV_LIVE") == "1"
+    key_present = bool((os.environ.get("AI_GATEWAY_API_KEY") or "").strip())
+    if live_requested and key_present:
+        raise SystemExit(
+            "live JEV runs require explicit cost approval and are not enabled "
+            "(eval/v1/CONTRACT.md §7-C 실행 잠금 3). 실호출은 이 채점기에서 시작하지 않는다."
+        )
+    return JevSelector(transport=FakeTransport(), budget=_JEV_PROCESS_BUDGET)
+
+
 SELECTORS = {
     "heuristic": DeterministicHeuristicSelector,
     "greedy": GreedyEvidenceSelector,
+    "jev": build_jev_selector,
 }
 
 MIN_MACRO_YIELD = 0.40

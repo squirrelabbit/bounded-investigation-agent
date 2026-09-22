@@ -273,6 +273,29 @@ JEV 비교는 **v1.1 경계에서** 수행한다. §7·§7-A의 승리 조건과
 3. **실행 직전 가격 재확인이 통과해야 한다.** 유료로 바뀌었거나 가격을 확인할 수 없으면
    자동 실행하지 않고 비용 승인을 다시 받는다.
 
+### 모델에게 보내는 `state` 의 키 집합 (측정 전 사전등록)
+
+무엇을 보여주느냐는 결과를 바꾸는 선택이므로 측정 전에 고정한다. 정확히 아래 20개 키만 보낸다.
+
+```
+baseline_period_complete, baseline_period_completeness, baseline_total, baseline_window,
+comparability_mode, coverage_so_far, current_period_complete, current_period_completeness,
+current_total, current_window, decision_calls_left, decision_calls_used, delta,
+evidence_sufficient, investigated_candidate_ids, pct_change, retrievals_left,
+retrievals_used, top_complaint_types, top_products
+```
+
+- **문의 ID도 문의 본문도 보내지 않는다.** 모델은 근거를 읽고 판단하는 것이 아니라,
+  서버가 계산한 집계만 보고 다음에 무엇을 조사할지 고른다.
+- 직렬화는 `json.dumps(..., sort_keys=True, ensure_ascii=False)` 로 고정한다.
+- 이 목록을 바꾸면 비교는 무효다. 기준선 측정과 마찬가지로 측정 후 조정하지 않는다.
+
+### 호출 예산의 강제 지점
+
+`CallBudget(16)` 은 **프로세스 전역 단일 인스턴스**로 주입한다. 채점기는 사례마다 새 selector를
+만들기 때문에, selector 인스턴스마다 예산을 두면 사례마다 초기화되어 "총 16회"가 강제되지 않는다.
+테스트가 이 공유를 단언한다.
+
 ### 2026-09-22 가격 확인 결과 — **조건 미충족, 자동 실행 금지**
 
 공식 페이지에서 확인된 것은 **유료**다: 모델 페이지 `$0.042/1M input tokens`,
