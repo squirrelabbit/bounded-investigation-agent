@@ -98,7 +98,8 @@ DomainSpec(
 
 MetricSpec(name="revenue",         kind="additive", value="revenue_krw")
 MetricSpec(name="conversion_rate", kind="ratio",    numerator="orders",
-                                                     denominator="sessions")
+                                                     denominator="sessions",
+                                                     numerator_bounded_by_denominator=True)
 ```
 
 - `grain` 과 `dimensions` 는 **개념이 다르다.** 같은 목록일 수 있으나 용도가 다르다.
@@ -106,6 +107,9 @@ MetricSpec(name="conversion_rate", kind="ratio",    numerator="orders",
   - `dimensions` = 분석 시 breakdown 할 수 있는 축
 - 비율형은 **분자·분모를 둘 다 명시**해야 한다. 분모를 모르면 `mean(그룹 비율)` 과 `sum(N)/sum(D)` 를 구분할 수 없다.
 - metric 은 **코드에 선언된 닫힌 레지스트리**에서만 선택된다. 사용자 수식 문자열 금지.
+- `numerator_bounded_by_denominator` 는 불리언 선언이다. 모든 비율이 1 이하는 아니므로
+  (주문당 상품 수 같은 것) 도메인이 선언해야 한다. 참이면 integrity 가 `0 ≤ N_g ≤ D_g` 를 검사한다.
+  수식 언어가 아니라 불리언이므로 "임의 표현식 금지" 규율은 유지된다.
 
 ### 런타임 요청
 
@@ -154,6 +158,9 @@ plan
 > For N requested dimensions, the engine produces N marginal breakdowns and at most one full-joint breakdown. It does not generate intermediate dimension combinations.
 
 `breakdowns=(channel, device, category)` → `channel`, `device`, `category`, `channel×device×category`. 중간 조합(`channel×device` 등)은 만들지 않는다.
+
+`observed_cells` 는 **current 와 baseline 그룹 키의 합집합 크기**로 정의한다. 한 기간의 최대치만
+보면 실제 분해 대상 그룹 수를 과소평가한다 (baseline 800 + current 800, 겹침 300 → 1300).
 
 교차 셀 수가 `CROSS_CELL_LIMIT` 을 넘으면 **조용히 자르지 않고** 생략 사실을 결과에 남긴다.
 
@@ -230,7 +237,10 @@ entry_exit_effect = Σ net_contribution_g   for non-comparable groups
 breakdown 그룹은 전체 population 을 **상호배타적이고 완전하게 partition** 해야 한다. 이것이 깨지면 위 불변식이 무의미하다.
 
 - dimension 값이 NULL 이면 drop 하지 않고 `__UNKNOWN__` 버킷에 넣거나 integrity 에서 거부한다.
-- top-N 만 남기고 나머지를 버린 상태로 분해하지 않는다. 필요하면 `OTHER` 로 합쳐 partition 을 보존한다.
+- **v2 엔진은 breakdown 그룹을 top-N 으로 절단하지 않는다. 따라서 `OTHER` 버킷을 만들지 않는다.**
+  교차 셀이 많으면 절단이 아니라 `omitted` 로 처리한다.
+  나중에 renderer 가 표시 목적으로 그룹을 축약한다면 그것은 `StructuredAnalysisResult` **이후**의
+  관심사이며, 원본 분석 결과의 partition 을 변경하지 않는다.
 
 ---
 
@@ -239,29 +249,53 @@ breakdown 그룹은 전체 population 을 **상호배타적이고 완전하게 p
 ### 플래그 (전부 breakdown-local)
 
 ```
-composition_dominant  =  sign(Σ rate_effect) ≠ sign(ΔR)      (둘 다 0 이 아닐 때)
-simpson_strict        =  comparable 그룹 전부의 Δr 부호가 동일하고 ΔR 과 반대
-decomposition_complete=  |entry_exit_effect| ≤ FLOAT_TOL
+decomposition_complete =  |entry_exit_effect| ≤ FLOAT_TOL
+
+composition_dominant   =  decomposition_complete
+                          AND sign(total_rate_effect) ≠ sign(ΔR)
+                          AND 둘 다 0 이 아님
+
+simpson_strict         =  decomposition_complete
+                          AND comparable 그룹 수 ≥ 2
+                          AND 모든 comparable Δr 이 동일한 0 아닌 부호
+                          AND 그 부호가 ΔR 과 반대
 heavy_cancellation    =  gross > GROSS_EPSILON  AND  |ΔR| / gross < CANCELLATION_THRESHOLD
 gross_movement        =  Σ_g |net_contribution_g|            (항상 노출)
 ```
 
 `composition_dominant` 는 "모든 그룹이 반대"가 아니라 **rate 효과의 합이 전체와 반대**로 정의한다. 한 그룹이 예외적으로 움직여도 "구성이 지배했다"는 사실은 그대로이기 때문이다. `simpson_strict` 는 고전적 정의의 별도 진단으로 남긴다.
 
-세 플래그는 **조건과 무관하게 항상 계산해 기록**한다. 억제는 별도 규칙이다.
+플래그는 **조건과 무관하게 항상 계산해 기록**한다. 억제는 별도 규칙이다.
+
+`composition_dominant` 와 `simpson_strict` 가 `decomposition_complete` 를 전제로 하는 이유는,
+진입/이탈이 변화를 지배하는데 "구성이 지배했다"고 부르면 `entry_exit_effect` 를 따로 만든 이유와
+모순되기 때문이다. 아래가 그 경우다.
+
+```
+rate +2.0%p   mix +0.2%p   entry/exit −5.0%p   →   ΔR −2.8%p
+```
+
+rate 부호와 ΔR 부호가 다르지만 지배한 것은 구성이 아니라 진입/이탈이다.
 
 **단일 상위 기여 그룹 요약 억제 조건:**
 
 ```
-suppress_top_contributor  =  composition_dominant  OR  NOT decomposition_complete
+suppress_top_contributor  =  composition_dominant
+                             OR NOT decomposition_complete
+                             OR heavy_cancellation
+                             OR |ΔR| ≤ SHARE_EPSILON
 ```
 
-두 경우 모두 "이 그룹이 제일 나빴다" 는 요약이 오도한다. 전자는 변화가 구성 이동에서 왔고,
-후자는 변화의 일부가 진입/이탈에서 왔기 때문이다. 억제되면 rate/mix/entry_exit 세 항을 분리해 제시한다.
+넷 모두 "이 그룹이 제일 나빴다" 는 요약이 오도한다 — 구성 이동이 지배했거나, 진입/이탈이 지배했거나,
+내부 상쇄가 크거나, 전체 변화가 표시 가능한 크기보다 작기 때문이다. 억제되면 rate/mix/entry_exit
+세 항을 분리해 제시한다.
+
+`contribution_share` 노출 조건과 **같은 철학을 따른다.** share 는 숨기면서 상위 기여 문장은
+살아남는 상태가 되면 두 정책이 어긋난다.
 
 ### `contribution_share` 노출 조건
 
-파생값이며 **다섯을 모두 통과할 때만** 키가 존재한다. 하나라도 걸리면 `0` 이나 `null` 이 아니라 **키 부재**.
+파생값이며 **여섯을 모두 통과할 때만** 키가 존재한다. 하나라도 걸리면 `0` 이나 `null` 이 아니라 **키 부재**.
 
 ```
 1. composition_dominant 아님
@@ -269,10 +303,22 @@ suppress_top_contributor  =  composition_dominant  OR  NOT decomposition_complet
 3. heavy_cancellation 아님
 4. 해당 그룹 comparable
 5. |ΔR| > SHARE_EPSILON
+6. 0 < net_contribution_g / ΔR ≤ 1
 ```
 
 2번이 붙는 이유는 위 억제 조건과 같다 — 진입/이탈이 변화의 일부를 차지하면 "전체의 N%" 가 오도한다.
-5번은 안정성 조건이다. 분모가 표시 가능한 변화보다 작으면 share 가 극도로 불안정해진다. 통계적 유의성 기준이 아니라 **출력 규칙**이다.
+5번은 안정성 조건이다.
+
+6번이 **120% 구멍을 막는다.** 아래는 `heavy_cancellation`(0.20)에 걸리지 않는다:
+
+```
+A −0.012   B +0.002   →   ΔR −0.010
+gross 0.014,  |ΔR|/gross = 0.714        ← 상쇄 기준 통과
+A 의 share = 1.2                          ← 그런데 120%
+```
+
+전체 변화와 **같은 방향**으로 기여했고 그 몫이 전체를 넘지 않을 때만 share 를 보여준다.
+그 외에는 signed `net_contribution` 만 보여준다. 분모가 표시 가능한 변화보다 작으면 share 가 극도로 불안정해진다. 통계적 유의성 기준이 아니라 **출력 규칙**이다.
 
 non-comparable 그룹은 수학적으로 share 계산이 가능하지만 노출하지 않는다. `"새로 생긴 그룹이 하락의 45% 기여"` 는 rate deterioration 으로 오독된다. signed `net_contribution` 은 그대로 보여준다.
 
@@ -348,7 +394,19 @@ duplicate_key = domain.grain          (요청한 breakdown 이 아니라)
 |---|---|---|---|
 | complaints | `day × product × complaint_type` | product, complaint_type | `complaint_count` (additive) |
 | ecommerce | `day × channel × device × category` | channel, device, category | `revenue`, `orders` (additive), `conversion_rate` (ratio: orders/sessions) |
-| support_ops | `day × queue × priority` | queue, priority | `tickets` (additive), `resolution_rate` (ratio: resolved/received) |
+| support_ops | `day × queue × priority` | queue, priority | `tickets_received` (additive), `sla_resolution_rate` (ratio: `resolved_within_sla`/`received`, bounded) |
+
+### support_ops 데이터 형상 (확정)
+
+```
+columns:  day, queue, priority, received, resolved_within_sla
+day    =  ticket received cohort date        ← 해결일이 아니라 접수일
+metric contract:  0 ≤ resolved_within_sla ≤ received
+```
+
+`day` 를 접수 cohort 로 고정하는 이유는, "오늘 해결 / 오늘 접수" 로 두면 동일 cohort 의 비율이 아니고
+`resolved > received` 가 정상적으로 나올 수 있어 비율 의미론 검증이라는 목적과 어긋나기 때문이다.
+세 번째 도메인은 다양성을 보이기 위한 것이지 운영 모델을 재현하려는 것이 아니다.
 
 **complaints 는 `data/scenarios/S01~S24` 를 바이트 그대로 유지하고 spec 만 얹는다.** 새 포맷으로 재생성하거나 변환본을 만들면 regression gate 가 약해진다.
 
@@ -444,7 +502,13 @@ evidence·retrieval·verify·answer 코드는 **일반화하지 않는다.** v3 
 
 ## 13. 미결정
 
-| 항목 | 상태 |
-|---|---|
-| support_ops 의 구체적 데이터 형상 | 구현 시 결정. grain·metric 은 확정 |
-| `OTHER` 버킷을 언제 만드는가 | 18 사례에는 top-N 절단이 없어 발동하지 않음. partition 보존 규칙만 계약에 둔다 |
+없음. 설계 단계에서 열어두었던 두 항목(support_ops 데이터 형상, `OTHER` 버킷 발동 시점)은
+각각 §8 과 §4 에서 확정했다.
+
+## 14. 벤치마크 영향
+
+위 출력 정책 수정들은 **19번째 사례를 필요로 하지 않는다.** 기존 사례에 단언을 더 붙인다:
+
+- #6 cancellation → `suppress_top_contributor` 가 참인지
+- #4·#8 진입/이탈 → `composition_dominant` 가 **거짓**인지 (진입/이탈이 지배하므로)
+- #6 또는 #7 안에 share 가 1 을 넘는 구성을 포함해 노출 조건 6 을 발동시킨다
