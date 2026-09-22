@@ -17,7 +17,11 @@ sys.path.insert(
 
 from bia.answer import causal_terms_in  # noqa: E402
 from bia.controller import investigate  # noqa: E402
-from bia.decision import DecisionProvider, DeterministicHeuristicSelector  # noqa: E402
+from bia.decision import (  # noqa: E402
+    DecisionProvider,
+    DeterministicHeuristicSelector,
+    GreedyEvidenceSelector,
+)
 from bia.evidence import MAX_DECISION_CALLS, MAX_RETRIEVALS  # noqa: E402
 from bia.store import load_scenario  # noqa: E402
 
@@ -26,7 +30,10 @@ ORACLE_PATH = os.path.join(REPO_ROOT, "data", "oracle", "challenge_oracle.json")
 CHALLENGE_ROOT = os.path.join(REPO_ROOT, "data", "challenges")
 RESULTS_DIR = os.path.join(REPO_ROOT, "eval", "v1", "results")
 
-SELECTORS = {"heuristic": DeterministicHeuristicSelector}
+SELECTORS = {
+    "heuristic": DeterministicHeuristicSelector,
+    "greedy": GreedyEvidenceSelector,
+}
 
 MIN_MACRO_YIELD = 0.40
 
