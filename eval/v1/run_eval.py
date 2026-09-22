@@ -24,6 +24,8 @@ from bia.decision import (  # noqa: E402
 )
 from bia.evidence import MAX_DECISION_CALLS, MAX_RETRIEVALS  # noqa: E402
 from bia.jev import (  # noqa: E402
+    REASON_BUDGET_EXHAUSTED,
+    REASON_NO_CANDIDATES,
     CallBudget,
     FakeTransport,
     JevSelector,
@@ -31,6 +33,7 @@ from bia.jev import (  # noqa: E402
     RunGuard,
 )
 from bia.store import load_scenario  # noqa: E402
+from bia.types import DEFER  # noqa: E402
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ORACLE_PATH = os.path.join(REPO_ROOT, "data", "oracle", "challenge_oracle.json")
@@ -148,26 +151,95 @@ class RunObservation:
     decision_calls: int = 0
     retrievals: int = 0
     defer_selections: int = 0
+    forced_defers: int = 0
+    forced_defer_reasons: List[str] = field(default_factory=list)
+    failed_decisions: int = 0
+    failed_decision_reasons: List[str] = field(default_factory=list)
+    starved: bool = False
     downgraded_selections: int = 0
     finish_reason: str = "not_finished"
     accounting_ok: bool = True
 
 
+# What a single decision turned out to be (§7-E 굶은 결정은 보류가 아니다, 3항:
+# "분류는 넷이다"). The Controller's round record cannot tell the last three
+# apart — all three reach it as the string DEFER — and only the second one is a
+# model holding back. `selector_deferred` counts the second and nothing else.
+DECISION_CHOSEN = "chosen"
+DECISION_DEFERRED = "deferred"
+DECISION_FORCED = "forced"
+DECISION_FAILED = "failed"
+
+
 class _RecordingSelector(DecisionProvider):
-    """Delegates unchanged; records which kinds were on the menu each round.
+    """Delegates unchanged; records which kinds were on the menu each round, and
+    what kind of decision came back.
 
     EvidenceRound keeps the chosen candidate_id but not its kind, and the kind is
     exactly what a future provider would differ on.
+
+    It also classifies each decision as chosen / deferred / forced / failed. The
+    Controller sees only the returned string, so a DEFER the model chose, a
+    DEFER produced without any call ever being made, and a DEFER produced
+    because a call came back unusable are all identical to it — and §7-D's
+    표기 정정 made `selector_deferred` the one observation a "the model held back
+    in time" claim is read off. The distinction is taken from the provider's own
+    call record — `called=False` means no request was sent, `called=True` with a
+    `failure_reason` means one was sent and came back unusable — which is an
+    observation made ALONGSIDE the Controller: nothing here changes the
+    Controller or its fail-closed handling, and a provider that keeps no records
+    is classified from its return value exactly as before.
     """
 
     def __init__(self, inner: DecisionProvider) -> None:
         self._inner = inner
         self.name = inner.name
         self.offerings: List[Dict[str, str]] = []
+        self.decisions: List[Dict[str, Optional[str]]] = []
 
     def select_next_evidence(self, state, candidates):
         self.offerings.append({c.candidate_id: c.kind for c in candidates})
-        return self._inner.select_next_evidence(state, candidates)
+        records = getattr(self._inner, "records", None)
+        before = len(records) if isinstance(records, list) else None
+        returned = self._inner.select_next_evidence(state, candidates)
+        self.decisions.append(self._classify(candidates, returned, before))
+        return returned
+
+    def _classify(self, candidates, returned, before) -> Dict[str, Optional[str]]:
+        outcome, reason = self._provider_verdict(before)
+        if outcome is None and not candidates:
+            # Unreachable through the Controller, which stops before asking with
+            # an empty menu. Kept because a decision made with nothing on offer
+            # is forced by definition, whoever asks.
+            outcome, reason = DECISION_FORCED, REASON_NO_CANDIDATES
+        if outcome is not None:
+            return {"outcome": outcome, "reason": reason}
+        if returned == DEFER:
+            return {"outcome": DECISION_DEFERRED, "reason": None}
+        return {"outcome": DECISION_CHOSEN, "reason": None}
+
+    def _provider_verdict(self, before):
+        """What the provider wrote down about this decision, or (None, None).
+
+        `called=False` is the adapter's own word for "no request was sent" —
+        budget exhausted, run already halted, nothing on offer, too many
+        options. `called=True` with a `failure_reason` is the other one: a
+        request DID go out and what came back could not be used (transport
+        error, non-200, unparseable body, missing field, an option that was
+        never offered). Neither is a model holding back.
+        """
+        if before is None:
+            return None, None
+        records = getattr(self._inner, "records", None)
+        if not isinstance(records, list):
+            return None, None
+        for record in records[before:]:
+            reason = getattr(record, "failure_reason", None)
+            if not getattr(record, "called", True):
+                return DECISION_FORCED, reason or "uncalled"
+            if reason:
+                return DECISION_FAILED, reason
+        return None, None
 
 
 def _window(value) -> Optional[Dict[str, str]]:
@@ -199,6 +271,33 @@ def observe(result, tickets, recorder: _RecordingSelector) -> RunObservation:
         offered = recorder.offerings[index] if index < len(recorder.offerings) else {}
         investigated_kinds.append(offered.get(round_.candidate_id, "unknown"))
 
+    # Three DEFERs reach the Controller as one string; they are counted apart
+    # here. `defer_selections` keeps only the genuine model DEFER. A decision
+    # nobody was ever asked for is forced (and, for budget exhaustion,
+    # escalated to starvation); one whose call came back unusable is failed.
+    genuine_defers = 0
+    forced_defers = 0
+    forced_reasons: Set[str] = set()
+    failed_decisions = 0
+    failed_reasons: Set[str] = set()
+    starved = False
+    for index, round_ in enumerate(rounds):
+        decision = recorder.decisions[index] if index < len(recorder.decisions) else None
+        outcome = decision["outcome"] if decision is not None else None
+        if outcome == DECISION_FORCED:
+            forced_defers += 1
+            reason = decision["reason"] or "uncalled"
+            forced_reasons.add(reason)
+            if reason.split(":", 1)[0] == REASON_BUDGET_EXHAUSTED:
+                starved = True
+            continue
+        if outcome == DECISION_FAILED:
+            failed_decisions += 1
+            failed_reasons.add(decision["reason"] or "call_failed")
+            continue
+        if round_.selection_raw == DEFER and not round_.violation:
+            genuine_defers += 1
+
     positive_cells = set()
     if metrics is not None:
         positive_cells = {
@@ -224,9 +323,12 @@ def observe(result, tickets, recorder: _RecordingSelector) -> RunObservation:
         known_ticket_ids={t.ticket_id for t in tickets},
         decision_calls=state.decision_calls,
         retrievals=state.retrievals,
-        defer_selections=sum(
-            1 for r in state.rounds if r.selection_raw == "DEFER" and not r.violation
-        ),
+        defer_selections=genuine_defers,
+        forced_defers=forced_defers,
+        forced_defer_reasons=sorted(forced_reasons),
+        failed_decisions=failed_decisions,
+        failed_decision_reasons=sorted(failed_reasons),
+        starved=starved,
         downgraded_selections=sum(1 for r in state.rounds if r.violation),
         finish_reason=state.finish_reason,
         accounting_ok=len(valid_rounds) >= state.retrievals,
@@ -341,6 +443,11 @@ def score_case(
     # key is only present when it is true, so a clean case carries no such mark.
     if incomplete:
         record["incomplete"] = True
+    # §7-E "굶은 결정은 보류가 아니다": a case that ran out of call budget produced
+    # numbers without ever being asked. Marked the same way `incomplete` is —
+    # present only when true, so a case that got its calls carries no such mark.
+    if obs is not None and obs.starved:
+        record["starved"] = True
     if obs is None:
         record["error"] = error or "unknown error"
         record["failures"] = ["EXEC"]
@@ -372,8 +479,21 @@ def score_case(
     # V-4 records that no wrong evidence was SHOWN. It does not record that the
     # selector chose to hold back: a run can admit nothing because every retrieval
     # it spent came back empty. The two are separate observations and are kept apart.
+    # Genuine model DEFERs only. A decision that never got a call, and one whose
+    # call came back unusable, are not the model holding back and must not raise
+    # this flag (§7-E 굶은 결정은 보류가 아니다, 1항·3항).
     record["selector_deferred"] = obs.defer_selections > 0
     record["defer_selections"] = obs.defer_selections
+    # Present only when there is something to report, so a selector that can
+    # neither starve nor fail a call — the two code baselines never see a
+    # CallBudget or a transport — writes exactly the record it wrote before this
+    # distinction existed.
+    if obs.forced_defers:
+        record["forced_defers"] = obs.forced_defers
+        record["forced_defer_reasons"] = list(obs.forced_defer_reasons)
+    if obs.failed_decisions:
+        record["failed_decisions"] = obs.failed_decisions
+        record["failed_decision_reasons"] = list(obs.failed_decision_reasons)
     record["downgraded_selections"] = obs.downgraded_selections
     record["investigated_kind_counts"] = {
         kind: obs.investigated_kinds.count(kind) for kind in CANDIDATE_KINDS
@@ -676,6 +796,14 @@ def partial_document(
         document["notice"] = DRY_RUN_NOTICE + " " + PARTIAL_NOTICE
         document["choice_policy"] = RehearsalTransport.policy
         document["choice_policy_description"] = RehearsalTransport.policy_description
+    # A halted run can also have starved earlier cases. Both conditions are kept
+    # in the document and stay readable apart: `halted` is one, `starved_cases`
+    # the other.
+    starved = starved_case_ids(records)
+    if starved:
+        document["starved_cases"] = starved
+        document["starved_case_count"] = len(starved)
+        document["notice"] = document["notice"] + " " + starved_notice(starved)
     return document
 
 
@@ -701,6 +829,54 @@ def print_halt_report(document: Dict[str, object], path: str) -> None:
     print("부분 결과 저장   : %s" % path)
     print(document["notice"])
     print("전체: 중단(PARTIAL) — PASS 도 FAIL 도 아니다. 비교 판정 없음.")
+
+
+# --------------------------------------------------------------------------
+# §7-E 굶은 결정: a run that ran out of calls is never presentable either
+# --------------------------------------------------------------------------
+
+STARVED_NOTICE = (
+    "굶은 실행이다. 호출 예산이 소진돼 %d개 사례(%s)가 결정 호출을 한 번도 받지 못했다. "
+    "그 사례의 보류는 모델의 판단이 아니라 강제된 것이고, yield 0.0 으로 macro 평균만 "
+    "조용히 끌어내린다. 이 파일은 §7 비교에 쓰지 않는다 — 모든 결정이 호출 기회를 받은 "
+    "실행만 비교에 들어간다. 중단(halted)과는 다른 조건이며 문서에 따로 적힌다. "
+    "정식 결과 파일은 건드리지 않고 별도 파일명에 기록한다 — 유료로 얻은 측정 결과를 "
+    "굶은 재실행이 덮는 사고를 막는다."
+)
+
+
+def starved_case_ids(records: List[Dict[str, object]]) -> List[str]:
+    return [str(r["case_id"]) for r in records if r.get("starved")]
+
+
+def starved_results_path(selector: str, dry_run: bool = False) -> str:
+    """A separate filename, for the same reason a halted run gets one (§7-E 4항).
+
+    A paid measurement is written once and cannot be obtained again without
+    spending money; a later starved re-run in the same process — the margin is
+    zero, so this is one stray call away — must not be able to overwrite it. So
+    a starved run never writes `<selector>.json`, and nothing that reads the
+    results filename can reach one.
+    """
+    if dry_run:
+        return os.path.join(RESULTS_DIR, "%s_dryrun_STARVED.json" % selector)
+    return os.path.join(RESULTS_DIR, "%s_STARVED.json" % selector)
+
+
+def starved_notice(starved: Sequence[str]) -> str:
+    return STARVED_NOTICE % (len(starved), ", ".join(starved))
+
+
+def print_starved_report(starved: Sequence[str], path: str) -> None:
+    print("\n" + "=" * 72)
+    print("!! 굶은 실행 (§7-E) — 이 결과는 비교에 쓸 수 없다")
+    print("=" * 72)
+    print("예산 소진으로 굶은 사례: %d개" % len(starved))
+    print("사례 목록              : %s" % (", ".join(starved) or "-"))
+    print(starved_notice(starved))
+    print("결과 저장   : %s" % path)
+    print("정식 결과 파일: 쓰지 않았다 (덮어쓰기 없음)")
+    print("전체: 굶음(STARVED) — 비교 판정 없음.")
 
 
 # --------------------------------------------------------------------------
@@ -760,6 +936,36 @@ def print_dry_run_banner() -> None:
     print("실제 모델 호출  : 0")
     print(DRY_RUN_NOTICE)
     print("=" * 72)
+
+
+def results_path_for(
+    selector: str,
+    dry_run: bool = False,
+    halted: bool = False,
+    starved: bool = False,
+) -> str:
+    """The one place a run's output filename is decided.
+
+    **Precedence when a run is both halted and starved: the halt names the
+    file.** The document still records both conditions (`halt_reason` and
+    `starved_cases`), so nothing is lost by the choice — and a halt is the
+    stronger statement, because the remaining cases were never attempted at all
+    and the reader already has a halt report to read the file against.
+
+    That combination cannot in fact be produced by the loop: starvation means
+    the budget hit zero, after which no request is ever sent, and a halt
+    requires a call that was sent and failed. So the rule is a guard on a path
+    that does not run today. It is pinned by a test rather than left implicit,
+    because the thing it protects — a paid result file — cannot be recovered if
+    a future change picks the other branch.
+    """
+    if halted:
+        return partial_results_path(selector, dry_run=dry_run)
+    if starved:
+        return starved_results_path(selector, dry_run=dry_run)
+    if dry_run:
+        return dry_run_results_path(selector)
+    return os.path.join(RESULTS_DIR, "%s.json" % selector)
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -826,16 +1032,24 @@ def main(argv: Optional[List[str]] = None) -> int:
                 total_cases=len(case_ids),
                 dry_run=args.dry_run,
             )
-            path = partial_results_path(args.selector, dry_run=args.dry_run)
+            path = results_path_for(
+                args.selector,
+                dry_run=args.dry_run,
+                halted=True,
+                starved=bool(starved_case_ids(records)),
+            )
             write_partial(path, document)
             print_halt_report(document, path)
             return 2
 
     summary = aggregate(records)
+    starved = starved_case_ids(records)
 
     os.makedirs(RESULTS_DIR, exist_ok=True)
+    out_path = results_path_for(
+        args.selector, dry_run=args.dry_run, starved=bool(starved)
+    )
     if args.dry_run:
-        out_path = dry_run_results_path(args.selector)
         payload: Dict[str, object] = dry_run_document(
             selector=args.selector,
             records=records,
@@ -843,8 +1057,17 @@ def main(argv: Optional[List[str]] = None) -> int:
             calls_spent=_JEV_PROCESS_BUDGET.used,
         )
     else:
-        out_path = os.path.join(RESULTS_DIR, "%s.json" % args.selector)
         payload = {"selector": args.selector, "summary": summary, "cases": records}
+    # A starved run is not a comparison, exactly as a halted one is not. The two
+    # conditions are marked separately so a reader can tell which one happened.
+    if starved:
+        payload["comparable"] = False
+        payload["halted"] = _JEV_PROCESS_GUARD.halted
+        payload["starved_cases"] = starved
+        payload["starved_case_count"] = len(starved)
+        notice = starved_notice(starved)
+        existing = payload.get("notice")
+        payload["notice"] = "%s %s" % (existing, notice) if existing else notice
     with open(out_path, "w", encoding="utf-8") as handle:
         json.dump(
             payload,
@@ -864,6 +1087,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         mark = "PASS" if not record["failures"] else "FAIL(%s)" % ",".join(record["failures"])
         if record.get("incomplete"):
             mark += " INCOMPLETE(중단된 사례)"
+        if record.get("starved"):
+            mark += " STARVED(호출 예산 소진 — 보류가 아니다)"
         if record["crashed"]:
             mark += " " + str(record.get("error"))
         print(
@@ -910,6 +1135,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         print("\n결과 저장: %s" % out_path)
         print_dry_run_banner()
         print("전체: 리허설 완료 — PASS 도 FAIL 도 아니다. 비교 판정 없음.")
+        if starved:
+            print_starved_report(starved, out_path)
+            return 2
         return 0
 
     print("\n== 기준 판정 ==")
@@ -917,6 +1145,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         print("%-12s %s" % (code, "PASS" if summary["verdict"][code] else "FAIL"))
     print("\n결과 저장: %s" % out_path)
     print("전체: %s" % ("PASS" if summary["passed"] else "FAIL"))
+    if starved:
+        print_starved_report(starved, out_path)
+        return 2
     return 0 if summary["passed"] else 1
 
 
