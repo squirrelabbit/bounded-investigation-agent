@@ -234,7 +234,7 @@ def _write_metric_facts(doc: AnswerDocument, state: EvidenceState) -> None:
         rendered = ", ".join(
             "%s %s건 (늘어난 그룹 합계의 %s%%)"
             % (
-                _display(group.value),
+                doc.num(_display(group.value)),
                 doc.num("%+d" % group.delta),
                 doc.num("%.0f" % (100 * group.share_of_increase)),
             )
@@ -255,6 +255,10 @@ def _write_metric_facts(doc: AnswerDocument, state: EvidenceState) -> None:
 
 
 def _display(value: str) -> str:
+    """Group labels come from the delivered data, so a product named `Model-2024`
+    is a sourced value, not prose. Every call site registers the rendered label
+    with `doc.num` for that reason — otherwise the number guard reads the digits
+    in a customer's own product name as an unsourced number and aborts the run."""
     return label_ko(value) if "_" in value else value
 
 
@@ -282,7 +286,7 @@ def _write_evidence(doc: AnswerDocument, state: EvidenceState) -> None:
         doc.evidence.append(
             "조사 대상 [%s]: 검증 통과 %s건 / 해당 구간 문의 %s건 (coverage %s)"
             % (
-                round_.candidate_label,
+                doc.num(round_.candidate_label),
                 doc.num(len(round_.admitted)),
                 doc.num(round_.pool_size),
                 doc.num("%.2f" % round_.coverage),
@@ -308,8 +312,8 @@ def _write_evidence(doc: AnswerDocument, state: EvidenceState) -> None:
                 % (
                     doc.num(item.ticket_id),
                     doc.num(item.day),
-                    _display(item.complaint_type),
-                    item.source,
+                    doc.num(_display(item.complaint_type)),
+                    doc.num(item.source),
                     doc.quote(item.excerpt),
                 )
             )
@@ -340,7 +344,8 @@ def _write_unknowns(doc: AnswerDocument, state: EvidenceState) -> None:
     for round_ in state.rounds:
         if round_.truncated:
             doc.unknown.append(
-                "조회 상한에 걸려 [%s] 구간 문의의 일부만 확인했다" % round_.candidate_label
+                "조회 상한에 걸려 [%s] 구간 문의의 일부만 확인했다"
+                % doc.num(round_.candidate_label)
             )
     uninvestigated = _uninvestigated(state)
     if uninvestigated:

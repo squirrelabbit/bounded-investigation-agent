@@ -1,6 +1,28 @@
 # bounded-investigation-agent
 
-"지난달보다 고객 불만이 왜 늘었어?" **한 종류의 질문만** 조사하는 명령줄 도구. 증감과 기여 그룹은 코드가 결정론적으로 계산하고, 모델은 서버가 만든 닫힌 후보 중 "다음에 무엇을 볼지" ID 하나만 고른다.
+> A small reference implementation and benchmark for testing where probabilistic
+> decision models belong in an analytical investigation pipeline.
+
+분석 파이프라인에서 **확률적 결정 모델을 어디에 두어야 하는지**를 실제 코드와 시험지로 검증한 기록이다. 범용 분석 도구가 아니다.
+
+정형 데이터의 계산·검증은 코드가 결정론적으로 수행하고, 답이 하나로 정해지지 않는 **근거 선택 지점에서만** 결정 모델을 쓴다. 그 배치가 실제로 이득인지를 같은 시험지 위에서 세 selector로 비교했다 — 좁은 휴리스틱, 강한 코드 규칙, 그리고 실제 모델.
+
+### 이 벤치마크에서 나온 결과
+
+> In this benchmark, JEV improved over a narrow heuristic but did not outperform a
+> stronger deterministic policy. It also added substantial latency without increasing
+> evidence yield. More importantly, **server-side verification prevented unsupported
+> evidence from reaching the final answer regardless of the decision strategy.**
+
+| | heuristic | greedy | JEV |
+|---|---|---|---|
+| 근거 확보율 | 0.3718 | **0.6582** | 0.5955 |
+| 전체 지연 | 69.9 ms | 66.2 ms | 8,294.7 ms |
+| **최종 잘못된 근거** | **0건** | **0건** | **0건** |
+
+**Decision quality and system safety are different problems.** selector 둘이 함정에서 판단을 틀렸는데도 최종 잘못된 근거는 0건이었다 — 그 경계를 서버가 쥐고 있었기 때문이다.
+
+이 구조는 벤치마크 fixture에 묶여 있지 않다. 같은 계약의 외부 데이터를 `--data-dir` 로 넣으면 **동일한 파이프라인**이 그대로 돈다.
 
 ---
 
@@ -169,7 +191,7 @@ python3 -m bia.datagen
 ### 동작 확인
 
 ```bash
-python3 -m unittest discover -t . -s tests -q     # 357 tests, OK
+python3 -m unittest discover -t . -s tests -q     # 409 tests, OK
 python3 scripts/check_datagen.py                  # 합성 데이터 자체 검사
 python3 eval/run_eval.py                          # 24개 시나리오 평가, 종료코드 0이면 합격
 python3 -m bia.cli demo --case normal
@@ -215,7 +237,10 @@ bounded-investigation-agent/
 │   └── results/          # 실행 결과
 ├── scripts/
 │   └── check_datagen.py  # 합성 데이터 자체 검사
-├── tests/                # 357 tests
+├── examples/
+│   ├── custom-data-template/  # 자기 데이터로 돌려보는 최소 예시
+│   └── README.md              # 두 파일 계약과 닫힌 값 목록
+├── tests/                # 409 tests
 └── SCOPE.md              # 범위·비범위·권한 경계·완료 조건
 ```
 
@@ -228,6 +253,10 @@ python3 -m bia.cli list-scenarios                 # 생성된 24개 시나리오
 python3 -m bia.cli run --scenario S14             # 하나 조사
 python3 -m bia.cli run --scenario S14 --json      # 구조화된 실행 기록
 python3 -m bia.cli demo --case partial            # 데모 3종
+
+# 자기 데이터로 돌리기 — metrics.csv 와 tickets.jsonl 두 파일만 있으면 된다
+python3 -m bia.cli run --data-dir ./examples/custom-data-template \
+  --current 2026-07-01:2026-07-07 --baseline 2026-06-01:2026-06-07
 ```
 
 | 옵션 | 기본값 | 설명 |
@@ -236,6 +265,14 @@ python3 -m bia.cli demo --case partial            # 데모 3종
 | `--selector` | `heuristic` | 현재 선택 가능한 값은 `heuristic` 하나 |
 | `--json` | 꺼짐 | intent·EvidenceState·후보·검증 결과·답변 전체를 JSON으로 |
 | `--case` | (필수) | `normal`, `partial`, `no-evidence` |
+| `--data-dir` | — | `metrics.csv` + `tickets.jsonl` 이 든 디렉터리. `--scenario` 와 함께 쓸 수 없다 |
+| `--current` / `--baseline` | — | `--data-dir` 사용 시 필수. `START:END` (ISO, 양끝 포함) |
+
+`--data-dir` 로 넣는 데이터는 **동결된 fixture와 같은 형식**이어야 한다: `metrics.csv` 는 `day,product,complaint_type,count`, `tickets.jsonl` 은 `ticket_id/day/product/complaint_type/text/source`. `complaint_type` 과 `source` 는 값이 닫혀 있고, 목록 밖 값은 로드 시점에 막는다 — [examples/README.md](examples/README.md) 참고. 컬럼 자동 인식·별칭·스키마 매핑은 **의도적으로 없다.**
+
+CLI 에서는 모델 selector를 실행할 수 없다. 오프라인 코드 selector(`heuristic`, `greedy`)만 돈다 — 모델 호출은 과금되므로 CLI 한 줄로 발생시키지 않는다.
+
+이것이 보이는 것은 **portability** 다: 같은 계약의 다른 데이터에서도 이 아키텍처가 돈다는 것. *"실제 고객불만 데이터에서도 JEV 성능이 이렇다"* 는 주장은 아니며, 이 저장소는 그것을 주장하지 않는다.
 
 `--json` 출력의 `state` 에는 비교 구간과 기간 완결성, 전체 증감, 상위 기여 제품·불만 유형, 이미 조사한 후보, 찾은 문의 ID와 출처, coverage, decision 호출 수와 retrieval 횟수, 경계 위반 기록이 들어 있다.
 

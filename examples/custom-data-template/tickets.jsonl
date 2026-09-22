@@ -1,0 +1,9 @@
+{"complaint_type": "delivery_delay", "day": "2026-06-03", "product": "Aurora", "source": "email", "text": "Shipping took one day longer than the estimate, but it did arrive.", "ticket_id": "T-0001"}
+{"complaint_type": "delivery_delay", "day": "2026-06-04", "product": "Aurora", "source": "email", "text": "The parcel was late by an evening; the packaging was fine.", "ticket_id": "T-0002"}
+{"complaint_type": "delivery_delay", "day": "2026-07-01", "product": "Aurora", "source": "web_form", "text": "The parcel is late again and has not arrived at the pickup point.", "ticket_id": "T-0003"}
+{"complaint_type": "delivery_delay", "day": "2026-07-02", "product": "Aurora", "source": "email", "text": "My order was delayed by four days and the shipping status never moved.", "ticket_id": "T-0004"}
+{"complaint_type": "app_crash", "day": "2026-07-02", "product": "Borealis", "source": "in_app", "text": "The app freezes on the payment screen every single time.", "ticket_id": "T-0005"}
+{"complaint_type": "delivery_delay", "day": "2026-07-03", "product": "Aurora", "source": "in_app", "text": "Dispatch was late and the courier never showed up on the promised day.", "ticket_id": "T-0006"}
+{"complaint_type": "app_crash", "day": "2026-07-03", "product": "Borealis", "source": "in_app", "text": "It crashes as soon as I open the order history.", "ticket_id": "T-0007"}
+{"complaint_type": "delivery_delay", "day": "2026-07-04", "product": "Aurora", "source": "web_form", "text": "Still waiting for the package; shipping has not moved since Monday.", "ticket_id": "T-0008"}
+{"complaint_type": "delivery_delay", "day": "2026-07-05", "product": "Aurora", "source": "email", "text": "The delivery is late and the tracking page has not arrived at a new step.", "ticket_id": "T-0009"}
