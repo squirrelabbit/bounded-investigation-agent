@@ -23,7 +23,13 @@ from bia.decision import (  # noqa: E402
     GreedyEvidenceSelector,
 )
 from bia.evidence import MAX_DECISION_CALLS, MAX_RETRIEVALS  # noqa: E402
-from bia.jev import CallBudget, FakeTransport, JevSelector, RunGuard  # noqa: E402
+from bia.jev import (  # noqa: E402
+    CallBudget,
+    FakeTransport,
+    JevSelector,
+    RehearsalTransport,
+    RunGuard,
+)
 from bia.store import load_scenario  # noqa: E402
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -71,11 +77,37 @@ def build_jev_selector() -> JevSelector:
     )
 
 
+def build_jev_rehearsal_selector() -> JevSelector:
+    """The offline rehearsal (§7-E 실행 전 오프라인 리허설). Not a measurement.
+
+    The locked default transport has no scripted response, so the very first
+    call fails, the run halts at C01, and the 8-case loop has never once run end
+    to end. A wiring defect would therefore be discovered with paid calls. This
+    factory swaps in `RehearsalTransport`, which answers every request offline
+    with a well-formed body, and changes nothing else: the same process-wide
+    `CallBudget` and the same `RunGuard` are shared, so the rehearsal exercises
+    the budget and halt plumbing a real run would use.
+
+    It reads no environment variable and holds no key. `build_jev_selector`'s
+    lock is untouched and is not consulted here, because there is nothing to
+    unlock: this path cannot open a socket.
+    """
+    return JevSelector(
+        transport=RehearsalTransport(),
+        budget=_JEV_PROCESS_BUDGET,
+        guard=_JEV_PROCESS_GUARD,
+    )
+
+
 SELECTORS = {
     "heuristic": DeterministicHeuristicSelector,
     "greedy": GreedyEvidenceSelector,
     "jev": build_jev_selector,
 }
+
+# --dry-run is only meaningful for the selector that actually calls out.
+DRY_RUN_SELECTOR = "jev"
+DRY_RUN_FACTORIES = {DRY_RUN_SELECTOR: build_jev_rehearsal_selector}
 
 MIN_MACRO_YIELD = 0.40
 
@@ -293,6 +325,7 @@ def score_case(
     oracle_case: Dict[str, object],
     obs: Optional[RunObservation],
     error: Optional[str] = None,
+    incomplete: bool = False,
 ) -> Dict[str, object]:
     record: Dict[str, object] = {
         "case_id": case_id,
@@ -302,6 +335,12 @@ def score_case(
         "crashed": obs is None,
         "failures": [],
     }
+    # §7-E halts between cases, so the case the halt happened DURING is still
+    # scored and still reported. Its later decision never completed, so its
+    # numbers are not a clean case's numbers and must not be read as such. The
+    # key is only present when it is true, so a clean case carries no such mark.
+    if incomplete:
+        record["incomplete"] = True
     if obs is None:
         record["error"] = error or "unknown error"
         record["failures"] = ["EXEC"]
@@ -567,14 +606,16 @@ def case_dir(case_id: str) -> str:
     return os.path.join(CHALLENGE_ROOT, case_id)
 
 
-def run_case(case_id: str, selector: str) -> Tuple[Optional[RunObservation], Optional[str]]:
+def run_case(
+    case_id: str, selector: str, factory=None
+) -> Tuple[Optional[RunObservation], Optional[str]]:
     directory = case_dir(case_id)
     if not os.path.isdir(directory):
         raise SystemExit(
             "challenge 데이터 %s 가 없다. %s: %s" % (case_id, MISSING_DATA_HINT, directory)
         )
     intent, rows, tickets, _meta = load_scenario(directory)
-    recorder = _RecordingSelector(SELECTORS[selector]())
+    recorder = _RecordingSelector((factory or SELECTORS[selector])())
     try:
         result = investigate(intent, rows, tickets, recorder)
     except Exception as exc:  # a guard firing is a failure of the run, never swallowed
@@ -593,13 +634,16 @@ PARTIAL_NOTICE = (
 )
 
 
-def partial_results_path(selector: str) -> str:
+def partial_results_path(selector: str, dry_run: bool = False) -> str:
     """A separate filename on purpose.
 
     The completed baselines live in `<selector>.json` and are pre-registered
     results. A halted run must not overwrite one of them, and must not be
-    reachable by anything that reads the normal filename.
+    reachable by anything that reads the normal filename. A halted REHEARSAL is
+    further away still: it is neither a result nor a real partial run.
     """
+    if dry_run:
+        return os.path.join(RESULTS_DIR, "%s_dryrun_PARTIAL.json" % selector)
     return os.path.join(RESULTS_DIR, "%s_PARTIAL.json" % selector)
 
 
@@ -609,11 +653,12 @@ def partial_document(
     halt_reason: str,
     calls_spent: int,
     total_cases: int,
+    dry_run: bool = False,
 ) -> Dict[str, object]:
     """The marked-partial payload. It carries no summary and no verdict: there
     is nothing to pass or fail, and a reader must not be able to mistake a
     stopped run for a comparison."""
-    return {
+    document: Dict[str, object] = {
         "selector": selector,
         "halted": True,
         "halt_reason": halt_reason,
@@ -626,6 +671,12 @@ def partial_document(
         "calls_spent": calls_spent,
         "cases": records,
     }
+    if dry_run:
+        document["simulated"] = True
+        document["notice"] = DRY_RUN_NOTICE + " " + PARTIAL_NOTICE
+        document["choice_policy"] = RehearsalTransport.policy
+        document["choice_policy_description"] = RehearsalTransport.policy_description
+    return document
 
 
 def write_partial(path: str, document: Dict[str, object]) -> None:
@@ -643,9 +694,72 @@ def print_halt_report(document: Dict[str, object], path: str) -> None:
     print("완료한 사례      : %s / %s" % (document["cases_completed"], document["cases_total"]))
     print("실행하지 않은 사례: %s" % document["cases_not_run"])
     print("사용한 호출 수   : %s" % document["calls_spent"])
+    incomplete = [
+        record["case_id"] for record in document["cases"] if record.get("incomplete")
+    ]
+    print("중단 중 실행된 사례: %s" % (", ".join(incomplete) or "-"))
     print("부분 결과 저장   : %s" % path)
     print(document["notice"])
     print("전체: 중단(PARTIAL) — PASS 도 FAIL 도 아니다. 비교 판정 없음.")
+
+
+# --------------------------------------------------------------------------
+# §7-E offline rehearsal: a wiring check that must never look like a result
+# --------------------------------------------------------------------------
+
+DRY_RUN_NOTICE = (
+    "이것은 배선 리허설(dry run)이다. 실제 모델 호출은 한 번도 일어나지 않았고, "
+    "선택은 오프라인 가짜 전송이 'criteria 첫 번째 선택지'를 기계적으로 고른 결과다. "
+    "따라서 여기 적힌 수치는 JEV의 성적이 아니며 §7 비교에 쓰지 않는다. "
+    "이 실행이 확인하는 것은 답의 품질이 아니라 8사례가 끝까지 돌아가는가, "
+    "호출 수가 상한 안에 있는가, 채점기가 결과를 기록하는가 셋뿐이다."
+)
+
+
+def dry_run_results_path(selector: str) -> str:
+    """Never `<selector>.json`. A rehearsal must be unreachable by anything that
+    reads the results filename, and must not be able to overwrite one."""
+    return os.path.join(RESULTS_DIR, "%s_dryrun.json" % selector)
+
+
+def dry_run_document(
+    selector: str,
+    records: List[Dict[str, object]],
+    summary: Dict[str, object],
+    calls_spent: int,
+) -> Dict[str, object]:
+    """The normal scoring fields are kept — that is the point, the scorer's
+    plumbing is being exercised — wrapped in markings that make the document
+    unusable as a measurement."""
+    return {
+        "selector": selector,
+        "simulated": True,
+        "comparable": False,
+        "notice": DRY_RUN_NOTICE,
+        "transport": RehearsalTransport.name,
+        "choice_policy": RehearsalTransport.policy,
+        "choice_policy_description": RehearsalTransport.policy_description,
+        "real_model_calls": 0,
+        "calls_spent": calls_spent,
+        "call_budget_maximum": _JEV_PROCESS_BUDGET.maximum,
+        "halted": _JEV_PROCESS_GUARD.halted,
+        "halt_reason": _JEV_PROCESS_GUARD.halt_reason,
+        "cases_completed": len(records),
+        "summary": summary,
+        "cases": records,
+    }
+
+
+def print_dry_run_banner() -> None:
+    print("=" * 72)
+    print("!! 리허설(dry run) — JEV 측정이 아니다. 비교에 쓰지 않는다")
+    print("=" * 72)
+    print("전송            : %s (오프라인 가짜)" % RehearsalTransport.name)
+    print("선택 정책       : %s" % RehearsalTransport.policy)
+    print("                  %s" % RehearsalTransport.policy_description)
+    print("실제 모델 호출  : 0")
+    print(DRY_RUN_NOTICE)
+    print("=" * 72)
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -653,7 +767,29 @@ def main(argv: Optional[List[str]] = None) -> int:
         prog="eval.v1.run_eval", description="v1 challenge 채점기"
     )
     parser.add_argument("--selector", default="heuristic", choices=sorted(SELECTORS))
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help=(
+            "오프라인 리허설 (--selector %s 전용). 가짜 전송으로 8사례 루프를 완주시켜 "
+            "배선만 확인한다. 결과는 %s_dryrun.json 에 simulated 로 기록하고 비교에 쓰지 않는다."
+            % (DRY_RUN_SELECTOR, DRY_RUN_SELECTOR)
+        ),
+    )
     args = parser.parse_args(argv)
+
+    if args.dry_run and args.selector not in DRY_RUN_FACTORIES:
+        raise SystemExit(
+            "--dry-run 은 --selector %s 에만 쓴다 (요청된 selector: %s). "
+            "코드 기준선은 모델을 호출하지 않으므로 리허설할 배선이 없다. "
+            "--dry-run 없이 다시 실행하라." % (DRY_RUN_SELECTOR, args.selector)
+        )
+
+    run_kwargs = (
+        {"factory": DRY_RUN_FACTORIES[args.selector]} if args.dry_run else {}
+    )
+    if args.dry_run:
+        print_dry_run_banner()
 
     oracle_cases = load_oracle()
     if not os.path.isdir(CHALLENGE_ROOT):
@@ -664,8 +800,21 @@ def main(argv: Optional[List[str]] = None) -> int:
     case_ids = sorted(oracle_cases)
     records: List[Dict[str, object]] = []
     for case_id in case_ids:
-        obs, error = run_case(case_id, args.selector)
-        records.append(score_case(case_id, oracle_cases[case_id], obs, error))
+        halted_before = _JEV_PROCESS_GUARD.halted
+        obs, error = run_case(case_id, args.selector, **run_kwargs)
+        # The case the halt was raised DURING: a decision was attempted inside
+        # it and never completed. It is still scored and still included (§7-E
+        # halts between cases), so it is marked rather than silently mixed in.
+        halted_during = _JEV_PROCESS_GUARD.halted and not halted_before
+        records.append(
+            score_case(
+                case_id,
+                oracle_cases[case_id],
+                obs,
+                error,
+                incomplete=halted_during,
+            )
+        )
         # §7-E: the halt is checked BETWEEN cases. The remaining cases are not
         # run and the remaining budget is not spent automatically.
         if _JEV_PROCESS_GUARD.halted:
@@ -675,8 +824,9 @@ def main(argv: Optional[List[str]] = None) -> int:
                 halt_reason=_JEV_PROCESS_GUARD.halt_reason,
                 calls_spent=_JEV_PROCESS_BUDGET.used,
                 total_cases=len(case_ids),
+                dry_run=args.dry_run,
             )
-            path = partial_results_path(args.selector)
+            path = partial_results_path(args.selector, dry_run=args.dry_run)
             write_partial(path, document)
             print_halt_report(document, path)
             return 2
@@ -684,10 +834,20 @@ def main(argv: Optional[List[str]] = None) -> int:
     summary = aggregate(records)
 
     os.makedirs(RESULTS_DIR, exist_ok=True)
-    out_path = os.path.join(RESULTS_DIR, "%s.json" % args.selector)
+    if args.dry_run:
+        out_path = dry_run_results_path(args.selector)
+        payload: Dict[str, object] = dry_run_document(
+            selector=args.selector,
+            records=records,
+            summary=summary,
+            calls_spent=_JEV_PROCESS_BUDGET.used,
+        )
+    else:
+        out_path = os.path.join(RESULTS_DIR, "%s.json" % args.selector)
+        payload = {"selector": args.selector, "summary": summary, "cases": records}
     with open(out_path, "w", encoding="utf-8") as handle:
         json.dump(
-            {"selector": args.selector, "summary": summary, "cases": records},
+            payload,
             handle,
             ensure_ascii=False,
             indent=2,
@@ -702,6 +862,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     for record in records:
         mark = "PASS" if not record["failures"] else "FAIL(%s)" % ",".join(record["failures"])
+        if record.get("incomplete"):
+            mark += " INCOMPLETE(중단된 사례)"
         if record["crashed"]:
             mark += " " + str(record.get("error"))
         print(
@@ -735,6 +897,21 @@ def main(argv: Optional[List[str]] = None) -> int:
         if key in ("verdict", "passed"):
             continue
         print("%-34s %s" % (key, summary[key]))
+    if args.dry_run:
+        # No verdict is printed. A rehearsal has nothing to pass or fail, and a
+        # PASS/FAIL line is the single thing most likely to be quoted as if it
+        # were a JEV result.
+        print("\n== 리허설 관측 (판정 아님) ==")
+        print("%-34s %s" % ("완주한 사례", "%d / %d" % (len(records), len(case_ids))))
+        print("%-34s %s" % ("사용한 호출 수", _JEV_PROCESS_BUDGET.used))
+        print("%-34s %s" % ("호출 상한", _JEV_PROCESS_BUDGET.maximum))
+        print("%-34s %s" % ("중단 여부", _JEV_PROCESS_GUARD.halted))
+        print("%-34s %s" % ("실제 모델 호출", 0))
+        print("\n결과 저장: %s" % out_path)
+        print_dry_run_banner()
+        print("전체: 리허설 완료 — PASS 도 FAIL 도 아니다. 비교 판정 없음.")
+        return 0
+
     print("\n== 기준 판정 ==")
     for code in sorted(summary["verdict"]):
         print("%-12s %s" % (code, "PASS" if summary["verdict"][code] else "FAIL"))

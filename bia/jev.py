@@ -84,6 +84,10 @@ QUESTION_TYPE = "choice"
 DEFAULT_MAX_CALLS = 16
 DEFAULT_TIMEOUT_SECONDS = 30.0
 
+# The offline rehearsal's fixed placeholder confidence. It is not a judgment:
+# `RehearsalTransport` has no opinion, and confidence is recorded-only anyway.
+REHEARSAL_CONFIDENCE = 0.5
+
 # §7-D: the request has exactly these three top-level fields and all are
 # required. Nothing else is documented, so nothing else is sent.
 DOCUMENTED_REQUEST_KEYS = ("model", "questions", "state")
@@ -280,6 +284,98 @@ class FakeTransport(Transport):
         if isinstance(item, JevResponse):
             return item
         return JevResponse(body=item)
+
+
+class RehearsalTransport(Transport):
+    """Offline rehearsal stand-in (§7-E 실행 전 오프라인 리허설). Never a model.
+
+    It answers every request with a well-formed body in the documented §7-D
+    shape so the whole 8-case loop can run end to end before a paid call is ever
+    made. What it proves is wiring — that the loop completes, that the budget and
+    the halt flag are plumbed through, that the scorer records a result. It
+    proves nothing about answer quality, and the file it produces is marked
+    `simulated` for exactly that reason.
+
+    **Choice policy — `first_option_in_criteria_order`.** The chosen option is
+    the FIRST key of the request's `criteria` map, read out of the request that
+    was actually sent. `criteria` is built by the server in a fixed order —
+    cell → product → complaint_type → DEFER (`OPTION_KIND_ORDER`) — so the answer
+    is always the narrowest cell candidate on offer, and always one of the
+    options actually offered in that request. It is deliberately not clever and
+    deliberately not random: a rehearsal that guessed well would invite reading
+    its numbers as a result, and a random one would not be reproducible.
+
+    `confidence` is a fixed placeholder and `probabilities` is flat over the
+    offered options: nothing here has an opinion to express, and both fields are
+    recorded-only anyway. `usage` reports zero tokens because zero tokens were
+    spent — no request left this process — so the estimated cost derived from it
+    is 0.0 rather than an invented figure.
+    """
+
+    name = "rehearsal"
+    policy = "first_option_in_criteria_order"
+    policy_description = (
+        "요청의 criteria 첫 번째 선택지를 고정 선택한다 "
+        "(서버가 고정한 셀 → 제품 → 불만유형 → DEFER 순서의 첫 항목). "
+        "모델 판단이 아니며 배선 확인용이다."
+    )
+
+    def __init__(
+        self,
+        model: str = JEV_MODEL,
+        question_key: str = QUESTION_KEY,
+        confidence: float = REHEARSAL_CONFIDENCE,
+    ) -> None:
+        self.model = model
+        self.question_key = question_key
+        self.confidence = confidence
+        self.requests: List[Dict[str, object]] = []
+        self.choices: List[str] = []
+
+    @property
+    def call_count(self) -> int:
+        return len(self.requests)
+
+    def send(self, request: Dict[str, object]) -> JevResponse:
+        self.requests.append(request)
+        options = self._offered_options(request)
+        if not options:
+            # A request with no options is a wiring defect, and a rehearsal
+            # exists to surface wiring defects rather than paper over them.
+            raise JevTransportError(
+                "rehearsal request carries no options under questions.%s.criteria"
+                % self.question_key
+            )
+        choice = options[0]
+        self.choices.append(choice)
+        share = round(1.0 / len(options), 6)
+        return JevResponse(
+            body={
+                "model": self.model,
+                "answers": {
+                    self.question_key: {
+                        "type": QUESTION_TYPE,
+                        "choice": choice,
+                        "confidence": self.confidence,
+                        "probabilities": {option: share for option in options},
+                    }
+                },
+                "usage": {"input_tokens": 0, "output_tokens": 0},
+            },
+            headers={REQUEST_ID_HEADER: "rehearsal-%d" % len(self.requests)},
+        )
+
+    def _offered_options(self, request: Dict[str, object]) -> List[str]:
+        questions = request.get("questions")
+        if not isinstance(questions, dict):
+            return []
+        question = questions.get(self.question_key)
+        if not isinstance(question, dict):
+            return []
+        criteria = question.get("criteria")
+        if not isinstance(criteria, dict):
+            return []
+        return [str(key) for key in criteria]
 
 
 class HttpTransport(Transport):
