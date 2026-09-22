@@ -956,10 +956,10 @@ class ScorerRegistrationTests(unittest.TestCase):
         self.assertIsInstance(selector, JevSelector)
         self.assertIsInstance(selector.transport, FakeTransport)
 
-    def test_asking_for_a_live_run_stops_the_scorer(self):
-        """The placeholder below is not a key and never leaves this process:
-        the factory raises before any transport exists, and it only ever tests
-        that the variable is non-empty."""
+    def test_a_live_request_with_a_key_builds_the_network_transport(self):
+        """Unlocked on the account owner's approval. Constructing the transport
+        opens no socket; the placeholder below is not a key and must not surface
+        anywhere the selector can print or serialize."""
         from unittest import mock
 
         scorer = self._load_scorer()
@@ -967,12 +967,31 @@ class ScorerRegistrationTests(unittest.TestCase):
             "os.environ",
             {"BIA_JEV_LIVE": "1", "TYPESAFE_API_KEY": "placeholder-not-a-key"},
         ):
+            selector = scorer.SELECTORS["jev"]()
+        self.assertIsInstance(selector.transport, HttpTransport)
+        for rendered in (repr(selector.transport), repr(selector), str(selector.telemetry())):
+            self.assertNotIn("placeholder-not-a-key", rendered)
+
+    def test_a_live_request_without_a_key_refuses_loudly(self):
+        """Falling back to a fake here would write a `jev` result that never
+        called the model — worse than stopping."""
+        from unittest import mock
+
+        scorer = self._load_scorer()
+        with mock.patch.dict("os.environ", {"BIA_JEV_LIVE": "1"}):
+            os.environ.pop("TYPESAFE_API_KEY", None)
             with self.assertRaises(SystemExit) as caught:
                 scorer.SELECTORS["jev"]()
-        message = str(caught.exception)
-        self.assertIn("explicit cost approval", message)
-        self.assertIn("§7-D", message)
-        self.assertNotIn("placeholder-not-a-key", message)
+        self.assertIn("TYPESAFE_API_KEY", str(caught.exception))
+
+    def test_a_key_without_the_live_flag_stays_offline(self):
+        from unittest import mock
+
+        scorer = self._load_scorer()
+        with mock.patch.dict("os.environ", {"TYPESAFE_API_KEY": "placeholder-not-a-key"}):
+            os.environ.pop("BIA_JEV_LIVE", None)
+            selector = scorer.SELECTORS["jev"]()
+        self.assertIsInstance(selector.transport, FakeTransport)
 
     def test_the_old_gateway_variable_no_longer_unlocks_anything(self):
         from unittest import mock
@@ -983,8 +1002,10 @@ class ScorerRegistrationTests(unittest.TestCase):
             {"BIA_JEV_LIVE": "1", "AI_GATEWAY_API_KEY": "placeholder-not-a-key"},
         ):
             os.environ.pop("TYPESAFE_API_KEY", None)
-            selector = scorer.SELECTORS["jev"]()
-        self.assertIsInstance(selector.transport, FakeTransport)
+            with self.assertRaises(SystemExit) as caught:
+                scorer.SELECTORS["jev"]()
+        self.assertIn("TYPESAFE_API_KEY", str(caught.exception))
+        self.assertNotIn("placeholder-not-a-key", str(caught.exception))
 
 
 class ProcessWideBudgetTest(unittest.TestCase):

@@ -352,19 +352,21 @@ class DryRunArgumentTests(unittest.TestCase):
         self.assertIs(first.guard, second.guard)
         self.assertIsInstance(first.transport, RehearsalTransport)
 
-    def test_the_lock_is_untouched_by_the_rehearsal(self):
-        """Without --dry-run the locked factory still stops a live run."""
+    def test_the_rehearsal_never_reaches_the_network_path(self):
+        """The rehearsal factory reads no environment variable and cannot build
+        a network transport, even once the live path has been unlocked."""
         from unittest import mock
+
+        from bia.jev import HttpTransport, RehearsalTransport
 
         scorer = _scorer()
         with mock.patch.dict(
             "os.environ",
             {"BIA_JEV_LIVE": "1", "TYPESAFE_API_KEY": "placeholder-not-a-key"},
         ):
-            with self.assertRaises(SystemExit) as caught:
-                scorer.SELECTORS["jev"]()
-        self.assertIn("explicit cost approval", str(caught.exception))
-        self.assertNotIn("placeholder-not-a-key", str(caught.exception))
+            rehearsal = scorer.build_jev_rehearsal_selector()
+        self.assertIsInstance(rehearsal.transport, RehearsalTransport)
+        self.assertNotIsInstance(rehearsal.transport, HttpTransport)
 
 
 class _FailingSecondRoundTransport(RehearsalTransport):

@@ -23,7 +23,8 @@ from bia.decision import (  # noqa: E402
     GreedyEvidenceSelector,
 )
 from bia.evidence import MAX_DECISION_CALLS, MAX_RETRIEVALS  # noqa: E402
-from bia.jev import (  # noqa: E402
+from bia.jev import (
+    HttpTransport,  # noqa: E402
     REASON_BUDGET_EXHAUSTED,
     REASON_NO_CANDIDATES,
     CallBudget,
@@ -52,26 +53,45 @@ _JEV_PROCESS_BUDGET = CallBudget()
 _JEV_PROCESS_GUARD = RunGuard()
 
 
-def build_jev_selector() -> JevSelector:
-    """JEV stays locked here. A live run is a separate, approved decision.
+# Unlocked 2026-09-22 on the account owner's written approval, quoted here so a
+# later reader can see what was granted and how narrow it is:
+#
+#     "직접 경로 최대 16회 유료 실행 승인"
+#
+# The price was re-checked against docs.typesafe.ai/models immediately before:
+# input $0.042 per Mtok, output free, jev-1.13.0 current, no promotion. That was
+# the third of §7-E's lock conditions. The approval covers this path, this rate
+# and this ceiling — nothing wider. A different path, a different rate, or a
+# retry is a new decision, not an extension of this one.
+LIVE_APPROVAL = "직접 경로 최대 16회 유료 실행 승인 (2026-09-22)"
 
-    §7-D moved the call path to the TypeSafe direct API, and approval does not
-    travel with the path: whatever was discussed for the cancelled Vercel path
-    grants nothing here. The direct path's live run is confirmed separately,
-    after the fake verification. So asking for a live run by setting both
-    BIA_JEV_LIVE=1 and a key does not start one: it stops the scorer and says
-    the approval is missing. Only the presence of the key is ever tested — its
-    value is not read, logged or passed on. Without that pair the scorer runs
-    against a FakeTransport, which cannot open a socket.
+
+def build_jev_selector() -> JevSelector:
+    """Builds the live JEV selector when a live run is explicitly requested.
+
+    A live run needs BOTH `BIA_JEV_LIVE=1` and a non-empty `TYPESAFE_API_KEY`.
+    Neither alone starts one, and without the pair the scorer still runs against
+    a `FakeTransport`, which cannot open a socket. The key's value is read only
+    here, to hand to the transport, and is never logged, recorded or serialized:
+    `HttpTransport` deliberately does not read the environment itself, so the
+    one place a credential is touched stays visible at the call site.
+
+    Everything the run is bounded by is unchanged by the unlock: 16 calls from
+    the process-wide budget, zero retries, and a halt on the first failure of
+    any kind.
     """
     live_requested = os.environ.get("BIA_JEV_LIVE") == "1"
-    key_present = bool((os.environ.get("TYPESAFE_API_KEY") or "").strip())
-    if live_requested and key_present:
+    api_key = (os.environ.get("TYPESAFE_API_KEY") or "").strip()
+    if live_requested and api_key:
+        return JevSelector(
+            transport=HttpTransport(api_key=api_key, enable_network=True),
+            budget=_JEV_PROCESS_BUDGET,
+            guard=_JEV_PROCESS_GUARD,
+        )
+    if live_requested and not api_key:
         raise SystemExit(
-            "live JEV runs require explicit cost approval and are not enabled: "
-            "the TypeSafe direct path is a separate, not-yet-granted approval "
-            "and the cancelled Vercel path's approval does not transfer "
-            "(eval/v1/CONTRACT.md §7-D 승인 비이전). 실호출은 이 채점기에서 시작하지 않는다."
+            "BIA_JEV_LIVE=1 이지만 TYPESAFE_API_KEY 가 비어 있다. "
+            "실호출을 시작하지 않는다."
         )
     return JevSelector(
         transport=FakeTransport(),
