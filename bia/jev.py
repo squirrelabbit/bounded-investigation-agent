@@ -1,29 +1,49 @@
 """JEV decision provider — the model answers one closed multiple-choice question.
 
-Shape confirmed in eval/v1/CONTRACT.md §7-C: `typesafe-ai/jev` is an evaluation
-model, not a chat model. It is sent a `state` blob plus typed `questions` and
-answers with a chosen option and a probability distribution. There is no channel
-for free text, no search string, no SQL — which is why this endpoint fits a
-system whose whole point is that the model may only pick from a server-built
-menu.
+Call path: the **TypeSafe direct API**, `POST https://api.typesafe.ai/v1/systemone`.
+Shape confirmed in eval/v1/CONTRACT.md §7-D. §7-C's Vercel AI Gateway path is
+cancelled and survives only as an investigation record in the contract; it is
+gone from this module on purpose, so that there is exactly one live endpoint in
+the code and a future live run cannot reach the wrong one.
+
+JEV is an evaluation model, not a chat model. It is sent a `state` blob plus
+typed `questions` and answers with a chosen option, a confidence and a
+probability distribution. There is no channel for free text, no search string,
+no SQL — which is why this endpoint fits a system whose whole point is that the
+model may only pick from a server-built menu.
 
 Boundaries this module keeps:
 
 * **The server writes the entire question.** Options are exactly the offered
   candidate ids plus DEFER, and every option's description is composed from the
   server's own candidate fields. The model contributes nothing to the question.
-* **Probabilities are recorded, never acted on.** The returned
-  `probabilities` map is stored in the call record for reporting only. It is
-  never compared, never thresholded, never allowed to change the returned value.
-  The only thing that decides the return value is `choice`. A run in which the
-  chosen option carries the lowest probability returns that option anyway.
-* **Fail closed.** A transport exception, a non-200 status, an unparseable
-  body, a missing `answers` map, a missing question key, a missing `choice`, or
-  a `choice` outside the offered options all return DEFER with a recorded
-  reason. Nothing raises into the Controller.
-* **Zero retries.** A failed call is never repeated — not on 429, not on 5xx,
-  not on a timeout. §7-C's execution lock budgets 16 calls for the whole run and
-  no retries, so variance cannot be measured and is not pretended away.
+  A `choice` question has no `options` field: the options ARE the keys of
+  `criteria` (§7-D, max 255).
+* **The model version is pinned.** `jev-1.13.0`, never a moving alias. An alias
+  would let the same test paper be answered by a different model and void the
+  comparison. The response's own `model` is recorded on every call so it can be
+  checked after the fact which version actually answered.
+* **Confidence and probabilities are recorded, never acted on.** Both are stored
+  on the call record for reporting only. Neither is compared, thresholded, or
+  allowed to change the returned value. The only thing that decides the return
+  value is `choice`. A run in which the chosen option carries the lowest
+  probability and a low confidence returns that option anyway.
+* **Cost is an estimate and is named as one.** The response body carries no cost
+  field (§7-D). `estimated_cost_usd` is computed here from
+  `usage.input_tokens` and the published rate; it is not a billed figure.
+* **Fail closed.** A transport exception, a non-200 status, an unparseable body,
+  a missing `answers` map, a missing question key, a missing `choice`, or a
+  `choice` outside the offered options all return DEFER with a recorded reason.
+  Nothing raises into the Controller.
+* **Zero retries.** A failed call is never repeated — not on 429, not on 529,
+  not on a timeout. §7-D keeps §7-C's budget of 16 calls for the whole run with
+  no retries, so variance cannot be measured and is not pretended away. The
+  transport is dependency-free direct HTTP precisely because the official SDK
+  retries by default and a path whose retry count cannot be proven is not used.
+* **The error body's schema is undocumented.** §7-D says so explicitly, so
+  nothing here reads a field out of it. A failure is recorded by status code
+  only, and the body is parsed with a helper that returns None rather than
+  raising.
 * **No default that reaches the network.** The transport is injected.
   `HttpTransport` refuses to exist without an explicit `enable_network=True`
   and a key the caller passes in; it never reads the environment itself, so the
@@ -38,17 +58,42 @@ from typing import Dict, List, Optional, Sequence
 from .decision import DecisionProvider
 from .types import DEFER, EvidenceCandidate
 
-JEV_MODEL = "typesafe-ai/jev"
-JEV_ENDPOINT = "https://ai-gateway.vercel.sh/v1/evaluate"
+# Pinned version, never a moving alias (§7-D "모델 버전 고정").
+JEV_MODEL = "jev-1.13.0"
+JEV_MODEL_ALIASES = ("jev-latest", "jev-preview")
+JEV_ENDPOINT = "https://api.typesafe.ai/v1/systemone"
 QUESTION_KEY = "next_evidence"
 QUESTION_TYPE = "choice"
 
 DEFAULT_MAX_CALLS = 16
 DEFAULT_TIMEOUT_SECONDS = 30.0
 
-# Not documented for /v1/evaluate (§7-C). Guessing them would be inventing the
+# §7-D: the request has exactly these three top-level fields and all are
+# required. Nothing else is documented, so nothing else is sent.
+DOCUMENTED_REQUEST_KEYS = ("model", "questions", "state")
+
+# Not documented for /v1/systemone (§7-D). Guessing them would be inventing the
 # contract, so nothing here may ever put them in a request body.
-UNDOCUMENTED_REQUEST_KEYS = ("seed", "temperature", "max_tokens")
+UNDOCUMENTED_REQUEST_KEYS = ("seed", "temperature", "top_p", "max_tokens")
+
+# §7-D: a choice question may offer at most 255 options.
+MAX_CHOICE_OPTIONS = 255
+
+# §7-D: the request identifier is a response header, not a body field, and it
+# may be absent.
+REQUEST_ID_HEADER = "x-typesafe-request-id"
+
+# §7-D 비용 기록: the response carries no cost. Published rate as of 2026-09-22 —
+# input $0.042 per million tokens, output free. Anything derived from these is
+# an estimate and is named as one.
+INPUT_USD_PER_MILLION_TOKENS = 0.042
+OUTPUT_USD_PER_MILLION_TOKENS = 0.0
+COST_RATE_AS_OF = "2026-09-22"
+COST_BASIS = (
+    "estimate computed locally from usage.input_tokens at $%s/1M input tokens "
+    "(output free), rates as of %s; the response body carries no cost field"
+    % (INPUT_USD_PER_MILLION_TOKENS, COST_RATE_AS_OF)
+)
 
 QUESTION_INSTRUCTIONS = (
     "아래 state 는 서버가 계산한 비교 결과다. 제시된 선택지 중 다음에 조사할 후보를 "
@@ -62,11 +107,11 @@ DEFER_OPTION_DESCRIPTION = (
 )
 
 REASON_NO_CANDIDATES = "no_candidates_offered"
+REASON_TOO_MANY_OPTIONS = "too_many_options"
 REASON_BUDGET_EXHAUSTED = "call_budget_exhausted"
 REASON_TRANSPORT_ERROR = "transport_error"
 REASON_HTTP_STATUS = "http_status"
 REASON_UNPARSEABLE = "unparseable_response"
-REASON_API_ERROR = "api_error"
 REASON_MISSING_ANSWERS = "missing_answers"
 REASON_MISSING_QUESTION = "missing_question_key"
 REASON_MISSING_CHOICE = "missing_choice"
@@ -78,6 +123,13 @@ class JevTransportError(Exception):
 
 
 class JevHttpError(JevTransportError):
+    """A non-200 status.
+
+    `body` is whatever could be parsed out of the error payload, or None. §7-D
+    states the error body's JSON schema is not documented, so no caller reads a
+    field out of it — the status code is the only thing relied on.
+    """
+
     def __init__(self, status: int, body: object = None) -> None:
         super().__init__("HTTP %s" % status)
         self.status = status
@@ -88,8 +140,20 @@ class JevNetworkLocked(RuntimeError):
     """Raised when live network use is attempted without the explicit unlock."""
 
 
+@dataclass
+class JevResponse:
+    """A parsed body plus the response headers it arrived with.
+
+    Headers matter because §7-D puts the request identifier in
+    `x-typesafe-request-id` rather than in the body, and says it may be absent.
+    """
+
+    body: object
+    headers: Dict[str, str] = field(default_factory=dict)
+
+
 class Transport:
-    """One method: take the request dict, return the parsed response dict.
+    """One method: take the request dict, return a `JevResponse`.
 
     Implementations signal a non-200 status by raising `JevHttpError`; any other
     failure raises `JevTransportError` or an ordinary exception. The selector
@@ -98,16 +162,17 @@ class Transport:
 
     name = "abstract"
 
-    def send(self, request: Dict[str, object]) -> Dict[str, object]:
+    def send(self, request: Dict[str, object]) -> JevResponse:
         raise NotImplementedError
 
 
 class FakeTransport(Transport):
     """Scripted responses. Every test in this repository uses this one.
 
-    A scripted item is either a dict (returned as the parsed body) or an
-    exception instance (raised). Once the script runs out, the last item repeats
-    if `repeat_last` is set, otherwise a `JevTransportError` is raised.
+    A scripted item is a `JevResponse` (returned as is), an exception instance
+    (raised), or anything else (wrapped as a headerless `JevResponse`). Once the
+    script runs out, the last item repeats if `repeat_last` is set, otherwise a
+    `JevTransportError` is raised.
     """
 
     name = "fake"
@@ -123,7 +188,7 @@ class FakeTransport(Transport):
     def call_count(self) -> int:
         return len(self.requests)
 
-    def send(self, request: Dict[str, object]) -> Dict[str, object]:
+    def send(self, request: Dict[str, object]) -> JevResponse:
         index = len(self.requests)
         self.requests.append(request)
         if not self._responses:
@@ -136,9 +201,9 @@ class FakeTransport(Transport):
             raise JevTransportError("FakeTransport script exhausted")
         if isinstance(item, BaseException):
             raise item
-        if not isinstance(item, dict):
-            return item  # type: ignore[return-value]
-        return item
+        if isinstance(item, JevResponse):
+            return item
+        return JevResponse(body=item)
 
 
 class HttpTransport(Transport):
@@ -148,6 +213,10 @@ class HttpTransport(Transport):
     key must both be passed by the caller. It does not read the environment — the
     caller does, so that "this run may spend money" is written at the call site
     rather than hidden in a default.
+
+    One send per call. No retry loop exists here, and urllib has none of its
+    own; that is why §7-D chose dependency-free HTTP over the official SDK,
+    whose default is to retry.
     """
 
     name = "http"
@@ -161,8 +230,8 @@ class HttpTransport(Transport):
     ) -> None:
         if enable_network is not True:
             raise JevNetworkLocked(
-                "HttpTransport requires enable_network=True; live JEV calls are "
-                "locked by eval/v1/CONTRACT.md §7-C"
+                "HttpTransport requires enable_network=True; live JEV calls on the "
+                "TypeSafe direct path are locked by eval/v1/CONTRACT.md §7-D"
             )
         if not isinstance(api_key, str) or not api_key.strip():
             raise JevNetworkLocked(
@@ -173,7 +242,7 @@ class HttpTransport(Transport):
         self._endpoint = endpoint
         self._timeout = timeout
 
-    def send(self, request: Dict[str, object]) -> Dict[str, object]:
+    def send(self, request: Dict[str, object]) -> JevResponse:
         import urllib.error
         import urllib.request
 
@@ -191,6 +260,7 @@ class HttpTransport(Transport):
             with urllib.request.urlopen(http_request, timeout=self._timeout) as response:
                 status = getattr(response, "status", None) or response.getcode()
                 raw = response.read()
+                headers = _headers_as_dict(getattr(response, "headers", None))
         except urllib.error.HTTPError as exc:  # non-2xx carries a body
             raise JevHttpError(exc.code, _loads_or_none(exc.read()))
         except Exception as exc:
@@ -200,10 +270,12 @@ class HttpTransport(Transport):
         parsed = _loads_or_none(raw)
         if not isinstance(parsed, dict):
             raise JevTransportError("response body is not a JSON object")
-        return parsed
+        return JevResponse(body=parsed, headers=headers)
 
 
 def _loads_or_none(raw: object) -> object:
+    """Never raises. §7-D: the error body's schema is undocumented, so a body
+    that will not parse must degrade to None rather than blow up a call."""
     try:
         if isinstance(raw, bytes):
             raw = raw.decode("utf-8", "replace")
@@ -212,6 +284,72 @@ def _loads_or_none(raw: object) -> object:
         return json.loads(raw)
     except Exception:
         return None
+
+
+def _headers_as_dict(headers: object) -> Dict[str, str]:
+    out: Dict[str, str] = {}
+    try:
+        items = headers.items()  # type: ignore[union-attr]
+    except Exception:
+        return out
+    try:
+        for key, value in items:
+            out[str(key)] = str(value)
+    except Exception:
+        return out
+    return out
+
+
+def header_value(headers: object, name: str) -> Optional[str]:
+    """Case-insensitive header lookup that never raises and may return None."""
+    wanted = name.lower()
+    try:
+        items = headers.items()  # type: ignore[union-attr]
+    except Exception:
+        return None
+    try:
+        for key, value in items:
+            if str(key).lower() == wanted:
+                text = str(value).strip()
+                return text or None
+    except Exception:
+        return None
+    return None
+
+
+def _int_or_none(value: object) -> Optional[int]:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value)
+    return None
+
+
+def _float_or_none(value: object) -> Optional[float]:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    return None
+
+
+def estimate_cost_usd(
+    input_tokens: Optional[int], output_tokens: Optional[int] = None
+) -> Optional[float]:
+    """Local ESTIMATE, not a billed amount.
+
+    §7-D: the response body has no cost field, so this is derived from the
+    published rate. Output tokens are free at that rate and are accepted only so
+    the arithmetic is visible rather than hidden.
+    """
+    if input_tokens is None:
+        return None
+    total = input_tokens * INPUT_USD_PER_MILLION_TOKENS / 1_000_000.0
+    if output_tokens is not None:
+        total += output_tokens * OUTPUT_USD_PER_MILLION_TOKENS / 1_000_000.0
+    return total
 
 
 class CallBudget:
@@ -243,17 +381,26 @@ class CallBudget:
 
 @dataclass
 class JevCallRecord:
-    """One decision's worth of telemetry. `probabilities` is reporting only."""
+    """One decision's worth of telemetry.
+
+    `confidence` and `probabilities` are reporting only. `estimated_cost_usd` is
+    a local estimate, never a billed figure. `response_model` is the version the
+    API says answered, which is not assumed to equal the version we pinned.
+    """
 
     question_key: str
     offered_options: List[str]
     called: bool
     choice: Optional[str] = None
     returned: str = DEFER
+    response_model: Optional[str] = None
+    confidence: Optional[float] = None
     probabilities: Dict[str, float] = field(default_factory=dict)
     usage: Dict[str, object] = field(default_factory=dict)
-    cost: Optional[str] = None
-    generation_id: Optional[str] = None
+    input_tokens: Optional[int] = None
+    output_tokens: Optional[int] = None
+    estimated_cost_usd: Optional[float] = None
+    request_id: Optional[str] = None
     failure_reason: Optional[str] = None
 
     def as_dict(self) -> Dict[str, object]:
@@ -263,10 +410,14 @@ class JevCallRecord:
             "called": self.called,
             "choice": self.choice,
             "returned": self.returned,
+            "response_model": self.response_model,
+            "confidence": self.confidence,
             "probabilities": dict(self.probabilities),
             "usage": dict(self.usage),
-            "cost": self.cost,
-            "generation_id": self.generation_id,
+            "input_tokens": self.input_tokens,
+            "output_tokens": self.output_tokens,
+            "estimated_cost_usd": self.estimated_cost_usd,
+            "request_id": self.request_id,
             "failure_reason": self.failure_reason,
         }
 
@@ -279,6 +430,8 @@ def state_payload(state: Dict[str, object]) -> Dict[str, object]:
     candidates were already investigated, coverage so far and the remaining
     budget. It carries no ticket id and no ticket text: the model chooses which
     group to look at, and never reads the evidence itself.
+
+    The key set is pre-registered in §7-C and explicitly unchanged by §7-D.
     """
     metrics = state.get("metrics") or {}
     if not isinstance(metrics, dict):
@@ -360,6 +513,7 @@ def describe_candidate(candidate: EvidenceCandidate) -> str:
 
 
 def build_criteria(candidates: Sequence[EvidenceCandidate]) -> Dict[str, str]:
+    """The options ARE these keys. A `choice` question has no `options` field."""
     criteria = {c.candidate_id: describe_candidate(c) for c in candidates}
     criteria[DEFER] = DEFER_OPTION_DESCRIPTION
     return criteria
@@ -368,10 +522,10 @@ def build_criteria(candidates: Sequence[EvidenceCandidate]) -> Dict[str, str]:
 class JevSelector(DecisionProvider):
     """DecisionProvider backed by the JEV evaluation endpoint.
 
-    The transport is injected and there is no network default. Probabilities
-    coming back from the model are stored on the call record and have no effect
-    on the returned value — the return value is `choice`, validated against the
-    offered options, or DEFER.
+    The transport is injected and there is no network default. Confidence and
+    probabilities coming back from the model are stored on the call record and
+    have no effect on the returned value — the return value is `choice`,
+    validated against the offered options, or DEFER.
     """
 
     name = "jev"
@@ -385,6 +539,11 @@ class JevSelector(DecisionProvider):
     ) -> None:
         if transport is None:
             raise ValueError("JevSelector requires an explicit transport")
+        if model in JEV_MODEL_ALIASES:
+            raise ValueError(
+                "JEV model must be a pinned version, not the moving alias %r "
+                "(eval/v1/CONTRACT.md §7-D 모델 버전 고정)" % model
+            )
         self.transport = transport
         self.budget = budget if budget is not None else CallBudget()
         self.model = model
@@ -398,21 +557,25 @@ class JevSelector(DecisionProvider):
         return sum(1 for r in self.records if r.called)
 
     @property
-    def total_cost(self) -> float:
+    def total_estimated_cost_usd(self) -> float:
+        """Sum of the per-call ESTIMATES. Not a billed amount — see COST_BASIS."""
         total = 0.0
         for record in self.records:
-            try:
-                total += float(record.cost)
-            except (TypeError, ValueError):
-                continue
+            if record.estimated_cost_usd is not None:
+                total += record.estimated_cost_usd
         return total
 
     def telemetry(self) -> Dict[str, object]:
         return {
-            "model": self.model,
+            "model_requested": self.model,
+            "models_answered": sorted(
+                {r.response_model for r in self.records if r.response_model}
+            ),
             "calls_made": self.call_count,
             "decisions": len(self.records),
-            "total_cost": self.total_cost,
+            "total_estimated_cost_usd": self.total_estimated_cost_usd,
+            "cost_is_estimate": True,
+            "cost_basis": COST_BASIS,
             "budget": self.budget.as_dict(),
             "records": [r.as_dict() for r in self.records],
         }
@@ -422,9 +585,10 @@ class JevSelector(DecisionProvider):
     def build_request(
         self, state: Dict[str, object], candidates: Sequence[EvidenceCandidate]
     ) -> Dict[str, object]:
+        """Exactly the three documented top-level fields, and nothing else."""
         return {
-            "model": self.model,
             "state": serialize_state(state),
+            "model": self.model,
             "questions": {
                 self.question_key: {
                     "type": QUESTION_TYPE,
@@ -445,15 +609,24 @@ class JevSelector(DecisionProvider):
             self._record(options, called=False, reason=REASON_NO_CANDIDATES)
             return DEFER
 
+        if len(options) > MAX_CHOICE_OPTIONS:
+            self._record(options, called=False, reason=REASON_TOO_MANY_OPTIONS)
+            return DEFER
+
         if not self.budget.try_consume():
             self._record(options, called=False, reason=REASON_BUDGET_EXHAUSTED)
             return DEFER
 
         request = self.build_request(state, candidates)
         try:
-            body = self.transport.send(request)
+            response = self.transport.send(request)
         except JevHttpError as exc:
-            self._record(options, called=True, reason="%s:%s" % (REASON_HTTP_STATUS, exc.status))
+            # 401 / 422 / 429 / 529 and every other non-200 are one failure with
+            # one recorded status. The body's schema is undocumented, so nothing
+            # is read out of it. Not retried.
+            self._record(
+                options, called=True, reason="%s:%s" % (REASON_HTTP_STATUS, exc.status)
+            )
             return DEFER
         except Exception as exc:  # no retry, ever
             self._record(
@@ -463,47 +636,60 @@ class JevSelector(DecisionProvider):
             )
             return DEFER
 
-        return self._interpret(body, options)
+        return self._interpret(response, options)
 
-    def _interpret(self, body: object, options: Sequence[str]) -> str:
+    def _interpret(self, response: object, options: Sequence[str]) -> str:
+        if isinstance(response, JevResponse):
+            body = response.body
+            headers = response.headers
+        else:  # a transport that ignored the contract is a failure, not a crash
+            body = response
+            headers = {}
+
+        request_id = header_value(headers, REQUEST_ID_HEADER)
+
         if not isinstance(body, dict):
-            self._record(options, called=True, reason=REASON_UNPARSEABLE)
-            return DEFER
-
-        error = body.get("error")
-        if isinstance(error, dict):
             self._record(
                 options,
                 called=True,
-                reason="%s:%s" % (REASON_API_ERROR, error.get("type") or "unknown"),
+                reason=REASON_UNPARSEABLE,
+                request_id=request_id,
             )
             return DEFER
 
+        response_model = body.get("model")
+        response_model = response_model if isinstance(response_model, str) else None
+        usage = body.get("usage")
+        usage = usage if isinstance(usage, dict) else {}
+        input_tokens = _int_or_none(usage.get("input_tokens"))
+        output_tokens = _int_or_none(usage.get("output_tokens"))
+
+        envelope = {
+            "response_model": response_model,
+            "usage": usage,
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "estimated_cost_usd": estimate_cost_usd(input_tokens, output_tokens),
+            "request_id": request_id,
+        }
+
         answers = body.get("answers")
         if not isinstance(answers, dict):
-            self._record(options, called=True, reason=REASON_MISSING_ANSWERS)
+            self._record(options, called=True, reason=REASON_MISSING_ANSWERS, **envelope)
             return DEFER
 
         answer = answers.get(self.question_key)
         if not isinstance(answer, dict):
-            self._record(options, called=True, reason=REASON_MISSING_QUESTION)
+            self._record(options, called=True, reason=REASON_MISSING_QUESTION, **envelope)
             return DEFER
 
         choice = answer.get("choice")
         probabilities = answer.get("probabilities")
         probabilities = probabilities if isinstance(probabilities, dict) else {}
-        usage = body.get("usage")
-        usage = usage if isinstance(usage, dict) else {}
-        gateway = _as_dict(_as_dict(body.get("providerMetadata")).get("gateway"))
-        cost = gateway.get("cost")
-        generation_id = gateway.get("generationId")
 
-        common = {
-            "probabilities": probabilities,
-            "usage": usage,
-            "cost": cost if isinstance(cost, str) else (str(cost) if cost is not None else None),
-            "generation_id": generation_id if isinstance(generation_id, str) else None,
-        }
+        common = dict(envelope)
+        common["probabilities"] = probabilities
+        common["confidence"] = _float_or_none(answer.get("confidence"))
 
         if not isinstance(choice, str):
             self._record(options, called=True, reason=REASON_MISSING_CHOICE, **common)
@@ -519,8 +705,9 @@ class JevSelector(DecisionProvider):
             )
             return DEFER
 
-        # The only line that decides the return value. Probabilities were parsed
-        # above and are stored; they are deliberately not consulted here.
+        # The only line that decides the return value. Confidence and
+        # probabilities were parsed above and are stored; they are deliberately
+        # not consulted here.
         self._record(options, called=True, choice=choice, returned=choice, **common)
         return choice
 
@@ -531,10 +718,14 @@ class JevSelector(DecisionProvider):
         choice: Optional[str] = None,
         returned: str = DEFER,
         reason: Optional[str] = None,
+        response_model: Optional[str] = None,
+        confidence: Optional[float] = None,
         probabilities: Optional[Dict[str, float]] = None,
         usage: Optional[Dict[str, object]] = None,
-        cost: Optional[str] = None,
-        generation_id: Optional[str] = None,
+        input_tokens: Optional[int] = None,
+        output_tokens: Optional[int] = None,
+        estimated_cost_usd: Optional[float] = None,
+        request_id: Optional[str] = None,
     ) -> None:
         self.records.append(
             JevCallRecord(
@@ -543,10 +734,14 @@ class JevSelector(DecisionProvider):
                 called=called,
                 choice=choice,
                 returned=returned,
+                response_model=response_model,
+                confidence=confidence,
                 probabilities=dict(probabilities or {}),
                 usage=dict(usage or {}),
-                cost=cost,
-                generation_id=generation_id,
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+                estimated_cost_usd=estimated_cost_usd,
+                request_id=request_id,
                 failure_reason=reason,
             )
         )

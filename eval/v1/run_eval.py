@@ -40,19 +40,23 @@ _JEV_PROCESS_BUDGET = CallBudget()
 def build_jev_selector() -> JevSelector:
     """JEV stays locked here. A live run is a separate, approved decision.
 
-    §7-C's execution lock has three conditions, and the third — a fresh price
-    check — was not met on 2026-09-22 (the model is priced, with no free-tier
-    statement reproducible on vercel.com). So asking for a live run by setting
-    both BIA_JEV_LIVE=1 and a key does not start one: it stops the scorer and
-    says the approval is missing. Without that pair the scorer runs against a
-    FakeTransport, which cannot open a socket.
+    §7-D moved the call path to the TypeSafe direct API, and approval does not
+    travel with the path: whatever was discussed for the cancelled Vercel path
+    grants nothing here. The direct path's live run is confirmed separately,
+    after the fake verification. So asking for a live run by setting both
+    BIA_JEV_LIVE=1 and a key does not start one: it stops the scorer and says
+    the approval is missing. Only the presence of the key is ever tested — its
+    value is not read, logged or passed on. Without that pair the scorer runs
+    against a FakeTransport, which cannot open a socket.
     """
     live_requested = os.environ.get("BIA_JEV_LIVE") == "1"
-    key_present = bool((os.environ.get("AI_GATEWAY_API_KEY") or "").strip())
+    key_present = bool((os.environ.get("TYPESAFE_API_KEY") or "").strip())
     if live_requested and key_present:
         raise SystemExit(
-            "live JEV runs require explicit cost approval and are not enabled "
-            "(eval/v1/CONTRACT.md §7-C 실행 잠금 3). 실호출은 이 채점기에서 시작하지 않는다."
+            "live JEV runs require explicit cost approval and are not enabled: "
+            "the TypeSafe direct path is a separate, not-yet-granted approval "
+            "and the cancelled Vercel path's approval does not transfer "
+            "(eval/v1/CONTRACT.md §7-D 승인 비이전). 실호출은 이 채점기에서 시작하지 않는다."
         )
     return JevSelector(transport=FakeTransport(), budget=_JEV_PROCESS_BUDGET)
 
