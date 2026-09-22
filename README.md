@@ -392,45 +392,53 @@ v1.0에서 greedy는 yield를 0.37에서 0.66으로 올리는 대가로 잘못�
 
 **이 8개 사례는 독립적인 미공개 시험지가 아니다.** C08은 데이터 실측을 본 뒤 개정됐다(계약 개정 1). 선택 정책을 비교하기 위해 저자가 구성한 진단용 사례 모음이며, held-out benchmark로 소개하지 않는다.
 
-### JEV 실측 결과 (2026-09-22, 유료 실행 1회)
+### JEV 실측 결과 (2026-09-22, 유료 실행 2회)
 
-`typesafe-ai/jev` 를 `jev-1.13.0` 으로 핀해 TypeSafe 직접 API로 호출했다. **재현 불가능한 단일 표본이다** — 이 엔드포인트에 `seed` 가 문서화돼 있지 않고 재시도 예산은 0이다.
+`typesafe-ai/jev` 를 `jev-1.13.0` 으로 핀해 TypeSafe 직접 API로 호출했다.
+시나리오·oracle·채점 기준은 두 회차 모두 동결 상태였다.
+
+**두 회차의 채점 결과가 완전히 같았다.** 8사례의 yield·precision·채택 건수·조회 수·고른 후보 종류·보류 여부까지 차이 0건이다. `seed` 가 문서화돼 있지 않아 재현을 보장할 수 없다고 적어 두었는데, **실측으로는 n=2 에서 정확히 일치했다.** 이것이 결정성을 증명하지는 않지만, 아래 격차를 표본 잡음으로 돌리기는 어렵게 만든다.
 
 | | heuristic | greedy | **JEV** |
 |---|---|---|---|
-| V-2 yield (macro) | 0.3718 | **0.6582** | 0.5955 |
-| V-3 precision | 1.0 | 1.0 | 1.0 |
+| V-2 evidence yield (macro) | 0.3718 | **0.6582** | 0.5955 |
+| V-3 evidence precision | 1.0 | 1.0 | 1.0 |
 | V-4 함정 근거 0건 | 1/1 | 1/1 | 1/1 |
-| 모델이 함정에서 **스스로 보류** | 예 | 아니오 | **아니오** |
-| V-5 낭비 조회 | 2 | 3 | 3 |
-| decision / retrieval | 11 / 10 | 11 / 11 | **10 / 10** |
-| 조사한 후보 종류 | cell 10 | cell 7, prod 3, type 1 | cell 5, prod 3, **type 2** |
+| **최종 잘못된 근거** | **0건** | **0건** | **0건** |
+| 모델이 함정에서 스스로 보류 | 예 | 아니오 | 아니오 |
+| decision / retrieval | 11 / 10 | 11 / 11 | 10 / 10 |
+| 실제 모델 호출 | 0 | 0 | **10** |
+| 전체 지연 | 69.9 ms | 66.2 ms | **8,294.7 ms** |
+| 결정당 평균 지연 | 0.0011 ms | 0.0027 ms | **811.8 ms** |
+| 입력 / 출력 토큰 | — | — | 13,337 / 660 |
+| 비용 (추정) | $0 | $0 | **~$0.00056** |
 
-**판정**
+지연은 벽시계 기준이고 코드 기준선 쪽은 Python 호출 오버헤드에 묻히는 값이라 **바닥값**으로만 읽어야 한다. 그 한계를 감안해도 규모 차이는 분명하다 — 전체 실행이 약 **125배**, 결정 하나당은 **다섯 자릿수 배**다.
+
+비용은 응답 본문에 없어 `usage.input_tokens` 와 공개 요율로 계산한 **추정치**다. 1회차는 telemetry 를 기록하지 않아 지연·토큰·비용을 **사후에도 측정할 수 없다** ([정정 문서](eval/v1/results/jev_RECORD_CORRECTION.md)). 위 수치는 2회차(`jev_run2.json`)의 것이다. 요약의 `V-7_latency_and_model_cost` 필드는 telemetry 도입 이전의 라벨이 남은 것이고, 실제 측정치는 같은 문서의 `telemetry` 블록에 있다.
+
+**판정 (기준 사후 변경 없음)**
 
 - **좁은 기준선 상대: 사전 등록한 5개 조건을 전부 충족했다.** yield +0.2237, precision 비감소, V-4 유지, 안전 4항 0건, retrieval 10 ≤ 10. 말할 수 있는 것은 **"좁은 휴리스틱보다 개선"** 까지다.
-- **강한 코드 기준선 상대: 이기지 못했다.** yield 가 **0.0627 낮다**. +0.10 개선 조건을 넘지 못했으므로 **"모델을 쓸 실익이 관측됨"이라고 말할 수 없다.** 사전 등록 문구에서 "±0.10 이내면 비김"과 "낮으면 짐"이 이 경우 겹친다. 기준을 사후에 바꾸지 않고 셋을 함께 적는다 — **승리 아님 · 원점수는 낮음 · 차이는 무승부 범위 안.**
+- **강한 코드 기준선 상대: 이기지 못했다.** yield 가 **0.0627 낮다.** 사전 등록 문구에서 "±0.10 이내면 비김"과 "낮으면 짐"이 이 구간에서 겹친다. 유리한 쪽을 고르지 않고 셋을 함께 적는다 — **승리 아님 · 원점수는 낮음 · 차이는 무승부 범위 안.**
+- **비용·지연을 감수할 만했는가: 아니다.** 근거를 더 찾지 못했는데 지연은 두 자릿수 배로 늘었다.
 
 **차이가 난 곳은 두 사례뿐이고, 서로 반대로 당겼다**
 
 - `C03 thin_top_cell`: greedy 0.7194 vs JEV 0.0288. JEV 는 문의가 5건뿐인 최대 delta 셀을 골랐고, pool 이 작아 coverage 가 높게 나와 1회 만에 충분 판정으로 끝났다. 좁은 기준선과 같은 함정에 걸렸다.
 - `C06 complementary_cells`: greedy 0.3465 vs JEV 0.5984. JEV 는 유형 수준 후보를 골라 **조회 1회로** 더 많은 근거를 얻었다.
 
-넓힐 값어치가 있을 때 넓히는 판단은 했고, 근거의 양을 가늠하는 판단은 하지 못했다 — 후보 설명에 조회 가능한 문의 수를 명시했는데도 그렇다.
+넓힐 값어치가 있을 때 넓히는 판단은 했고, 근거의 양을 가늠하는 판단은 하지 못했다 — 후보 설명에 조회 가능한 문의 수를 적어줬는데도 그렇다. 세는 일은 코드가 더 잘했다.
 
 **잘못된 근거를 막은 것은 모델이 아니라 서버다**
 
-함정 사례에서 JEV 는 조회 2회를 모두 쓰고 근거 0건으로 끝났다(`selector_defer=N`). V-4 가 지켜진 것은 **서버의 v1.1 채택 규칙이 증가하지 않은 그룹의 문의를 전부 거부했기 때문**이지 모델이 물러섰기 때문이 아니다. 실제로 보류를 **선택**한 것은 좁은 기준선뿐이다.
+함정 사례에서 greedy 도 JEV 도 물러서지 않았다. 둘 다 조회 예산을 전부 쓰고 근거 0건으로 끝났다(`selector_defer=N`). 그런데도 **세 selector 전부 최종 잘못된 근거가 0건이다.** 서버의 채택 규칙이 증가하지 않은 그룹의 문의를 거부했기 때문이다. 실제로 보류를 **선택**한 것은 좁은 기준선뿐이다.
 
 **결과 파일을 인용할 때**
 
-`eval/v1/results/jev.json` 은 유료 산출물이라 바이트 그대로 보존하지만, **[정정 문서](eval/v1/results/jev_RECORD_CORRECTION.md)를 반드시 함께 읽어야 한다.**
-
-- `real_model_calls: 0` 은 **사실이 아니다.** 실제 10회 호출됐다. 채점기에 상수로 박혀 있던 값이 잠금 해제 후 갱신되지 않았다.
+- 1회차 `eval/v1/results/jev.json` 은 유료 산출물이라 바이트 그대로 보존한다. **[정정 문서](eval/v1/results/jev_RECORD_CORRECTION.md)를 반드시 함께 읽어야 한다** — 그 파일의 `real_model_calls: 0` 은 사실이 아니고, telemetry 가 없다.
 - `passed: true` 는 **안전·평가 관문을 통과했다는 뜻이지 greedy 상대 승리가 아니다.**
-- 응답 모델·토큰 수·실비·지연은 **이번 회차에 대해 측정됐다고 주장할 수 없다.** 채점기가 어댑터 telemetry 를 결과에 옮기지 않아 소실됐고 복구할 수 없다. V-7 은 이번 회차에 한해 사후에도 `not_measured` 다.
-
----
+- 채점기는 모델이 답한 결과 파일을 덮어쓰지 않는다. 재실행하려면 `--label` 이 필요하다.
 
 ## 구현된 것과 아직 아닌 것
 
@@ -445,11 +453,33 @@ v1.0에서 greedy는 yield를 0.37에서 0.66으로 올리는 대가로 잘못�
 | 24개 오프라인 평가, 고정 채점기 | 구현됨 |
 | v1 challenge 8개 사례·계약·채점기, 기준선 측정 | 구현됨 |
 | JEV adapter (TypeSafe 직접 API, `jev-1.13.0` 핀) | 구현됨 |
-| **실제 모델 호출** | **1회차 완료 (10회 호출, 2026-09-22)** |
-| **모델 비용·지연 수치** | **없음 — 이번 회차는 telemetry 미기록으로 사후 측정도 불가** |
+| **실제 모델 호출** | **2회 실행, 각 10회 호출 (2026-09-22)** |
+| **모델 비용·지연 수치** | **2회차에서 측정됨** (1회차는 telemetry 미기록으로 사후 측정 불가) |
+| 실행 telemetry·유료 산출물 덮어쓰기 차단 | 구현됨 |
 | 자유 자연어 질문 파서 | 범위 밖 |
 
-모델은 붙였고 1회 측정했다. 그 결과 **좁은 기준선보다는 개선됐고, 강한 코드 기준선은 이기지 못했다.** 그래서 이 저장소는 "모델을 쓸 실익이 관측됐다"고 주장하지 않는다.
+모델은 붙였고 2회 측정했다. **좁은 기준선보다는 개선됐고, 강한 코드 기준선은 이기지 못했다.** 그래서 이 저장소는 "모델을 쓸 실익이 관측됐다"고 주장하지 않는다.
+
+> We expected a probabilistic decision model to improve evidence selection. It did not.
+> A stronger deterministic baseline performed better. The more important result was that
+> server-side verification prevented incorrect evidence from propagating regardless of
+> the decision strategy.
+
+**Decision quality and system safety are different problems.** 이 프로젝트가 코드로 보인 것은 그 한 문장이다.
+
+세 가지를 정확한 강도로 다시 적으면:
+
+1. **In this benchmark, a well-designed deterministic policy outperformed the probabilistic decision model.**
+2. **Deterministic metric computation achieved full correctness across the benchmark and did not benefit from model involvement.**
+3. **Server-controlled verification prevented unsupported evidence from reaching the final answer even when both greedy and JEV made overly aggressive investigation decisions.**
+
+세 번째가 이 프로젝트의 가장 강한 결과다. selector 둘이 판단을 틀렸는데 최종 잘못된 근거는 0건이었다.
+
+### 하지 않은 것 — v2 연구 질문으로 남긴다
+
+이 벤치마크의 고객 문의 본문에는 **숨은 서사가 없다.** 라벨을 뒷받침하는 한 문장일 뿐이라, "8월 12일 이후 지연 급증", "배송사 변경 언급" 같은 신호를 찾아내는 능력은 시험하지 않는다. 그 능력을 보려면 latent signal 을 심은 새 코퍼스와 의미 단위 oracle, 그리고 lexical·semantic retrieval 이 필요하다.
+
+**결과를 본 뒤에 그 신호를 지금 벤치마크에 심지 않았다.** 그러면 모델에 유리하게 재설계했다는 인상이 남고, 질문 자체가 *"제한된 후보 중 고르는 것이 코드보다 나은가"* 에서 *"텍스트에 숨은 의미를 모델이 발견하는가"* 로 바뀐다. 다른 프로젝트다. v1 은 동결하고, 그쪽은 별도 벤치마크로 남긴다.
 비교는 같은 24개 시나리오·같은 채점기로만 유효하며, 채점 기준이 바뀌면 비교는 무효다.
 
 ---

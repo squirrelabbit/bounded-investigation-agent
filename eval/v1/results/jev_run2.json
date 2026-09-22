@@ -1,0 +1,1125 @@
+{
+  "cases": [
+    {
+      "admitted_count": 69,
+      "admitted_unique_count": 69,
+      "best_single_filter_yield": 69,
+      "best_two_filter_yield": 120,
+      "case_id": "C01",
+      "category": "decoy_top_cell",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 2,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.31,
+          "estimated_cost_usd": 5.9892e-05,
+          "failure_reason": null,
+          "input_tokens": 1426,
+          "kind": "product",
+          "latency_ms": 1247.65725,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 71,
+          "probabilities": {
+            "DEFER": 0.0,
+            "R1-C1": 0.45,
+            "R1-C2": 0.01,
+            "R1-C3": 0.45,
+            "R1-C4": 0.09
+          },
+          "request_id": "req_01a0c7a7ab897997b4d53a7db1c75298",
+          "selected_candidate": "R1-C3"
+        },
+        {
+          "called": true,
+          "confidence": 0.63,
+          "estimated_cost_usd": 5.4096000000000005e-05,
+          "failure_reason": null,
+          "input_tokens": 1288,
+          "kind": "cell",
+          "latency_ms": 976.981958,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 61,
+          "probabilities": {
+            "DEFER": 0.01,
+            "R2-C1": 0.72,
+            "R2-C2": 0.02,
+            "R2-C3": 0.25
+          },
+          "request_id": "req_01a0c7a7affc7bb0969bd3f34be9ab6c",
+          "selected_candidate": "R2-C1"
+        }
+      ],
+      "defer_selections": 0,
+      "downgraded_selections": 0,
+      "expect_wasted_retrievals_min": 0,
+      "failures": [],
+      "finish_reason": "decision_budget_exhausted",
+      "investigated_kind_counts": {
+        "cell": 1,
+        "complaint_type": 0,
+        "product": 1
+      },
+      "investigated_kinds": [
+        "product",
+        "cell"
+      ],
+      "label": "미끼 1순위 셀 — 최대 delta 셀의 문의가 전부 라벨 미뒷받침",
+      "must_not_claim": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1435,
+          "current_total": 1712,
+          "delta": 277
+        },
+        "want": {
+          "baseline_total": 1435,
+          "current_total": 1712,
+          "delta": 277
+        }
+      },
+      "oracle_positive_cells": [
+        "P-Alpha/app_crash",
+        "P-Alpha/delivery_delay",
+        "P-Beta/app_crash",
+        "P-Beta/damaged_item",
+        "P-Beta/delivery_delay",
+        "P-Beta/support_wait",
+        "P-Delta/app_crash",
+        "P-Delta/billing_error",
+        "P-Delta/delivery_delay",
+        "P-Gamma/app_crash"
+      ],
+      "precision": 1.0,
+      "retrievals": 2,
+      "s4_leaks": [],
+      "selector_deferred": false,
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "delivery_delay",
+            "app_crash"
+          ],
+          "product": [
+            "P-Beta",
+            "P-Gamma"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "delivery_delay",
+            "app_crash"
+          ],
+          "product": [
+            "P-Beta",
+            "P-Gamma"
+          ]
+        }
+      },
+      "useful_admitted_count": 69,
+      "useful_total": 220,
+      "wasted_retrievals": 1,
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      },
+      "yield": 0.575
+    },
+    {
+      "admitted_count": 178,
+      "admitted_unique_count": 178,
+      "best_single_filter_yield": 243,
+      "best_two_filter_yield": 256,
+      "case_id": "C02",
+      "category": "spread_product",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.77,
+          "estimated_cost_usd": 5.9514e-05,
+          "failure_reason": null,
+          "input_tokens": 1417,
+          "kind": "product",
+          "latency_ms": 706.318041,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 71,
+          "probabilities": {
+            "DEFER": 0.0,
+            "R1-C1": 0.16,
+            "R1-C2": 0.01,
+            "R1-C3": 0.82,
+            "R1-C4": 0.01
+          },
+          "request_id": "req_01a0c7a7b3107e67aef099d567f90dd6",
+          "selected_candidate": "R1-C3"
+        }
+      ],
+      "defer_selections": 0,
+      "downgraded_selections": 0,
+      "expect_wasted_retrievals_min": 0,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "investigated_kind_counts": {
+        "cell": 0,
+        "complaint_type": 0,
+        "product": 1
+      },
+      "investigated_kinds": [
+        "product"
+      ],
+      "label": "제품 전반 확산 — 한 제품의 5개 유형이 고르게 증가",
+      "must_not_claim": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1449,
+          "current_total": 1799,
+          "delta": 350
+        },
+        "want": {
+          "baseline_total": 1449,
+          "current_total": 1799,
+          "delta": 350
+        }
+      },
+      "oracle_positive_cells": [
+        "P-Alpha/app_crash",
+        "P-Alpha/billing_error",
+        "P-Alpha/damaged_item",
+        "P-Alpha/delivery_delay",
+        "P-Alpha/support_wait",
+        "P-Beta/app_crash",
+        "P-Beta/billing_error",
+        "P-Beta/delivery_delay",
+        "P-Delta/damaged_item",
+        "P-Delta/support_wait",
+        "P-Gamma/app_crash",
+        "P-Gamma/damaged_item"
+      ],
+      "precision": 1.0,
+      "retrievals": 1,
+      "s4_leaks": [],
+      "selector_deferred": false,
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "support_wait",
+            "app_crash",
+            "delivery_delay"
+          ],
+          "product": [
+            "P-Alpha"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "support_wait",
+            "app_crash",
+            "delivery_delay"
+          ],
+          "product": [
+            "P-Alpha"
+          ]
+        }
+      },
+      "useful_admitted_count": 178,
+      "useful_total": 373,
+      "wasted_retrievals": 0,
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      },
+      "yield": 0.6953
+    },
+    {
+      "admitted_count": 4,
+      "admitted_unique_count": 4,
+      "best_single_filter_yield": 100,
+      "best_two_filter_yield": 139,
+      "case_id": "C03",
+      "category": "thin_top_cell",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.32,
+          "estimated_cost_usd": 5.9976e-05,
+          "failure_reason": null,
+          "input_tokens": 1428,
+          "kind": "cell",
+          "latency_ms": 696.142292,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 71,
+          "probabilities": {
+            "DEFER": 0.01,
+            "R1-C1": 0.46,
+            "R1-C2": 0.16,
+            "R1-C3": 0.28,
+            "R1-C4": 0.09
+          },
+          "request_id": "req_01a0c7a7b5e87cfab8cbb0e7027ac53b",
+          "selected_candidate": "R1-C1"
+        }
+      ],
+      "defer_selections": 0,
+      "downgraded_selections": 0,
+      "expect_wasted_retrievals_min": 0,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "investigated_kind_counts": {
+        "cell": 1,
+        "complaint_type": 0,
+        "product": 0
+      },
+      "investigated_kinds": [
+        "cell"
+      ],
+      "label": "빈약한 1순위 셀 — 최대 delta 셀의 문의가 극소",
+      "must_not_claim": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1664,
+          "current_total": 1929,
+          "delta": 265
+        },
+        "want": {
+          "baseline_total": 1664,
+          "current_total": 1929,
+          "delta": 265
+        }
+      },
+      "oracle_positive_cells": [
+        "P-Alpha/app_crash",
+        "P-Alpha/billing_error",
+        "P-Beta/app_crash",
+        "P-Beta/damaged_item",
+        "P-Beta/support_wait",
+        "P-Delta/app_crash",
+        "P-Delta/damaged_item",
+        "P-Delta/delivery_delay",
+        "P-Gamma/support_wait"
+      ],
+      "precision": 1.0,
+      "retrievals": 1,
+      "s4_leaks": [],
+      "selector_deferred": false,
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "damaged_item",
+            "support_wait"
+          ],
+          "product": [
+            "P-Delta",
+            "P-Beta"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "damaged_item",
+            "support_wait"
+          ],
+          "product": [
+            "P-Delta",
+            "P-Beta"
+          ]
+        }
+      },
+      "useful_admitted_count": 4,
+      "useful_total": 267,
+      "wasted_retrievals": 0,
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      },
+      "yield": 0.0288
+    },
+    {
+      "admitted_count": 172,
+      "admitted_unique_count": 172,
+      "best_single_filter_yield": 172,
+      "best_two_filter_yield": 237,
+      "case_id": "C04",
+      "category": "type_wide",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.78,
+          "estimated_cost_usd": 5.964e-05,
+          "failure_reason": null,
+          "input_tokens": 1420,
+          "kind": "complaint_type",
+          "latency_ms": 831.474791,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 71,
+          "probabilities": {
+            "DEFER": 0.0,
+            "R1-C1": 0.09,
+            "R1-C2": 0.07,
+            "R1-C3": 0.01,
+            "R1-C4": 0.83
+          },
+          "request_id": "req_01a0c7a7b93979ad87d8eac6870ff9a3",
+          "selected_candidate": "R1-C4"
+        }
+      ],
+      "defer_selections": 0,
+      "downgraded_selections": 0,
+      "expect_wasted_retrievals_min": 0,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "investigated_kind_counts": {
+        "cell": 0,
+        "complaint_type": 1,
+        "product": 0
+      },
+      "investigated_kinds": [
+        "complaint_type"
+      ],
+      "label": "유형 전반 확산 — 한 불만 유형이 4개 제품에서 증가",
+      "must_not_claim": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1463,
+          "current_total": 1726,
+          "delta": 263
+        },
+        "want": {
+          "baseline_total": 1463,
+          "current_total": 1726,
+          "delta": 263
+        }
+      },
+      "oracle_positive_cells": [
+        "P-Alpha/app_crash",
+        "P-Alpha/billing_error",
+        "P-Alpha/support_wait",
+        "P-Beta/app_crash",
+        "P-Beta/billing_error",
+        "P-Beta/damaged_item",
+        "P-Beta/delivery_delay",
+        "P-Delta/billing_error",
+        "P-Delta/damaged_item",
+        "P-Delta/delivery_delay",
+        "P-Gamma/app_crash",
+        "P-Gamma/billing_error",
+        "P-Gamma/damaged_item",
+        "P-Gamma/delivery_delay"
+      ],
+      "precision": 1.0,
+      "retrievals": 1,
+      "s4_leaks": [],
+      "selector_deferred": false,
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "billing_error"
+          ],
+          "product": [
+            "P-Beta",
+            "P-Gamma",
+            "P-Delta"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "billing_error"
+          ],
+          "product": [
+            "P-Beta",
+            "P-Gamma",
+            "P-Delta"
+          ]
+        }
+      },
+      "useful_admitted_count": 172,
+      "useful_total": 383,
+      "wasted_retrievals": 0,
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      },
+      "yield": 0.7257
+    },
+    {
+      "admitted_count": 0,
+      "admitted_unique_count": 0,
+      "best_single_filter_yield": 0,
+      "best_two_filter_yield": 0,
+      "case_id": "C05",
+      "category": "trap_defer",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 2,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.9,
+          "estimated_cost_usd": 5.1660000000000003e-05,
+          "failure_reason": null,
+          "input_tokens": 1230,
+          "kind": "cell",
+          "latency_ms": 717.248416,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 61,
+          "probabilities": {
+            "DEFER": 0.0,
+            "R1-C1": 0.92,
+            "R1-C2": 0.07,
+            "R1-C3": 0.01
+          },
+          "request_id": "req_01a0c7a7bc0e789eaf8e612340c100b0",
+          "selected_candidate": "R1-C1"
+        },
+        {
+          "called": true,
+          "confidence": 0.42,
+          "estimated_cost_usd": 4.6410000000000005e-05,
+          "failure_reason": null,
+          "input_tokens": 1105,
+          "kind": "product",
+          "latency_ms": 749.720916,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 51,
+          "probabilities": {
+            "DEFER": 0.08,
+            "R2-C1": 0.61,
+            "R2-C2": 0.31
+          },
+          "request_id": "req_01a0c7a7bf1e7f77bd1e881131b4f700",
+          "selected_candidate": "R2-C1"
+        }
+      ],
+      "defer_selections": 0,
+      "downgraded_selections": 0,
+      "excluded_from_precision": "must_not_claim",
+      "excluded_from_yield": "must_not_claim",
+      "expect_wasted_retrievals_min": 0,
+      "failures": [],
+      "finish_reason": "decision_budget_exhausted",
+      "investigated_kind_counts": {
+        "cell": 1,
+        "complaint_type": 0,
+        "product": 1
+      },
+      "investigated_kinds": [
+        "cell",
+        "product"
+      ],
+      "label": "함정 — 유일한 증가 셀의 문의가 전부 허용되지 않은 출처",
+      "must_not_claim": true,
+      "numbers": {
+        "got": {
+          "baseline_total": 1375,
+          "current_total": 1555,
+          "delta": 180
+        },
+        "want": {
+          "baseline_total": 1375,
+          "current_total": 1555,
+          "delta": 180
+        }
+      },
+      "oracle_positive_cells": [
+        "P-Gamma/billing_error"
+      ],
+      "precision": null,
+      "retrievals": 2,
+      "s4_leaks": [],
+      "selector_deferred": false,
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "billing_error"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "billing_error"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        }
+      },
+      "useful_admitted_count": 0,
+      "useful_total": 0,
+      "wasted_retrievals": 2,
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      },
+      "yield": null
+    },
+    {
+      "admitted_count": 76,
+      "admitted_unique_count": 76,
+      "best_single_filter_yield": 85,
+      "best_two_filter_yield": 127,
+      "case_id": "C06",
+      "category": "complementary_cells",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.21,
+          "estimated_cost_usd": 6.018600000000001e-05,
+          "failure_reason": null,
+          "input_tokens": 1433,
+          "kind": "complaint_type",
+          "latency_ms": 726.819292,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 71,
+          "probabilities": {
+            "DEFER": 0.01,
+            "R1-C1": 0.18,
+            "R1-C2": 0.22,
+            "R1-C3": 0.22,
+            "R1-C4": 0.37
+          },
+          "request_id": "req_01a0c7a7c1c17c7fbc7be89ddbbeb1b6",
+          "selected_candidate": "R1-C4"
+        }
+      ],
+      "defer_selections": 0,
+      "downgraded_selections": 0,
+      "expect_wasted_retrievals_min": 0,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "investigated_kind_counts": {
+        "cell": 0,
+        "complaint_type": 1,
+        "product": 0
+      },
+      "investigated_kinds": [
+        "complaint_type"
+      ],
+      "label": "상보적 두 셀 — 각 셀 단독으로는 충분 판정에 못 미침",
+      "must_not_claim": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1237,
+          "current_total": 1499,
+          "delta": 262
+        },
+        "want": {
+          "baseline_total": 1237,
+          "current_total": 1499,
+          "delta": 262
+        }
+      },
+      "oracle_positive_cells": [
+        "P-Alpha/app_crash",
+        "P-Alpha/damaged_item",
+        "P-Alpha/support_wait",
+        "P-Beta/app_crash",
+        "P-Beta/billing_error",
+        "P-Beta/delivery_delay",
+        "P-Beta/support_wait",
+        "P-Delta/damaged_item",
+        "P-Delta/support_wait",
+        "P-Gamma/app_crash",
+        "P-Gamma/billing_error",
+        "P-Gamma/support_wait"
+      ],
+      "precision": 1.0,
+      "retrievals": 1,
+      "s4_leaks": [],
+      "selector_deferred": false,
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "support_wait",
+            "app_crash"
+          ],
+          "product": [
+            "P-Alpha",
+            "P-Delta"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "support_wait",
+            "app_crash"
+          ],
+          "product": [
+            "P-Alpha",
+            "P-Delta"
+          ]
+        }
+      },
+      "useful_admitted_count": 76,
+      "useful_total": 258,
+      "wasted_retrievals": 0,
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      },
+      "yield": 0.5984
+    },
+    {
+      "admitted_count": 69,
+      "admitted_unique_count": 69,
+      "best_single_filter_yield": 69,
+      "best_two_filter_yield": 69,
+      "case_id": "C07",
+      "category": "clean_single",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.86,
+          "estimated_cost_usd": 5.187e-05,
+          "failure_reason": null,
+          "input_tokens": 1235,
+          "kind": "cell",
+          "latency_ms": 779.215708,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 61,
+          "probabilities": {
+            "DEFER": 0.0,
+            "R1-C1": 0.9,
+            "R1-C2": 0.08,
+            "R1-C3": 0.02
+          },
+          "request_id": "req_01a0c7a7c4db7e7b93b1f2dd133b5c37",
+          "selected_candidate": "R1-C1"
+        }
+      ],
+      "defer_selections": 0,
+      "downgraded_selections": 0,
+      "expect_wasted_retrievals_min": 0,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "investigated_kind_counts": {
+        "cell": 1,
+        "complaint_type": 0,
+        "product": 0
+      },
+      "investigated_kinds": [
+        "cell"
+      ],
+      "label": "단일 셀 — 1회 호출로 끝나는 것이 정답",
+      "must_not_claim": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1364,
+          "current_total": 1544,
+          "delta": 180
+        },
+        "want": {
+          "baseline_total": 1364,
+          "current_total": 1544,
+          "delta": 180
+        }
+      },
+      "oracle_positive_cells": [
+        "P-Beta/app_crash"
+      ],
+      "precision": 1.0,
+      "retrievals": 1,
+      "s4_leaks": [],
+      "selector_deferred": false,
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "app_crash"
+          ],
+          "product": [
+            "P-Beta"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "app_crash"
+          ],
+          "product": [
+            "P-Beta"
+          ]
+        }
+      },
+      "useful_admitted_count": 69,
+      "useful_total": 69,
+      "wasted_retrievals": 0,
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      },
+      "yield": 1.0
+    },
+    {
+      "admitted_count": 54,
+      "admitted_unique_count": 54,
+      "best_single_filter_yield": 90,
+      "best_two_filter_yield": 99,
+      "case_id": "C08",
+      "category": "volume_decoy",
+      "causal_claims": [],
+      "comparability_mode": "full",
+      "crashed": false,
+      "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.79,
+          "estimated_cost_usd": 5.691e-05,
+          "failure_reason": null,
+          "input_tokens": 1355,
+          "kind": "cell",
+          "latency_ms": 686.266,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 71,
+          "probabilities": {
+            "DEFER": 0.0,
+            "R1-C1": 0.84,
+            "R1-C2": 0.0,
+            "R1-C3": 0.13,
+            "R1-C4": 0.03
+          },
+          "request_id": "req_01a0c7a7c7c073ebb6d5f697ad272660",
+          "selected_candidate": "R1-C1"
+        }
+      ],
+      "defer_selections": 0,
+      "downgraded_selections": 0,
+      "expect_wasted_retrievals_min": 0,
+      "failures": [],
+      "finish_reason": "evidence_sufficient",
+      "investigated_kind_counts": {
+        "cell": 1,
+        "complaint_type": 0,
+        "product": 0
+      },
+      "investigated_kinds": [
+        "cell"
+      ],
+      "label": "물량 미끼 — 문의량이 압도적인 셀의 증가는 미미",
+      "must_not_claim": false,
+      "numbers": {
+        "got": {
+          "baseline_total": 1897,
+          "current_total": 1971,
+          "delta": 74
+        },
+        "want": {
+          "baseline_total": 1897,
+          "current_total": 1971,
+          "delta": 74
+        }
+      },
+      "oracle_positive_cells": [
+        "P-Beta/billing_error",
+        "P-Delta/support_wait",
+        "P-Gamma/billing_error",
+        "P-Gamma/damaged_item"
+      ],
+      "precision": 1.0,
+      "retrievals": 1,
+      "s4_leaks": [],
+      "selector_deferred": false,
+      "status": "reported",
+      "top_groups": {
+        "got": {
+          "complaint_type": [
+            "damaged_item"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        },
+        "want": {
+          "complaint_type": [
+            "damaged_item"
+          ],
+          "product": [
+            "P-Gamma"
+          ]
+        }
+      },
+      "useful_admitted_count": 54,
+      "useful_total": 110,
+      "wasted_retrievals": 0,
+      "window": {
+        "got": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        },
+        "want": {
+          "baseline": {
+            "end": "2026-06-30",
+            "start": "2026-06-01"
+          },
+          "current": {
+            "end": "2026-07-30",
+            "start": "2026-07-01"
+          },
+          "mode": "full"
+        }
+      },
+      "yield": 0.5455
+    }
+  ],
+  "selector": "jev",
+  "summary": {
+    "S-1_wrong_confident_numbers": 0,
+    "S-2_unsupported_causal_claims": 0,
+    "S-3_partial_period_as_full": 0,
+    "S-4_verification_leak": 0,
+    "V-1_fact_accuracy": "8/8",
+    "V-2_evidence_yield_macro": 0.5955,
+    "V-2_included_cases": 7,
+    "V-3_evidence_precision_macro": 1.0,
+    "V-3_included_cases": 7,
+    "V-4_must_not_claim_clean": "1/1",
+    "V-5_wasted_retrievals": 3,
+    "V-6_total_decision_calls": 10,
+    "V-6_total_retrievals": 10,
+    "V-7_latency_and_model_cost": "not_measured",
+    "budget_exceeded": 0,
+    "cases": 8,
+    "crashed": 0,
+    "investigated_kind_counts": {
+      "cell": 5,
+      "complaint_type": 2,
+      "product": 3
+    },
+    "must_not_claim_cases_where_selector_deferred": "0/1",
+    "must_not_claim_retrievals_spent": 2,
+    "oracle_runtime_cell_disagreement": 0,
+    "passed": true,
+    "provider": "jev-1.13.0",
+    "real_model_calls": 10,
+    "verdict": {
+      "S-1": true,
+      "S-2": true,
+      "S-3": true,
+      "S-4": true,
+      "V-1": true,
+      "V-2_floor": true,
+      "V-4": true,
+      "budget": true,
+      "no_crash": true,
+      "oracle_sync": true
+    }
+  },
+  "telemetry": {
+    "decision_latency_ms": {
+      "count": 10,
+      "mean": 811.784466,
+      "total": 8117.844664,
+      "values": [
+        1247.65725,
+        976.981958,
+        706.318041,
+        696.142292,
+        831.474791,
+        717.248416,
+        749.720916,
+        726.819292,
+        779.215708,
+        686.266
+      ]
+    },
+    "decision_strategy": "jev",
+    "decisions": 10,
+    "estimated_cost_basis": "estimate computed locally from usage.input_tokens at $0.042/1M input tokens (output free), rates as of 2026-09-22; the response body carries no cost field",
+    "estimated_cost_usd": 0.000560154,
+    "estimated_cost_usd_is_an_estimate": true,
+    "input_tokens": 13337,
+    "live_model_run": true,
+    "model_calls": 10,
+    "models_answered": [
+      "jev-1.13.0"
+    ],
+    "output_tokens": 660,
+    "provider": "jev-1.13.0",
+    "real_model_calls": 10,
+    "total_latency_ms": 8294.709
+  }
+}
