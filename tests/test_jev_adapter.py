@@ -37,8 +37,11 @@ from bia.jev import (
     JevResponse,
     JevSelector,
     JevTransportError,
+    REASON_FIRST_RESPONSE_SHAPE,
+    RunGuard,
     UNDOCUMENTED_REQUEST_KEYS,
     estimate_cost_usd,
+    first_response_shape_error,
 )
 from bia.types import DEFER, EvidenceCandidate
 
@@ -97,8 +100,8 @@ def with_request_id(body: Dict[str, object], request_id: str = "req-abc-123"):
     return JevResponse(body=body, headers={"X-TypeSafe-Request-Id": request_id})
 
 
-def selector_with(responses: Sequence[object], maximum: int = 16):
-    transport = FakeTransport(responses, repeat_last=True)
+def selector_with(responses: Sequence[object], maximum: int = 16, repeat: bool = True):
+    transport = FakeTransport(responses, repeat_last=repeat)
     return JevSelector(transport=transport, budget=CallBudget(maximum)), transport
 
 
@@ -377,12 +380,21 @@ class EstimatedCostTests(unittest.TestCase):
         self.assertNotIn("999.99", json.dumps(record.as_dict()["estimated_cost_usd"]))
 
     def test_a_response_without_usage_records_no_estimate(self):
+        """A LATER call without usage: the estimate is simply absent.
+
+        The FIRST completed call of a run is a different matter — §7-E verifies
+        `usage.input_tokens` there and halts the run if it is missing. That is
+        covered in FirstResponseShapeTests, so this selector starts with the
+        first-response check already spent.
+        """
         state, candidates = first_round_inputs()
         wanted = candidates[0].candidate_id
         body = answer_response(wanted)
         del body["usage"]
         selector, _ = selector_with([body])
+        selector.guard.first_response_checked = True
         self.assertEqual(selector.select_next_evidence(state, candidates), wanted)
+        self.assertFalse(selector.guard.halted)
         record = selector.records[-1]
         self.assertIsNone(record.input_tokens)
         self.assertIsNone(record.estimated_cost_usd)
@@ -541,9 +553,16 @@ class BudgetTests(unittest.TestCase):
             maximum=1,
         )
         self.assertEqual(selector.select_next_evidence(state, candidates), DEFER)
+        self.assertEqual(selector.budget.used, 1)
+        self.assertEqual(selector.budget.remaining, 0)
+        # The 429 spent the budget AND halted the run (§7-E), so the second
+        # decision is refused by the halt, which is checked first precisely so a
+        # halted run cannot consume a call it will never send.
         self.assertEqual(selector.select_next_evidence(state, candidates), DEFER)
         self.assertEqual(transport.call_count, 1)
-        self.assertEqual(selector.records[-1].failure_reason, "call_budget_exhausted")
+        self.assertTrue(
+            selector.records[-1].failure_reason.startswith("skipped_run_halted")
+        )
 
     def test_the_budget_is_shared_across_selectors(self):
         state, candidates = first_round_inputs()
@@ -994,6 +1013,414 @@ class ProcessWideBudgetTest(unittest.TestCase):
     def test_the_shared_budget_is_the_contract_maximum(self):
         scorer = self._scorer()
         self.assertEqual(scorer._JEV_PROCESS_BUDGET.maximum, 16)
+
+
+class RunHaltTests(unittest.TestCase):
+    """§7-E: any call failure stops the whole run.
+
+    Both invariants are asserted together throughout: the provider still returns
+    DEFER and raises nothing, AND the run-wide flag goes up.
+    """
+
+    def setUp(self):
+        self.state, self.candidates = first_round_inputs()
+
+    def assert_halts_after_one_send(self, item, expected_reason_prefix):
+        selector, transport = selector_with([item])
+        self.assertFalse(selector.guard.halted, "guard must start down")
+        self.assertEqual(
+            selector.select_next_evidence(self.state, self.candidates), DEFER
+        )
+        self.assertEqual(transport.call_count, 1, "exactly one send, never a retry")
+        self.assertTrue(selector.guard.halted, "the run must be halted")
+        reason = selector.guard.halt_reason
+        self.assertTrue(
+            reason.startswith(expected_reason_prefix),
+            "halt_reason %r does not start with %r" % (reason, expected_reason_prefix),
+        )
+        self.assertEqual(selector.records[-1].failure_reason, reason)
+        return selector, transport
+
+    def test_a_well_formed_first_response_does_not_halt_and_the_run_continues(self):
+        wanted = self.candidates[0].candidate_id
+        selector, transport = selector_with([answer_response(wanted)])
+        self.assertEqual(
+            selector.select_next_evidence(self.state, self.candidates), wanted
+        )
+        self.assertFalse(selector.guard.halted)
+        self.assertEqual(selector.guard.halt_reason, "")
+        self.assertTrue(selector.guard.first_response_checked)
+        # and the run really does continue: a second decision still calls out
+        self.assertEqual(
+            selector.select_next_evidence(self.state, self.candidates), wanted
+        )
+        self.assertEqual(transport.call_count, 2)
+        self.assertFalse(selector.guard.halted)
+        self.assertFalse(selector.telemetry()["halted"])
+
+    def test_a_transport_exception_halts(self):
+        self.assert_halts_after_one_send(
+            ConnectionResetError("connection reset by peer"),
+            "transport_error:ConnectionResetError",
+        )
+
+    def test_a_timeout_halts(self):
+        self.assert_halts_after_one_send(
+            TimeoutError("timed out"), "transport_error:TimeoutError"
+        )
+
+    def test_every_non_200_status_halts(self):
+        for status in (401, 422, 429, 529, 500):
+            with self.subTest(status=status):
+                self.assert_halts_after_one_send(
+                    JevHttpError(status, {"undocumented": "shape"}),
+                    "http_status:%d" % status,
+                )
+
+    def test_an_unparseable_body_halts(self):
+        self.assert_halts_after_one_send("not a json object", "unparseable_response")
+
+    def test_a_missing_answers_map_halts(self):
+        self.assert_halts_after_one_send(
+            {"model": JEV_MODEL, "usage": {"input_tokens": 5, "output_tokens": 0}},
+            "missing_answers",
+        )
+
+    def test_a_missing_question_key_halts(self):
+        body = answer_response(self.candidates[0].candidate_id)
+        body["answers"] = {"another_question": body["answers"][QUESTION_KEY]}
+        self.assert_halts_after_one_send(body, "missing_question_key")
+
+    def test_an_answer_without_a_choice_halts(self):
+        body = answer_response(self.candidates[0].candidate_id)
+        del body["answers"][QUESTION_KEY]["choice"]
+        self.assert_halts_after_one_send(body, "missing_choice")
+
+    def test_a_choice_outside_the_offered_options_halts(self):
+        selector, _ = self.assert_halts_after_one_send(
+            answer_response("R1-C99"), "choice_not_offered"
+        )
+        self.assertEqual(selector.records[-1].choice, "R1-C99")
+        self.assertEqual(selector.records[-1].returned, DEFER)
+
+    def test_budget_exhaustion_is_not_a_halt(self):
+        """A spent budget says nothing about whether the endpoint works, so it
+        must not be confused with a failure that stops the run."""
+        wanted = self.candidates[0].candidate_id
+        selector, transport = selector_with([answer_response(wanted)], maximum=1)
+        self.assertEqual(
+            selector.select_next_evidence(self.state, self.candidates), wanted
+        )
+        self.assertEqual(
+            selector.select_next_evidence(self.state, self.candidates), DEFER
+        )
+        self.assertEqual(selector.records[-1].failure_reason, "call_budget_exhausted")
+        self.assertFalse(selector.guard.halted)
+
+    def test_an_empty_candidate_list_is_not_a_halt(self):
+        selector, transport = selector_with([answer_response(DEFER)])
+        self.assertEqual(selector.select_next_evidence(self.state, []), DEFER)
+        self.assertEqual(transport.call_count, 0)
+        self.assertFalse(selector.guard.halted)
+
+
+class HaltStopsFurtherCallsTests(unittest.TestCase):
+    """Once halted: no send, no budget, and the skip is written down."""
+
+    def test_after_a_halt_no_call_is_made_and_no_budget_is_spent(self):
+        state, candidates = first_round_inputs()
+        selector, transport = selector_with(
+            [JevHttpError(529, None), answer_response(candidates[0].candidate_id)],
+            maximum=16,
+        )
+        self.assertEqual(selector.select_next_evidence(state, candidates), DEFER)
+        self.assertTrue(selector.guard.halted)
+        self.assertEqual(transport.call_count, 1)
+        self.assertEqual(selector.budget.used, 1)
+        self.assertEqual(selector.budget.remaining, 15)
+
+        for _ in range(3):
+            self.assertEqual(selector.select_next_evidence(state, candidates), DEFER)
+
+        self.assertEqual(transport.call_count, 1, "a halted run must not call again")
+        self.assertEqual(selector.budget.used, 1, "a halted run must not spend budget")
+        self.assertEqual(selector.budget.remaining, 15)
+        self.assertEqual(selector.call_count, 1)
+        skipped = selector.records[-1]
+        self.assertFalse(skipped.called)
+        self.assertEqual(skipped.returned, DEFER)
+        self.assertTrue(skipped.failure_reason.startswith("skipped_run_halted"))
+        self.assertIn("http_status:529", skipped.failure_reason)
+
+    def test_the_first_halt_reason_is_the_one_kept(self):
+        guard = RunGuard()
+        guard.halt("http_status:429")
+        guard.halt("transport_error:RuntimeError")
+        self.assertEqual(guard.halt_reason, "http_status:429")
+
+    def test_the_halt_flag_is_shared_across_selectors(self):
+        state, candidates = first_round_inputs()
+        guard = RunGuard()
+        first = JevSelector(
+            transport=FakeTransport([JevHttpError(401, None)]),
+            budget=CallBudget(16),
+            guard=guard,
+        )
+        second_transport = FakeTransport(
+            [answer_response(candidates[0].candidate_id)]
+        )
+        second = JevSelector(
+            transport=second_transport, budget=CallBudget(16), guard=guard
+        )
+        self.assertEqual(first.select_next_evidence(state, candidates), DEFER)
+        self.assertEqual(second.select_next_evidence(state, candidates), DEFER)
+        self.assertEqual(second_transport.call_count, 0)
+        self.assertTrue(second.guard.halted)
+
+
+class FirstResponseShapeTests(unittest.TestCase):
+    """§7-E: the first completed response is checked against the documented
+    shape, because HttpTransport has never run and the first call is the probe."""
+
+    def setUp(self):
+        self.state, self.candidates = first_round_inputs()
+        self.wanted = self.candidates[0].candidate_id
+
+    def assert_shape_halt(self, body, offending_field):
+        selector, transport = selector_with([body])
+        self.assertEqual(
+            selector.select_next_evidence(self.state, self.candidates), DEFER
+        )
+        self.assertEqual(transport.call_count, 1)
+        self.assertTrue(selector.guard.halted)
+        reason = selector.guard.halt_reason
+        self.assertTrue(
+            reason.startswith(REASON_FIRST_RESPONSE_SHAPE),
+            "halt_reason %r is not a shape mismatch" % reason,
+        )
+        self.assertEqual(
+            reason, "%s:%s" % (REASON_FIRST_RESPONSE_SHAPE, offending_field)
+        )
+        self.assertEqual(selector.records[-1].failure_reason, reason)
+        return selector
+
+    def test_a_missing_top_level_model_halts_and_names_the_field(self):
+        body = answer_response(self.wanted)
+        del body["model"]
+        self.assert_shape_halt(body, "model")
+
+    def test_a_non_string_model_halts_and_names_the_field(self):
+        body = answer_response(self.wanted)
+        body["model"] = 113
+        self.assert_shape_halt(body, "model")
+
+    def test_a_missing_usage_halts_and_names_the_field(self):
+        body = answer_response(self.wanted)
+        del body["usage"]
+        self.assert_shape_halt(body, "usage")
+
+    def test_a_missing_input_tokens_halts_and_names_the_field(self):
+        body = answer_response(self.wanted)
+        del body["usage"]["input_tokens"]
+        self.assert_shape_halt(body, "usage.input_tokens")
+
+    def test_an_input_tokens_of_the_wrong_type_halts_and_names_the_field(self):
+        for value in ("392", None, True, [392]):
+            with self.subTest(value=repr(value)):
+                body = answer_response(self.wanted)
+                body["usage"]["input_tokens"] = value
+                self.assert_shape_halt(body, "usage.input_tokens")
+
+    def test_the_shape_helper_names_the_answer_fields_too(self):
+        """The helper states the whole documented shape. `answers`, the question
+        key and `choice` are also enforced on every call by the fail-closed
+        path, which halts as well — so either route stops the run."""
+        good = answer_response(self.wanted)
+        self.assertIsNone(first_response_shape_error(good, QUESTION_KEY))
+        self.assertEqual(first_response_shape_error("nope", QUESTION_KEY), "body")
+
+        no_answers = answer_response(self.wanted)
+        del no_answers["answers"]
+        self.assertEqual(first_response_shape_error(no_answers, QUESTION_KEY), "answers")
+
+        wrong_key = answer_response(self.wanted)
+        wrong_key["answers"] = {"other": wrong_key["answers"][QUESTION_KEY]}
+        self.assertEqual(
+            first_response_shape_error(wrong_key, QUESTION_KEY),
+            "answers.%s" % QUESTION_KEY,
+        )
+
+        no_choice = answer_response(self.wanted)
+        del no_choice["answers"][QUESTION_KEY]["choice"]
+        self.assertEqual(
+            first_response_shape_error(no_choice, QUESTION_KEY),
+            "answers.%s.choice" % QUESTION_KEY,
+        )
+
+    def test_a_shape_verified_good_call_records_the_envelope_and_does_not_halt(self):
+        selector, transport = selector_with(
+            [answer_response(self.wanted, input_tokens=392, output_tokens=65)]
+        )
+        self.assertEqual(
+            selector.select_next_evidence(self.state, self.candidates), self.wanted
+        )
+        self.assertFalse(selector.guard.halted)
+        self.assertEqual(selector.guard.halt_reason, "")
+        self.assertTrue(selector.guard.first_response_checked)
+        record = selector.records[-1]
+        self.assertIsNone(record.failure_reason)
+        self.assertEqual(record.response_model, JEV_MODEL)
+        self.assertEqual(record.input_tokens, 392)
+        self.assertEqual(record.output_tokens, 65)
+        self.assertEqual(transport.call_count, 1)
+
+    def test_the_strict_check_is_spent_on_the_first_completed_call_only(self):
+        """§7-E (A) keeps the probe inside the 16 calls. A later response that
+        omits `model` is recorded as absent, not halted — the endpoint has
+        already been proven once."""
+        later = answer_response(self.wanted)
+        del later["model"]
+        selector, transport = selector_with(
+            [answer_response(self.wanted), later], repeat=False
+        )
+        self.assertEqual(
+            selector.select_next_evidence(self.state, self.candidates), self.wanted
+        )
+        self.assertEqual(
+            selector.select_next_evidence(self.state, self.candidates), self.wanted
+        )
+        self.assertEqual(transport.call_count, 2)
+        self.assertFalse(selector.guard.halted)
+        self.assertIsNone(selector.records[-1].response_model)
+
+
+class HaltIsNotTheControllerPathTests(unittest.TestCase):
+    """Both invariants at once: the Controller sees nothing, the run stops."""
+
+    def test_the_controller_still_returns_normally_with_a_failing_transport(self):
+        transport = FakeTransport([JevHttpError(529, {"error": "overloaded"})])
+        selector = JevSelector(transport=transport, budget=CallBudget(16))
+        result = investigate(
+            support.intent(), support.rows(), support.tickets(), selector
+        )
+        state = result.state
+        self.assertEqual(state.finish_reason, controller_mod.FINISH_DEFERRED)
+        self.assertEqual(state.violations, [], "no exception, no violation")
+        self.assertEqual(state.found_ticket_ids, [], "zero admitted evidence")
+        self.assertEqual(state.retrievals, 0)
+        # and the second device did fire
+        self.assertTrue(selector.guard.halted)
+        self.assertEqual(selector.guard.halt_reason, "http_status:529")
+        # the Controller may try again within its own budget; the halt stops the
+        # provider from calling out a second time
+        self.assertEqual(transport.call_count, 1)
+
+    def test_the_controller_module_knows_nothing_about_the_halt(self):
+        """AST-based: `bia/controller.py` must not reference the guard at all."""
+        path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "bia",
+            "controller.py",
+        )
+        with open(path, encoding="utf-8") as handle:
+            tree = ast.parse(handle.read(), filename=path)
+        names = {
+            node.attr for node in ast.walk(tree) if isinstance(node, ast.Attribute)
+        } | {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
+        for forbidden in ("guard", "RunGuard", "halted", "halt_reason"):
+            self.assertNotIn(forbidden, names)
+
+
+class ScorerHaltTests(unittest.TestCase):
+    """The scorer shares the flag and stops between cases (§7-E)."""
+
+    def _scorer(self):
+        import importlib
+        import sys
+
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        if root not in sys.path:
+            sys.path.insert(0, root)
+        return importlib.import_module("eval.v1.run_eval")
+
+    def _reset_guard(self, scorer):
+        scorer._JEV_PROCESS_GUARD.halted = False
+        scorer._JEV_PROCESS_GUARD.halt_reason = ""
+        scorer._JEV_PROCESS_GUARD.first_response_checked = False
+
+    def test_the_scorer_factory_shares_one_halt_flag_across_selectors(self):
+        scorer = self._scorer()
+        try:
+            first = scorer.build_jev_selector()
+            second = scorer.build_jev_selector()
+            self.assertIs(first.guard, second.guard)
+            self.assertIs(first.guard, scorer._JEV_PROCESS_GUARD)
+            first.guard.halt("http_status:401")
+            self.assertTrue(second.guard.halted)
+            self.assertEqual(second.guard.halt_reason, "http_status:401")
+        finally:
+            self._reset_guard(scorer)
+
+    def test_main_stops_between_cases_and_writes_a_clearly_partial_file(self):
+        import contextlib
+        import io
+        import shutil
+        import tempfile
+
+        scorer = self._scorer()
+        real_run_case = scorer.run_case
+        real_results_dir = scorer.RESULTS_DIR
+        tmpdir = tempfile.mkdtemp(prefix="bia-halt-")
+        seen = []
+
+        def failing_run_case(case_id, selector):
+            seen.append(case_id)
+            observation, error = real_run_case(case_id, selector)
+            if len(seen) == 2:
+                scorer._JEV_PROCESS_GUARD.halt("http_status:429")
+            return observation, error
+
+        buffer = io.StringIO()
+        try:
+            scorer.run_case = failing_run_case
+            scorer.RESULTS_DIR = tmpdir
+            with contextlib.redirect_stdout(buffer):
+                code = scorer.main(["--selector", "heuristic"])
+        finally:
+            scorer.run_case = real_run_case
+            scorer.RESULTS_DIR = real_results_dir
+            self._reset_guard(scorer)
+
+        printed = buffer.getvalue()
+        self.assertNotEqual(code, 0, "a halted run must exit non-zero")
+        self.assertEqual(len(seen), 2, "the remaining cases must not be run")
+
+        partial_path = os.path.join(tmpdir, "heuristic_PARTIAL.json")
+        self.assertTrue(os.path.isfile(partial_path))
+        self.assertFalse(
+            os.path.isfile(os.path.join(tmpdir, "heuristic.json")),
+            "a partial run must never be written to the completed results name",
+        )
+        with open(partial_path, encoding="utf-8") as handle:
+            document = json.load(handle)
+        shutil.rmtree(tmpdir, ignore_errors=True)
+
+        self.assertTrue(document["halted"])
+        self.assertTrue(document["partial"])
+        self.assertFalse(document["comparable"])
+        self.assertEqual(document["halt_reason"], "http_status:429")
+        self.assertEqual(document["cases_completed"], 2)
+        self.assertEqual(document["cases_total"], 8)
+        self.assertEqual(document["cases_not_run"], 6)
+        self.assertIn("calls_spent", document)
+        self.assertNotIn("summary", document, "a stopped run has no verdict")
+        self.assertNotIn("passed", document)
+        self.assertEqual(len(document["cases"]), 2)
+
+        self.assertIn("중단", printed)
+        self.assertIn("http_status:429", printed)
+        self.assertIn("사용한 호출 수", printed)
+        self.assertNotIn("전체: PASS", printed)
 
 
 if __name__ == "__main__":

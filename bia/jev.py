@@ -48,6 +48,22 @@ Boundaries this module keeps:
   `HttpTransport` refuses to exist without an explicit `enable_network=True`
   and a key the caller passes in; it never reads the environment itself, so the
   decision to go live is visible at the call site.
+* **A failed call halts the run (§7-E).** `HttpTransport` has never executed, so
+  the first call of a live run is also the probe. Fail-closed alone would turn
+  every broken call into a DEFER and quietly spend all 16 calls producing a
+  comparison that means nothing. So a second, separate device exists: a
+  `RunGuard` shared across the whole run. The provider still returns DEFER and
+  still raises nothing into the Controller — and at the same time it raises the
+  halt flag, after which it makes no further call and spends no further budget.
+  The scorer reads the flag between cases and stops. There is no retry, no
+  backoff and no resume here: resuming is a separately approved decision.
+* **The first completed response is checked strictly (§7-E).** Top-level
+  `model`, `answers[<question key>]`, its `choice`, and `usage.input_tokens`
+  must all be present and of the documented type. The offending field's name is
+  recorded. `answers`, the question key and `choice` are checked on every call
+  by the fail-closed path above (and each of those halts too); the first-call
+  check adds `model` and `usage.input_tokens`, which are otherwise merely
+  recorded when present.
 """
 from __future__ import annotations
 
@@ -159,6 +175,23 @@ REASON_MISSING_ANSWERS = "missing_answers"
 REASON_MISSING_QUESTION = "missing_question_key"
 REASON_MISSING_CHOICE = "missing_choice"
 REASON_CHOICE_NOT_OFFERED = "choice_not_offered"
+REASON_FIRST_RESPONSE_SHAPE = "first_response_shape_mismatch"
+REASON_RUN_HALTED = "skipped_run_halted"
+
+# The failure reasons that stop the whole run (§7-E 중단 규칙). Budget
+# exhaustion, an empty candidate list and an over-long option list are not on
+# this list: none of them is a failed call, and none of them says anything about
+# whether the endpoint works.
+HALTING_REASONS = (
+    REASON_TRANSPORT_ERROR,
+    REASON_HTTP_STATUS,
+    REASON_UNPARSEABLE,
+    REASON_MISSING_ANSWERS,
+    REASON_MISSING_QUESTION,
+    REASON_MISSING_CHOICE,
+    REASON_CHOICE_NOT_OFFERED,
+    REASON_FIRST_RESPONSE_SHAPE,
+)
 
 
 class JevTransportError(Exception):
@@ -422,6 +455,40 @@ class CallBudget:
         return {"maximum": self.maximum, "used": self.used, "remaining": self.remaining}
 
 
+class RunGuard:
+    """The run-wide stop flag (§7-E), shared exactly like `CallBudget`.
+
+    It is deliberately NOT the Controller's fail-closed path. Both hold at once:
+    the provider returns DEFER and raises nothing into the Controller, and the
+    run stops. The provider raises this flag; the scorer lowers the curtain
+    between cases. Nothing in `bia/controller.py` knows this exists.
+
+    `first_response_checked` records that one completed call has already been
+    verified against the documented shape, so the strict check costs one call
+    and is not repeated.
+    """
+
+    def __init__(self) -> None:
+        self.halted = False
+        self.halt_reason = ""
+        self.first_response_checked = False
+
+    def halt(self, reason: str) -> None:
+        """Idempotent: the FIRST reason is kept, because that is the failure the
+        run must be reported against. Later ones cannot overwrite it."""
+        if self.halted:
+            return
+        self.halted = True
+        self.halt_reason = reason
+
+    def as_dict(self) -> Dict[str, object]:
+        return {
+            "halted": self.halted,
+            "halt_reason": self.halt_reason,
+            "first_response_checked": self.first_response_checked,
+        }
+
+
 @dataclass
 class JevCallRecord:
     """One decision's worth of telemetry.
@@ -580,6 +647,35 @@ def build_criteria(candidates: Sequence[EvidenceCandidate]) -> Dict[str, object]
     return criteria
 
 
+def first_response_shape_error(body: object, question_key: str) -> Optional[str]:
+    """Name the first documented field the body gets wrong, or None (§7-E).
+
+    The documented shape is `model`, `answers[<question key>]`, that answer's
+    `choice`, and `usage.input_tokens`. The returned string is the field's path
+    so the halt reason says exactly what was wrong with the one response we are
+    ever going to see before spending the rest of the budget.
+    """
+    if not isinstance(body, dict):
+        return "body"
+    model = body.get("model")
+    if not isinstance(model, str) or not model.strip():
+        return "model"
+    answers = body.get("answers")
+    if not isinstance(answers, dict):
+        return "answers"
+    answer = answers.get(question_key)
+    if not isinstance(answer, dict):
+        return "answers.%s" % question_key
+    if not isinstance(answer.get("choice"), str):
+        return "answers.%s.choice" % question_key
+    usage = body.get("usage")
+    if not isinstance(usage, dict):
+        return "usage"
+    if _int_or_none(usage.get("input_tokens")) is None:
+        return "usage.input_tokens"
+    return None
+
+
 class JevSelector(DecisionProvider):
     """DecisionProvider backed by the JEV evaluation endpoint.
 
@@ -597,6 +693,7 @@ class JevSelector(DecisionProvider):
         budget: Optional[CallBudget] = None,
         model: str = JEV_MODEL,
         question_key: str = QUESTION_KEY,
+        guard: Optional["RunGuard"] = None,
     ) -> None:
         if transport is None:
             raise ValueError("JevSelector requires an explicit transport")
@@ -607,6 +704,7 @@ class JevSelector(DecisionProvider):
             )
         self.transport = transport
         self.budget = budget if budget is not None else CallBudget()
+        self.guard = guard if guard is not None else RunGuard()
         self.model = model
         self.question_key = question_key
         self.records: List[JevCallRecord] = []
@@ -638,6 +736,9 @@ class JevSelector(DecisionProvider):
             "cost_is_estimate": True,
             "cost_basis": COST_BASIS,
             "budget": self.budget.as_dict(),
+            "run_guard": self.guard.as_dict(),
+            "halted": self.guard.halted,
+            "halt_reason": self.guard.halt_reason,
             "records": [r.as_dict() for r in self.records],
         }
 
@@ -665,6 +766,17 @@ class JevSelector(DecisionProvider):
         self, state: Dict[str, object], candidates: Sequence[EvidenceCandidate]
     ) -> str:
         options = [c.candidate_id for c in candidates] + [DEFER]
+
+        # §7-E: once the run is halted no further call is made and no further
+        # budget is spent. This is checked before the budget so that a halted
+        # run cannot consume a call it will never send.
+        if self.guard.halted:
+            self._record(
+                options,
+                called=False,
+                reason="%s:%s" % (REASON_RUN_HALTED, self.guard.halt_reason),
+            )
+            return DEFER
 
         if not candidates:
             self._record(options, called=False, reason=REASON_NO_CANDIDATES)
@@ -766,6 +878,24 @@ class JevSelector(DecisionProvider):
             )
             return DEFER
 
+        # §7-E first-response shape verification. The call above already proved
+        # `answers`, the question key and `choice`; what remains of the
+        # documented shape is the top-level `model` and `usage.input_tokens`.
+        # The check is spent on the first completed call of the run — §7-E (A)
+        # keeps the probe inside the 16 rather than adding a 17th call.
+        if not self.guard.first_response_checked:
+            self.guard.first_response_checked = True
+            bad_field = first_response_shape_error(body, self.question_key)
+            if bad_field is not None:
+                self._record(
+                    options,
+                    called=True,
+                    choice=choice,
+                    reason="%s:%s" % (REASON_FIRST_RESPONSE_SHAPE, bad_field),
+                    **common
+                )
+                return DEFER
+
         # The only line that decides the return value. Confidence and
         # probabilities were parsed above and are stored; they are deliberately
         # not consulted here.
@@ -788,6 +918,12 @@ class JevSelector(DecisionProvider):
         estimated_cost_usd: Optional[float] = None,
         request_id: Optional[str] = None,
     ) -> None:
+        # Every call failure halts the run, not only the first one (§7-E). The
+        # halt is raised here, at the single place every failure is written
+        # down, so a new failure path cannot be added that records a failure and
+        # forgets to stop the run.
+        if reason is not None and reason.split(":", 1)[0] in HALTING_REASONS:
+            self.guard.halt(reason)
         self.records.append(
             JevCallRecord(
                 question_key=self.question_key,

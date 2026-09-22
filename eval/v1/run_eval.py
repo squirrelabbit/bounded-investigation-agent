@@ -23,7 +23,7 @@ from bia.decision import (  # noqa: E402
     GreedyEvidenceSelector,
 )
 from bia.evidence import MAX_DECISION_CALLS, MAX_RETRIEVALS  # noqa: E402
-from bia.jev import CallBudget, FakeTransport, JevSelector  # noqa: E402
+from bia.jev import CallBudget, FakeTransport, JevSelector, RunGuard  # noqa: E402
 from bia.store import load_scenario  # noqa: E402
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -35,6 +35,12 @@ RESULTS_DIR = os.path.join(REPO_ROOT, "eval", "v1", "results")
 # selector for each of the 8 cases; a per-selector budget would silently reset
 # and the contract's "16 calls in total" would never bind.
 _JEV_PROCESS_BUDGET = CallBudget()
+
+# One halt flag for the whole run, shared the same way and for the same reason
+# (§7-E). The provider raises it on any call failure; this scorer reads it
+# between cases and stops. It is not the Controller's fail-closed path — that one
+# keeps working unchanged and the provider still raises nothing into it.
+_JEV_PROCESS_GUARD = RunGuard()
 
 
 def build_jev_selector() -> JevSelector:
@@ -58,7 +64,11 @@ def build_jev_selector() -> JevSelector:
             "and the cancelled Vercel path's approval does not transfer "
             "(eval/v1/CONTRACT.md §7-D 승인 비이전). 실호출은 이 채점기에서 시작하지 않는다."
         )
-    return JevSelector(transport=FakeTransport(), budget=_JEV_PROCESS_BUDGET)
+    return JevSelector(
+        transport=FakeTransport(),
+        budget=_JEV_PROCESS_BUDGET,
+        guard=_JEV_PROCESS_GUARD,
+    )
 
 
 SELECTORS = {
@@ -572,6 +582,72 @@ def run_case(case_id: str, selector: str) -> Tuple[Optional[RunObservation], Opt
     return observe(result, tickets, recorder), None
 
 
+# --------------------------------------------------------------------------
+# §7-E halt: a run that stopped is never presentable as a comparison
+# --------------------------------------------------------------------------
+
+PARTIAL_NOTICE = (
+    "부분 실행이다. 호출 실패로 중단됐고 남은 사례는 실행되지 않았다. "
+    "이 파일은 §7 비교에 쓰지 않는다 — 8사례를 완주한 실행만 비교에 들어간다. "
+    "재개는 자동으로 하지 않는다: 실패 내용을 보고하고 실패별로 다시 승인받는다."
+)
+
+
+def partial_results_path(selector: str) -> str:
+    """A separate filename on purpose.
+
+    The completed baselines live in `<selector>.json` and are pre-registered
+    results. A halted run must not overwrite one of them, and must not be
+    reachable by anything that reads the normal filename.
+    """
+    return os.path.join(RESULTS_DIR, "%s_PARTIAL.json" % selector)
+
+
+def partial_document(
+    selector: str,
+    records: List[Dict[str, object]],
+    halt_reason: str,
+    calls_spent: int,
+    total_cases: int,
+) -> Dict[str, object]:
+    """The marked-partial payload. It carries no summary and no verdict: there
+    is nothing to pass or fail, and a reader must not be able to mistake a
+    stopped run for a comparison."""
+    return {
+        "selector": selector,
+        "halted": True,
+        "halt_reason": halt_reason,
+        "partial": True,
+        "comparable": False,
+        "notice": PARTIAL_NOTICE,
+        "cases_completed": len(records),
+        "cases_total": total_cases,
+        "cases_not_run": max(0, total_cases - len(records)),
+        "calls_spent": calls_spent,
+        "cases": records,
+    }
+
+
+def write_partial(path: str, document: Dict[str, object]) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(document, handle, ensure_ascii=False, indent=2, sort_keys=True)
+        handle.write("\n")
+
+
+def print_halt_report(document: Dict[str, object], path: str) -> None:
+    print("\n" + "=" * 72)
+    print("!! 실행 중단 (§7-E) — 이 결과는 비교에 쓸 수 없다")
+    print("=" * 72)
+    print("중단 사유        : %s" % document["halt_reason"])
+    print("완료한 사례      : %s / %s" % (document["cases_completed"], document["cases_total"]))
+    print("실행하지 않은 사례: %s" % document["cases_not_run"])
+    print("사용한 호출 수   : %s" % document["calls_spent"])
+    print("부분 결과 저장   : %s" % path)
+    print(document["notice"])
+    print("전체: 중단(PARTIAL) — PASS 도 FAIL 도 아니다. 비교 판정 없음.")
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(
         prog="eval.v1.run_eval", description="v1 challenge 채점기"
@@ -585,10 +661,26 @@ def main(argv: Optional[List[str]] = None) -> int:
             "challenge 데이터 폴더가 없다. %s: %s" % (MISSING_DATA_HINT, CHALLENGE_ROOT)
         )
 
+    case_ids = sorted(oracle_cases)
     records: List[Dict[str, object]] = []
-    for case_id in sorted(oracle_cases):
+    for case_id in case_ids:
         obs, error = run_case(case_id, args.selector)
         records.append(score_case(case_id, oracle_cases[case_id], obs, error))
+        # §7-E: the halt is checked BETWEEN cases. The remaining cases are not
+        # run and the remaining budget is not spent automatically.
+        if _JEV_PROCESS_GUARD.halted:
+            document = partial_document(
+                selector=args.selector,
+                records=records,
+                halt_reason=_JEV_PROCESS_GUARD.halt_reason,
+                calls_spent=_JEV_PROCESS_BUDGET.used,
+                total_cases=len(case_ids),
+            )
+            path = partial_results_path(args.selector)
+            write_partial(path, document)
+            print_halt_report(document, path)
+            return 2
+
     summary = aggregate(records)
 
     os.makedirs(RESULTS_DIR, exist_ok=True)
