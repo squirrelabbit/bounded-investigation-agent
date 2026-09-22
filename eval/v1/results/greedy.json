@@ -11,6 +11,8 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 2,
+      "defer_selections": 0,
+      "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
       "failures": [],
       "finish_reason": "decision_budget_exhausted",
@@ -52,6 +54,7 @@
       "precision": 1.0,
       "retrievals": 2,
       "s4_leaks": [],
+      "selector_deferred": false,
       "status": "reported",
       "top_groups": {
         "got": {
@@ -115,6 +118,8 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 1,
+      "defer_selections": 0,
+      "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
       "failures": [],
       "finish_reason": "evidence_sufficient",
@@ -157,6 +162,7 @@
       "precision": 1.0,
       "retrievals": 1,
       "s4_leaks": [],
+      "selector_deferred": false,
       "status": "reported",
       "top_groups": {
         "got": {
@@ -220,6 +226,8 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 1,
+      "defer_selections": 0,
+      "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
       "failures": [],
       "finish_reason": "evidence_sufficient",
@@ -259,6 +267,7 @@
       "precision": 1.0,
       "retrievals": 1,
       "s4_leaks": [],
+      "selector_deferred": false,
       "status": "reported",
       "top_groups": {
         "got": {
@@ -322,6 +331,8 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 1,
+      "defer_selections": 0,
+      "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
       "failures": [],
       "finish_reason": "evidence_sufficient",
@@ -366,6 +377,7 @@
       "precision": 1.0,
       "retrievals": 1,
       "s4_leaks": [],
+      "selector_deferred": false,
       "status": "reported",
       "top_groups": {
         "got": {
@@ -429,6 +441,8 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 2,
+      "defer_selections": 0,
+      "downgraded_selections": 0,
       "excluded_from_precision": "must_not_claim",
       "excluded_from_yield": "must_not_claim",
       "expect_wasted_retrievals_min": 0,
@@ -463,6 +477,7 @@
       "precision": null,
       "retrievals": 2,
       "s4_leaks": [],
+      "selector_deferred": false,
       "status": "reported",
       "top_groups": {
         "got": {
@@ -522,6 +537,8 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 2,
+      "defer_selections": 0,
+      "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
       "failures": [],
       "finish_reason": "decision_budget_exhausted",
@@ -565,6 +582,7 @@
       "precision": 1.0,
       "retrievals": 2,
       "s4_leaks": [],
+      "selector_deferred": false,
       "status": "reported",
       "top_groups": {
         "got": {
@@ -628,6 +646,8 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 1,
+      "defer_selections": 0,
+      "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
       "failures": [],
       "finish_reason": "evidence_sufficient",
@@ -659,6 +679,7 @@
       "precision": 1.0,
       "retrievals": 1,
       "s4_leaks": [],
+      "selector_deferred": false,
       "status": "reported",
       "top_groups": {
         "got": {
@@ -718,6 +739,8 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 1,
+      "defer_selections": 0,
+      "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
       "failures": [],
       "finish_reason": "evidence_sufficient",
@@ -752,6 +775,7 @@
       "precision": 1.0,
       "retrievals": 1,
       "s4_leaks": [],
+      "selector_deferred": false,
       "status": "reported",
       "top_groups": {
         "got": {
@@ -825,6 +849,8 @@
       "complaint_type": 1,
       "product": 3
     },
+    "must_not_claim_cases_where_selector_deferred": "0/1",
+    "must_not_claim_retrievals_spent": 2,
     "oracle_runtime_cell_disagreement": 0,
     "passed": true,
     "real_model_calls": 0,

@@ -73,6 +73,8 @@ class RunObservation:
     known_ticket_ids: Set[str] = field(default_factory=set)
     decision_calls: int = 0
     retrievals: int = 0
+    defer_selections: int = 0
+    downgraded_selections: int = 0
     finish_reason: str = "not_finished"
     accounting_ok: bool = True
 
@@ -148,6 +150,10 @@ def observe(result, tickets, recorder: _RecordingSelector) -> RunObservation:
         known_ticket_ids={t.ticket_id for t in tickets},
         decision_calls=state.decision_calls,
         retrievals=state.retrievals,
+        defer_selections=sum(
+            1 for r in state.rounds if r.selection_raw == "DEFER" and not r.violation
+        ),
+        downgraded_selections=sum(1 for r in state.rounds if r.violation),
         finish_reason=state.finish_reason,
         accounting_ok=len(valid_rounds) >= state.retrievals,
     )
@@ -282,6 +288,12 @@ def score_case(
     record["best_two_filter_yield"] = best_two
     record["useful_total"] = len(useful_ids)
     record["investigated_kinds"] = list(obs.investigated_kinds)
+    # V-4 records that no wrong evidence was SHOWN. It does not record that the
+    # selector chose to hold back: a run can admit nothing because every retrieval
+    # it spent came back empty. The two are separate observations and are kept apart.
+    record["selector_deferred"] = obs.defer_selections > 0
+    record["defer_selections"] = obs.defer_selections
+    record["downgraded_selections"] = obs.downgraded_selections
     record["investigated_kind_counts"] = {
         kind: obs.investigated_kinds.count(kind) for kind in CANDIDATE_KINDS
     }
@@ -439,6 +451,18 @@ def aggregate(records: List[Dict[str, object]]) -> Dict[str, object]:
         "S-3_partial_period_as_full": count_fail("S-3"),
         "S-4_verification_leak": count_fail("S-4"),
         "oracle_runtime_cell_disagreement": count_fail("ORACLE_SYNC"),
+        "must_not_claim_cases_where_selector_deferred": "%d/%d"
+        % (
+            sum(
+                1
+                for r in records
+                if r.get("must_not_claim") and r.get("selector_deferred")
+            ),
+            sum(1 for r in records if r.get("must_not_claim")),
+        ),
+        "must_not_claim_retrievals_spent": sum(
+            r.get("retrievals", 0) for r in records if r.get("must_not_claim")
+        ),
         "V-1_fact_accuracy": "%d/%d" % (v1_ok, len(records)),
         "V-2_evidence_yield_macro": macro_yield,
         "V-2_included_cases": len(yields),
@@ -573,11 +597,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         )
         if not record["crashed"]:
             print(
-                "     kinds=%s finish=%s decision=%s"
+                "     kinds=%s finish=%s decision=%s selector_defer=%s"
                 % (
                     ",".join(record.get("investigated_kinds") or []) or "-",
                     record.get("finish_reason"),
                     record.get("decision_calls"),
+                    "Y" if record.get("selector_deferred") else "N",
                 )
             )
 
