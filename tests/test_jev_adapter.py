@@ -616,7 +616,12 @@ class RequestShapeTests(unittest.TestCase):
         self.assertEqual(list(questions), [QUESTION_KEY])
         question = questions[QUESTION_KEY]
         self.assertEqual(question["type"], "choice")
-        self.assertTrue(question["instructions"].strip())
+        self.assertIsInstance(question["instructions"], dict)
+        self.assertEqual(
+            sorted(question["instructions"]), ["focus", "not_your_job", "question"]
+        )
+        for value in question["instructions"].values():
+            self.assertTrue(value.strip())
 
     def test_a_choice_question_carries_no_options_field(self):
         """The options ARE the criteria keys (§7-D)."""
@@ -632,13 +637,54 @@ class RequestShapeTests(unittest.TestCase):
         self.assertEqual(criteria[DEFER], DEFER_OPTION_DESCRIPTION)
         for candidate in self.candidates:
             description = criteria[candidate.candidate_id]
-            self.assertIn(candidate.label, description)
-            self.assertIn(candidate.server_reason, description)
-            self.assertIn(candidate.kind, description)
+            self.assertIsInstance(description, dict)
+            self.assertIn(candidate.label, description["what"])
+            self.assertIn(candidate.server_reason, description["what"])
+
+    def test_every_option_uses_the_same_field_names(self):
+        """Uniform fields are what let the model compare options directly."""
+        criteria = self.request["questions"][QUESTION_KEY]["criteria"]
+        shapes = {tuple(sorted(value)) for value in criteria.values()}
+        self.assertEqual(shapes, {("not_for", "what")})
+
+    def test_no_option_description_is_empty_or_null(self):
+        """`null` is only defensible when the option name speaks for itself;
+        an opaque id like R1-C1 never does."""
+        criteria = self.request["questions"][QUESTION_KEY]["criteria"]
+        for option, value in criteria.items():
+            self.assertIsNotNone(value, option)
+            for field, text in value.items():
+                self.assertTrue(text and text.strip(), "%s.%s" % (option, field))
+
+    def test_a_broad_option_says_what_it_is_not_for(self):
+        """A narrow cell shares the list with the product and type containing it."""
+        criteria = self.request["questions"][QUESTION_KEY]["criteria"]
+        broad = [c for c in self.candidates if c.kind in ("product", "complaint_type")]
+        self.assertTrue(broad, "fixture must offer at least one broad candidate")
+        for candidate in broad:
+            not_for = criteria[candidate.candidate_id]["not_for"]
+            self.assertIn("조합", not_for)
+            self.assertIn("증가하지 않은", not_for)
+
+    def test_option_order_is_fixed_narrow_first_escape_last(self):
+        """Sibling options are asked in the order they appear, so order is part
+        of the question rather than presentation."""
+        criteria = self.request["questions"][QUESTION_KEY]["criteria"]
+        order = list(criteria)
+        self.assertEqual(order[-1], DEFER)
+        kinds = {c.candidate_id: c.kind for c in self.candidates}
+        rank = {"cell": 0, "product": 1, "complaint_type": 2}
+        seen = [rank[kinds[option]] for option in order if option in kinds]
+        self.assertEqual(seen, sorted(seen), "narrow options must come first")
 
     def test_no_undocumented_key_appears_anywhere_in_the_body(self):
         criteria_keys = set(self.request["questions"][QUESTION_KEY]["criteria"])
-        structural = {k for k in walk_keys(self.request) if k not in criteria_keys}
+        # Our own description/instruction field names are ours to choose and are
+        # not API parameters; the point of this test is undocumented API keys.
+        ours = {"what", "not_for", "question", "focus", "not_your_job"}
+        structural = {
+            k for k in walk_keys(self.request) if k not in criteria_keys and k not in ours
+        }
         self.assertEqual(structural, self.ALLOWED_STRUCTURAL_KEYS)
 
         lowered = {k.lower() for k in walk_keys(self.request)}

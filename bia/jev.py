@@ -95,16 +95,59 @@ COST_BASIS = (
     % (INPUT_USD_PER_MILLION_TOKENS, COST_RATE_AS_OF)
 )
 
-QUESTION_INSTRUCTIONS = (
-    "아래 state 는 서버가 계산한 비교 결과다. 제시된 선택지 중 다음에 조사할 후보를 "
-    "하나만 고르라. 증가를 설명할 근거를 실제로 얻을 수 있는 후보가 없다고 판단되면 "
-    "DEFER 를 고르라. 선택지 밖의 값, 설명문, 검색 조건은 받지 않는다."
-)
+# Structured instructions: part of the question comes from code, and the docs say
+# such a value belongs in its own field rather than spliced into a string. Phrased
+# as a comparison of given options, not as "work out the best course of action" —
+# that shape is documented as the wrong one for a snap judgment.
+QUESTION_INSTRUCTIONS = {
+    "question": "아래 선택지 중 어느 것이 이 증가에 대한 고객 문의 근거를 가장 잘 얻게 하는가?",
+    "focus": (
+        "`top_products` 와 `top_complaint_types` 가 증가분이 발생한 위치다. "
+        "각 선택지는 서버가 이미 만들어 둔 조회 조건이고, 고른 것 하나만 실행된다."
+    ),
+    "not_your_job": (
+        "수치 계산, 검색어 작성, 조회 조건 변경, 종료 판단은 하지 않는다. "
+        "선택지 하나를 고르는 것이 전부다."
+    ),
+}
 
-DEFER_OPTION_DESCRIPTION = (
-    "조사하지 않고 보류한다. 제시된 어떤 후보도 증가를 설명할 근거를 주지 못한다고 "
-    "판단될 때 고른다. 보류는 실패가 아니라 허용된 결과다."
-)
+# Every option carries the same two field names so the model can compare them
+# directly. `not_for` is the documented remedy for options that are easy to
+# confuse — and ours are: a narrow cell sits in the same list as the product and
+# the complaint type that contain it.
+DEFER_OPTION_DESCRIPTION = {
+    "what": (
+        "조사할 만한 후보가 없다고 보고 보류한다. 보류는 실패가 아니라 허용된 결과다."
+    ),
+    "not_for": (
+        "위 선택지 중 하나라도 증가한 그룹의 문의를 실제로 얻게 해 준다면 고르지 않는다."
+    ),
+}
+
+_KIND_WHAT = {
+    "cell": "%s 조합의 문의만 조회한다. 이 조합의 증가분 %d건, 조회 가능한 문의 %d건. %s",
+    "product": "%s 제품의 모든 불만 유형을 한 번에 조회한다. 이 제품의 증가분 %d건, 조회 가능한 문의 %d건. %s",
+    "complaint_type": "%s 유형의 문의를 모든 제품에 걸쳐 조회한다. 이 유형의 증가분 %d건, 조회 가능한 문의 %d건. %s",
+}
+
+_KIND_NOT_FOR = {
+    "cell": (
+        "같은 제품의 다른 불만 유형이나 같은 불만 유형의 다른 제품은 포함하지 않는다. "
+        "그 넓은 범위는 별도 선택지로 나와 있다."
+    ),
+    "product": (
+        "특정 (제품, 불만 유형) 조합 하나만 보려는 경우에는 고르지 않는다. 그 조합은 별도 선택지다. "
+        "이 선택지는 증가하지 않은 유형의 문의까지 함께 걸린다."
+    ),
+    "complaint_type": (
+        "특정 (제품, 불만 유형) 조합 하나만 보려는 경우에는 고르지 않는다. 그 조합은 별도 선택지다. "
+        "이 선택지는 증가하지 않은 제품의 문의까지 함께 걸린다."
+    ),
+}
+
+# Sibling options are asked in the order they appear, so order is part of the
+# question rather than presentation. Narrow before broad, escape option last.
+OPTION_KIND_ORDER = ("cell", "product", "complaint_type")
 
 REASON_NO_CANDIDATES = "no_candidates_offered"
 REASON_TOO_MANY_OPTIONS = "too_many_options"
@@ -498,23 +541,41 @@ def serialize_state(state: Dict[str, object]) -> str:
     return json.dumps(state_payload(state), sort_keys=True, ensure_ascii=False)
 
 
-def describe_candidate(candidate: EvidenceCandidate) -> str:
-    """Server-written option text. Composed only from server-computed fields."""
-    return (
-        "%s (수준: %s). 이 그룹의 증가분 %d건, 조회 가능한 문의 %d건. 서버 설명: %s"
-        % (
-            candidate.label,
-            candidate.kind,
-            candidate.group_delta,
-            candidate.available_tickets,
-            candidate.server_reason,
-        )
+def describe_candidate(candidate: EvidenceCandidate) -> Dict[str, str]:
+    """Server-written option text, composed only from server-computed fields.
+
+    The option key is an opaque id, so the description carries the whole meaning
+    of the option — never `null`, and never thinner than the neighbouring ones.
+    """
+    what = _KIND_WHAT.get(candidate.kind, _KIND_WHAT["cell"]) % (
+        candidate.label,
+        candidate.group_delta,
+        candidate.available_tickets,
+        candidate.server_reason,
     )
+    return {"what": what, "not_for": _KIND_NOT_FOR.get(candidate.kind, _KIND_NOT_FOR["cell"])}
 
 
-def build_criteria(candidates: Sequence[EvidenceCandidate]) -> Dict[str, str]:
-    """The options ARE these keys. A `choice` question has no `options` field."""
-    criteria = {c.candidate_id: describe_candidate(c) for c in candidates}
+def order_candidates(
+    candidates: Sequence[EvidenceCandidate],
+) -> List[EvidenceCandidate]:
+    """Narrow options first, then the broader ones that contain them."""
+    ordered: List[EvidenceCandidate] = []
+    for kind in OPTION_KIND_ORDER:
+        ordered.extend(c for c in candidates if c.kind == kind)
+    ordered.extend(c for c in candidates if c.kind not in OPTION_KIND_ORDER)
+    return ordered
+
+
+def build_criteria(candidates: Sequence[EvidenceCandidate]) -> Dict[str, object]:
+    """The options ARE these keys. A `choice` question has no `options` field.
+
+    Insertion order is the order the model is asked in, so it is fixed here and
+    the request body is serialized without key sorting.
+    """
+    criteria: Dict[str, object] = {}
+    for candidate in order_candidates(candidates):
+        criteria[candidate.candidate_id] = describe_candidate(candidate)
     criteria[DEFER] = DEFER_OPTION_DESCRIPTION
     return criteria
 
