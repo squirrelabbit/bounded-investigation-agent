@@ -132,39 +132,51 @@ class WastedRetrievalTest(unittest.TestCase):
 class S4LeakTest(unittest.TestCase):
     def test_clean_run_has_no_leak(self):
         obs = observation([ticket("T-1"), ticket("T-2")])
-        self.assertEqual(scorer.s4_leaks(obs, ["T-1", "T-2"]), [])
+        self.assertEqual(scorer.s4_leaks(obs, ["T-1", "T-2"], None), [])
 
     def test_unknown_ticket_id_leaks(self):
         obs = observation([ticket("T-1")], known_ticket_ids=set())
         self.assertEqual(
-            scorer.s4_leaks(obs, ["T-1"]),
+            scorer.s4_leaks(obs, ["T-1"], None),
             [{"ticket_id": "T-1", "reason": "unknown_ticket_id"}],
         )
 
     def test_disallowed_source_leaks(self):
         obs = observation([ticket("T-1", source="scraped_forum")])
         self.assertEqual(
-            scorer.s4_leaks(obs, ["T-1"]),
+            scorer.s4_leaks(obs, ["T-1"], None),
             [{"ticket_id": "T-1", "reason": "source_not_allowed"}],
         )
 
     def test_out_of_window_leaks(self):
         obs = observation([ticket("T-1", day="2026-06-15")])
         self.assertEqual(
-            scorer.s4_leaks(obs, ["T-1"]),
+            scorer.s4_leaks(obs, ["T-1"], None),
             [{"ticket_id": "T-1", "reason": "outside_comparison_window"}],
         )
 
     def test_rising_cell_ticket_absent_from_useful_set_leaks(self):
         obs = observation([ticket("T-1")])
         self.assertEqual(
-            scorer.s4_leaks(obs, ["T-2"]),
+            scorer.s4_leaks(obs, ["T-2"], {RISING_CELL}),
             [{"ticket_id": "T-1", "reason": "rising_cell_ticket_not_in_useful_set"}],
         )
 
-    def test_flat_cell_ticket_absent_from_useful_set_is_not_a_leak(self):
+    def test_flat_cell_ticket_is_a_leak(self):
+        """The earlier revision returned [] here; that blind spot let 72 flat-cell
+        tickets through in C05 while the summary still printed S-4 = 0."""
         obs = observation([ticket("T-1", cell=FLAT_CELL)])
-        self.assertEqual(scorer.s4_leaks(obs, ["T-2"]), [])
+        self.assertEqual(
+            scorer.s4_leaks(obs, ["T-2"], {RISING_CELL}),
+            [{"ticket_id": "T-1", "reason": "non_rising_cell_ticket_admitted"}],
+        )
+
+    def test_without_an_oracle_cell_set_anything_outside_useful_is_a_leak(self):
+        obs = observation([ticket("T-1", cell=FLAT_CELL)])
+        self.assertEqual(
+            scorer.s4_leaks(obs, ["T-2"], None),
+            [{"ticket_id": "T-1", "reason": "ticket_not_in_useful_set"}],
+        )
 
     def test_leak_makes_score_case_fail(self):
         record = scorer.score_case(
@@ -396,3 +408,29 @@ class OracleLoadTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class S4NonRisingCellTest(unittest.TestCase):
+    """Regression for the blind spot that let 72 flat-cell tickets pass as clean."""
+
+    def _obs(self, cells):
+        return observation([ticket("T-1")], positive_cells=cells)
+
+    def test_a_ticket_from_a_cell_the_oracle_says_did_not_rise_is_a_leak(self):
+        leaks = scorer.s4_leaks(self._obs({RISING_CELL}), [], {FLAT_CELL})
+        self.assertEqual([item["reason"] for item in leaks], ["non_rising_cell_ticket_admitted"])
+
+    def test_a_ticket_from_a_risen_cell_that_is_not_useful_is_still_a_leak(self):
+        leaks = scorer.s4_leaks(self._obs({RISING_CELL}), [], {RISING_CELL})
+        self.assertEqual(
+            [item["reason"] for item in leaks], ["rising_cell_ticket_not_in_useful_set"]
+        )
+
+    def test_a_useful_ticket_from_a_risen_cell_is_clean(self):
+        leaks = scorer.s4_leaks(self._obs({RISING_CELL}), ["T-1"], {RISING_CELL})
+        self.assertEqual(leaks, [])
+
+    def test_the_runtime_cell_set_is_not_what_decides_the_check(self):
+        """Runtime claims the cell rose; the oracle disagrees; the oracle wins."""
+        leaks = scorer.s4_leaks(self._obs({RISING_CELL}), ["T-1"], set())
+        self.assertEqual([item["reason"] for item in leaks], ["non_rising_cell_ticket_admitted"])

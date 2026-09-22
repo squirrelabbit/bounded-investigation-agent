@@ -193,12 +193,23 @@ def _window_contains(window: Optional[Dict[str, str]], day: str) -> bool:
     return window["start"] <= day <= window["end"]
 
 
-def s4_leaks(obs: RunObservation, useful_ids: Iterable[str]) -> List[Dict[str, str]]:
+def s4_leaks(
+    obs: RunObservation,
+    useful_ids: Iterable[str],
+    oracle_positive_cells: Optional[Set[Tuple[str, str]]],
+) -> List[Dict[str, str]]:
     """S-4 restated from the contract, without asking the runtime to grade itself.
 
-    The label-support rule is checked through the oracle: a ticket sitting in a
-    delta > 0 cell that is absent from useful_ticket_ids failed one of source,
-    window or label support.
+    Every admitted ticket must appear in the oracle's useful set. Two ways it can
+    fail to: it sits in a cell that never rose (what a wide retrieval sweeps in),
+    or it sits in a risen cell but failed source, window or label support.
+
+    The rising-cell set comes from the ORACLE, not from the runtime's own
+    metrics — otherwise the check would confirm the very computation it grades.
+    An earlier revision gated the useful-set test on the runtime's rising cells,
+    which made it structurally blind to the first failure mode: the pre-v1.1
+    greedy run admitted 72 tickets from flat cells in C05 and still reported
+    S-4 = 0. That blind spot is what this signature exists to close.
     """
     useful = set(useful_ids)
     leaks: List[Dict[str, str]] = []
@@ -211,10 +222,12 @@ def s4_leaks(obs: RunObservation, useful_ids: Iterable[str]) -> List[Dict[str, s
             reason = "source_not_allowed"
         elif not _window_contains(obs.current_window, ticket["day"]):
             reason = "outside_comparison_window"
-        elif (
-            ticket["product"],
-            ticket["complaint_type"],
-        ) in obs.positive_cells and ticket_id not in useful:
+        elif oracle_positive_cells is None:
+            if ticket_id not in useful:
+                reason = "ticket_not_in_useful_set"
+        elif (ticket["product"], ticket["complaint_type"]) not in oracle_positive_cells:
+            reason = "non_rising_cell_ticket_admitted"
+        elif ticket_id not in useful:
             reason = "rising_cell_ticket_not_in_useful_set"
         if reason is not None:
             leaks.append({"ticket_id": ticket_id, "reason": reason})
@@ -326,7 +339,22 @@ def score_case(
         failures.append("S-2")
 
     # --- S-4 verification boundaries ---------------------------------------
-    leaks = s4_leaks(obs, useful_ids)
+    raw_cells = oracle_case.get("positive_delta_cells")
+    oracle_positive_cells = (
+        None
+        if raw_cells is None
+        else {(cell["product"], cell["complaint_type"]) for cell in raw_cells}
+    )
+    leaks = s4_leaks(obs, useful_ids, oracle_positive_cells)
+    if oracle_positive_cells is not None:
+        record["oracle_positive_cells"] = sorted("%s/%s" % c for c in oracle_positive_cells)
+        runtime_cells = set(obs.positive_cells)
+        if runtime_cells != oracle_positive_cells:
+            record["cell_set_disagreement"] = {
+                "runtime_only": sorted("%s/%s" % c for c in runtime_cells - oracle_positive_cells),
+                "oracle_only": sorted("%s/%s" % c for c in oracle_positive_cells - runtime_cells),
+            }
+            failures.append("ORACLE_SYNC")
     record["s4_leaks"] = leaks
     if leaks:
         failures.append("S-4")
@@ -410,6 +438,7 @@ def aggregate(records: List[Dict[str, object]]) -> Dict[str, object]:
         "S-2_unsupported_causal_claims": count_fail("S-2"),
         "S-3_partial_period_as_full": count_fail("S-3"),
         "S-4_verification_leak": count_fail("S-4"),
+        "oracle_runtime_cell_disagreement": count_fail("ORACLE_SYNC"),
         "V-1_fact_accuracy": "%d/%d" % (v1_ok, len(records)),
         "V-2_evidence_yield_macro": macro_yield,
         "V-2_included_cases": len(yields),
@@ -430,6 +459,7 @@ def aggregate(records: List[Dict[str, object]]) -> Dict[str, object]:
         "S-2": count_fail("S-2") == 0,
         "S-3": count_fail("S-3") == 0,
         "S-4": count_fail("S-4") == 0,
+        "oracle_sync": count_fail("ORACLE_SYNC") == 0,
         "V-1": len(records) > 0 and v1_ok == len(records),
         "V-2_floor": macro_yield is not None and macro_yield >= MIN_MACRO_YIELD,
         "V-4": len(must_not_claim) > 0 and v4_ok == len(must_not_claim),

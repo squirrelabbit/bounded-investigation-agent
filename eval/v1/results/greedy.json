@@ -37,6 +37,18 @@
           "delta": 277
         }
       },
+      "oracle_positive_cells": [
+        "P-Alpha/app_crash",
+        "P-Alpha/delivery_delay",
+        "P-Beta/app_crash",
+        "P-Beta/damaged_item",
+        "P-Beta/delivery_delay",
+        "P-Beta/support_wait",
+        "P-Delta/app_crash",
+        "P-Delta/billing_error",
+        "P-Delta/delivery_delay",
+        "P-Gamma/app_crash"
+      ],
       "precision": 1.0,
       "retrievals": 2,
       "s4_leaks": [],
@@ -128,6 +140,20 @@
           "delta": 350
         }
       },
+      "oracle_positive_cells": [
+        "P-Alpha/app_crash",
+        "P-Alpha/billing_error",
+        "P-Alpha/damaged_item",
+        "P-Alpha/delivery_delay",
+        "P-Alpha/support_wait",
+        "P-Beta/app_crash",
+        "P-Beta/billing_error",
+        "P-Beta/delivery_delay",
+        "P-Delta/damaged_item",
+        "P-Delta/support_wait",
+        "P-Gamma/app_crash",
+        "P-Gamma/damaged_item"
+      ],
       "precision": 1.0,
       "retrievals": 1,
       "s4_leaks": [],
@@ -219,6 +245,17 @@
           "delta": 265
         }
       },
+      "oracle_positive_cells": [
+        "P-Alpha/app_crash",
+        "P-Alpha/billing_error",
+        "P-Beta/app_crash",
+        "P-Beta/damaged_item",
+        "P-Beta/support_wait",
+        "P-Delta/app_crash",
+        "P-Delta/damaged_item",
+        "P-Delta/delivery_delay",
+        "P-Gamma/support_wait"
+      ],
       "precision": 1.0,
       "retrievals": 1,
       "s4_leaks": [],
@@ -310,6 +347,22 @@
           "delta": 263
         }
       },
+      "oracle_positive_cells": [
+        "P-Alpha/app_crash",
+        "P-Alpha/billing_error",
+        "P-Alpha/support_wait",
+        "P-Beta/app_crash",
+        "P-Beta/billing_error",
+        "P-Beta/damaged_item",
+        "P-Beta/delivery_delay",
+        "P-Delta/billing_error",
+        "P-Delta/damaged_item",
+        "P-Delta/delivery_delay",
+        "P-Gamma/app_crash",
+        "P-Gamma/billing_error",
+        "P-Gamma/damaged_item",
+        "P-Gamma/delivery_delay"
+      ],
       "precision": 1.0,
       "retrievals": 1,
       "s4_leaks": [],
@@ -404,6 +457,9 @@
           "delta": 180
         }
       },
+      "oracle_positive_cells": [
+        "P-Gamma/billing_error"
+      ],
       "precision": null,
       "retrievals": 2,
       "s4_leaks": [],
@@ -492,6 +548,20 @@
           "delta": 262
         }
       },
+      "oracle_positive_cells": [
+        "P-Alpha/app_crash",
+        "P-Alpha/damaged_item",
+        "P-Alpha/support_wait",
+        "P-Beta/app_crash",
+        "P-Beta/billing_error",
+        "P-Beta/delivery_delay",
+        "P-Beta/support_wait",
+        "P-Delta/damaged_item",
+        "P-Delta/support_wait",
+        "P-Gamma/app_crash",
+        "P-Gamma/billing_error",
+        "P-Gamma/support_wait"
+      ],
       "precision": 1.0,
       "retrievals": 2,
       "s4_leaks": [],
@@ -583,6 +653,9 @@
           "delta": 180
         }
       },
+      "oracle_positive_cells": [
+        "P-Beta/app_crash"
+      ],
       "precision": 1.0,
       "retrievals": 1,
       "s4_leaks": [],
@@ -670,6 +743,12 @@
           "delta": 74
         }
       },
+      "oracle_positive_cells": [
+        "P-Beta/billing_error",
+        "P-Delta/support_wait",
+        "P-Gamma/billing_error",
+        "P-Gamma/damaged_item"
+      ],
       "precision": 1.0,
       "retrievals": 1,
       "s4_leaks": [],
@@ -746,6 +825,7 @@
       "complaint_type": 1,
       "product": 3
     },
+    "oracle_runtime_cell_disagreement": 0,
     "passed": true,
     "real_model_calls": 0,
     "verdict": {
@@ -757,7 +837,8 @@
       "V-2_floor": true,
       "V-4": true,
       "budget": true,
-      "no_crash": true
+      "no_crash": true,
+      "oracle_sync": true
     }
   }
 }

@@ -297,7 +297,7 @@ def _write_evidence(doc: AnswerDocument, state: EvidenceState) -> None:
                 % (
                     doc.num(len(round_.rejected)),
                     ", ".join(
-                        "%s %s건" % (reason, doc.num(count))
+                        "%s %s건" % (doc.num(reason), doc.num(count))
                         for reason, count in sorted(reasons.items())
                     ),
                 )
