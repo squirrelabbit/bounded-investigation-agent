@@ -39,13 +39,13 @@ def run_plan(plan: ExecutionPlan, rows: Sequence[Observation]) -> StructuredAnal
     )
     for branch in plan.branches:
         result.breakdowns.append(
-            _run_branch(plan, clean, branch, comparison["delta"])
+            _run_branch(plan, clean, branch)
         )
     return result
 
 
 def _run_branch(
-    plan: ExecutionPlan, rows: Sequence[Observation], branch: PlanBranch, total_delta: int
+    plan: ExecutionPlan, rows: Sequence[Observation], branch: PlanBranch
 ) -> BreakdownResult:
     columns = plan.metric.columns
     current = aggregate(rows, plan.comparison.current, columns, branch.dimensions)

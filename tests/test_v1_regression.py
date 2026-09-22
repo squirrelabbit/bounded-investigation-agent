@@ -60,5 +60,14 @@ class StructuredRegressionTests(unittest.TestCase):
 
             old_cells = [(c.product, c.complaint_type) for c in old.cells if c.delta > 0]
             self.assertEqual(top_contributor_cells(new), old_cells, scenario_id)
+
+            old_cell_deltas = {(c.product, c.complaint_type): c.delta for c in old.cells}
+            cross_breakdown = new.breakdowns[3]
+            self.assertEqual(cross_breakdown.dimensions, ("product", "complaint_type"),
+                             scenario_id)
+            self.assertTrue(cross_breakdown.cross, scenario_id)
+            new_cell_deltas = {(g.key["product"], g.key["complaint_type"]): g.group_delta
+                              for g in cross_breakdown.groups}
+            self.assertEqual(new_cell_deltas, old_cell_deltas, scenario_id)
             checked += 1
         self.assertGreaterEqual(checked, 20, "대부분의 시나리오가 비교 가능해야 한다")
