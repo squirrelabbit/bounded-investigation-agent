@@ -11,6 +11,7 @@ from . import support
 
 WINDOW = support.CURRENT
 FILTER = EvidenceFilter(WINDOW, support.SPIKE_PRODUCT, support.SPIKE_TYPE)
+INCREASING = {(support.SPIKE_PRODUCT, support.SPIKE_TYPE), ("P-Alpha", "app_crash")}
 
 
 def ticket(**overrides) -> Ticket:
@@ -27,15 +28,16 @@ def ticket(**overrides) -> Ticket:
 
 
 class RejectionTests(unittest.TestCase):
-    def _reason(self, item: Ticket, known=None):
+    def _reason(self, item: Ticket, known=None, increasing=None):
         known = {"T-0001"} if known is None else known
-        result = verify_mod.verify([item], FILTER, known, pool_size=1)
+        increasing = INCREASING if increasing is None else increasing
+        result = verify_mod.verify([item], FILTER, known, 1, increasing)
         self.assertEqual(len(result.rejected), 1, "expected a rejection, got %s" % result.as_dict())
         self.assertEqual(result.admitted, [])
         return result.rejected[0]["reason"]
 
     def test_clean_ticket_is_admitted(self):
-        result = verify_mod.verify([ticket()], FILTER, {"T-0001"}, pool_size=1)
+        result = verify_mod.verify([ticket()], FILTER, {"T-0001"}, 1, INCREASING)
         self.assertEqual([a.ticket_id for a in result.admitted], ["T-0001"])
         self.assertEqual(result.rejected, [])
         self.assertEqual(result.coverage, 1.0)
@@ -69,12 +71,31 @@ class RejectionTests(unittest.TestCase):
             verify_mod.REJECT_UNSUPPORTED_TEXT,
         )
 
+    def test_a_ticket_from_a_group_that_did_not_increase_is_rejected(self):
+        """A wide retrieval may sweep it in; it must not be promoted to evidence."""
+        self.assertEqual(
+            self._reason(ticket(), increasing={("P-Alpha", "app_crash")}),
+            verify_mod.REJECT_GROUP_DID_NOT_INCREASE,
+        )
+
+    def test_an_empty_increasing_set_admits_nothing(self):
+        self.assertEqual(
+            self._reason(ticket(), increasing=set()), verify_mod.REJECT_GROUP_DID_NOT_INCREASE
+        )
+
+    def test_the_increasing_check_is_a_required_argument(self):
+        import inspect
+
+        signature = inspect.signature(verify_mod.verify)
+        parameter = signature.parameters["increasing_cells"]
+        self.assertIs(parameter.default, inspect.Parameter.empty)
+
 
 class SufficiencyTests(unittest.TestCase):
     def _result(self, admitted_count: int, pool: int):
         items = [ticket(ticket_id="T-%04d" % i) for i in range(1, admitted_count + 1)]
         known = {t.ticket_id for t in items}
-        return verify_mod.verify(items, FILTER, known, pool_size=pool)
+        return verify_mod.verify(items, FILTER, known, pool, INCREASING)
 
     def test_three_admitted_at_half_coverage_is_sufficient(self):
         result = self._result(3, 6)
@@ -90,7 +111,7 @@ class SufficiencyTests(unittest.TestCase):
         self.assertFalse(result.sufficient)
 
     def test_empty_pool_gives_zero_coverage_and_no_crash(self):
-        result = verify_mod.verify([], FILTER, set(), pool_size=0)
+        result = verify_mod.verify([], FILTER, set(), 0, INCREASING)
         self.assertEqual(result.coverage, 0.0)
         self.assertFalse(result.sufficient)
 

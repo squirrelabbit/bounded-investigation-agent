@@ -148,3 +148,65 @@ class DenominatorTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class WideRetrievalAdmissionTests(unittest.TestCase):
+    """v1.1 server rule: a wide filter may retrieve, but only risen groups are promoted."""
+
+    def _rows(self) -> List[MetricRow]:
+        out: List[MetricRow] = []
+        plan = {
+            (support.BASELINE, "delivery_delay"): 2,
+            (support.BASELINE, "app_crash"): 4,
+            (support.CURRENT, "delivery_delay"): 8,
+            (support.CURRENT, "app_crash"): 4,
+        }
+        for period in (support.BASELINE, support.CURRENT):
+            for day in period.dates():
+                for complaint_type in ("delivery_delay", "app_crash"):
+                    out.append(
+                        MetricRow(day, support.SPIKE_PRODUCT, complaint_type, plan[(period, complaint_type)])
+                    )
+        return out
+
+    def _tickets(self) -> List[Ticket]:
+        out: List[Ticket] = []
+        texts = {
+            "delivery_delay": support.SUPPORTING_TEXT,
+            "app_crash": "The app crashes on every launch.",
+        }
+        index = 0
+        for day in support.CURRENT.dates():
+            for complaint_type in ("delivery_delay", "app_crash"):
+                index += 1
+                out.append(
+                    Ticket(
+                        ticket_id="T-%04d" % index,
+                        day=day,
+                        product=support.SPIKE_PRODUCT,
+                        complaint_type=complaint_type,
+                        text=texts[complaint_type],
+                        source="web_form",
+                    )
+                )
+        return out
+
+    def test_a_product_wide_choice_cannot_promote_a_flat_group(self):
+        from bia.types import EvidenceFilter
+
+        class ProductWideProvider(DecisionProvider):
+            name = "product_wide"
+
+            def select_next_evidence(self, state, candidates):
+                for candidate in candidates:
+                    if candidate.kind == "product":
+                        return candidate.candidate_id
+                return DEFER
+
+        result = investigate(support.intent(), self._rows(), self._tickets(), ProductWideProvider())
+        admitted = result.state.found_tickets
+        self.assertTrue(admitted, "the risen group should still supply evidence")
+        for item in admitted:
+            self.assertEqual(item.complaint_type, "delivery_delay")
+        reasons = {r["reason"] for round_ in result.state.rounds for r in round_.rejected}
+        self.assertIn("group_did_not_increase", reasons)

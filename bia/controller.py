@@ -111,7 +111,10 @@ def investigate(
         return RunResult(intent, state, build_answer(state), provider.name)
 
     known_ids = {t.ticket_id for t in tickets}
-    _evidence_loop(state, tickets, known_ids, provider)
+    increasing_cells = {
+        (cell.product, cell.complaint_type) for cell in state.metrics.cells if cell.delta > 0
+    }
+    _evidence_loop(state, tickets, known_ids, increasing_cells, provider)
     return RunResult(intent, state, build_answer(state), provider.name)
 
 
@@ -119,6 +122,7 @@ def _evidence_loop(
     state: EvidenceState,
     tickets: Sequence[Ticket],
     known_ids,
+    increasing_cells,
     provider: DecisionProvider,
 ) -> None:
     for round_index in range(1, MAX_DECISION_CALLS + 1):
@@ -160,7 +164,13 @@ def _evidence_loop(
 
         state.retrievals += 1
         retrieval = retrieve(tickets, chosen.evidence_filter)
-        verification = verify(retrieval.hits, chosen.evidence_filter, known_ids, retrieval.pool_size)
+        verification = verify(
+            retrieval.hits,
+            chosen.evidence_filter,
+            known_ids,
+            retrieval.pool_size,
+            increasing_cells,
+        )
 
         round_.retrieved = len(retrieval.hits)
         round_.pool_size = verification.pool_size

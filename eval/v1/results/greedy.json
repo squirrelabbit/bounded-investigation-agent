@@ -1,8 +1,8 @@
 {
   "cases": [
     {
-      "admitted_count": 83,
-      "admitted_unique_count": 83,
+      "admitted_count": 69,
+      "admitted_unique_count": 69,
       "best_single_filter_yield": 69,
       "best_two_filter_yield": 120,
       "case_id": "C01",
@@ -13,7 +13,7 @@
       "decision_calls": 2,
       "expect_wasted_retrievals_min": 0,
       "failures": [],
-      "finish_reason": "evidence_sufficient",
+      "finish_reason": "decision_budget_exhausted",
       "investigated_kind_counts": {
         "cell": 1,
         "complaint_type": 0,
@@ -37,7 +37,7 @@
           "delta": 277
         }
       },
-      "precision": 0.8313,
+      "precision": 1.0,
       "retrievals": 2,
       "s4_leaks": [],
       "status": "reported",
@@ -366,8 +366,8 @@
       "yield": 0.7257
     },
     {
-      "admitted_count": 72,
-      "admitted_unique_count": 72,
+      "admitted_count": 0,
+      "admitted_unique_count": 0,
       "best_single_filter_yield": 0,
       "best_two_filter_yield": 0,
       "case_id": "C05",
@@ -379,9 +379,7 @@
       "excluded_from_precision": "must_not_claim",
       "excluded_from_yield": "must_not_claim",
       "expect_wasted_retrievals_min": 0,
-      "failures": [
-        "V-4"
-      ],
+      "failures": [],
       "finish_reason": "decision_budget_exhausted",
       "investigated_kind_counts": {
         "cell": 1,
@@ -733,9 +731,9 @@
     "V-1_fact_accuracy": "8/8",
     "V-2_evidence_yield_macro": 0.6582,
     "V-2_included_cases": 7,
-    "V-3_evidence_precision_macro": 0.9759,
+    "V-3_evidence_precision_macro": 1.0,
     "V-3_included_cases": 7,
-    "V-4_must_not_claim_clean": "0/1",
+    "V-4_must_not_claim_clean": "1/1",
     "V-5_wasted_retrievals": 3,
     "V-6_total_decision_calls": 11,
     "V-6_total_retrievals": 11,
@@ -748,7 +746,7 @@
       "complaint_type": 1,
       "product": 3
     },
-    "passed": false,
+    "passed": true,
     "real_model_calls": 0,
     "verdict": {
       "S-1": true,
@@ -757,7 +755,7 @@
       "S-4": true,
       "V-1": true,
       "V-2_floor": true,
-      "V-4": false,
+      "V-4": true,
       "budget": true,
       "no_crash": true
     }
