@@ -101,7 +101,7 @@ oracle은 `bia.integrity`·`bia.metrics`·`bia.evidence`·`bia.decision` 을 imp
 | V-3 | evidence precision (macro) | 사례별 `|검증 통과 ∩ useful_ticket_ids| / |검증 통과|`. 근거를 1건 이상 제시한 사례만. `must_not_claim` 사례 제외 |
 | V-5 | 낭비 조회 | 유용한 문의를 한 건도 얻지 못한 조회의 총 횟수 |
 | V-6 | 호출 비용 | decision 호출 총합, retrieval 총합 |
-| V-7 | 지연·모델 비용 | 실제 모델 호출 전에는 **not_measured** |
+| V-7 | 지연·모델 비용 | 실행 결과의 `telemetry` 블록에서 읽는다 — `total_latency_ms`, `decision_latency_ms`, `input_tokens`, `estimated_cost_usd`. 모델이 답하지 않은 실행(코드 기준선·리허설)과, telemetry 이전에 측정된 실행은 **not_measured** |
 
 V-2에 최소선을 하나만 둔다: **macro yield < 0.40 이면 선택 성능 최소선 미달로 실패로 처리한다.**
 (최초 작성 시 이 항목의 사유를 "후보 생성 자체가 깨진 것"으로 적었으나 실측과 달랐다. 아래 개정 3 참조.
@@ -579,6 +579,10 @@ retrievals_used, top_complaint_types, top_products
 - 2026-09-22 (§7-E 보강): 유료 호출 전에 fake 전송으로 8사례 루프를 완주시키는 오프라인 리허설을
   의무화했다. 잠금 상태의 기본 전송이 첫 호출에서 실패해 C01 에서 중단되므로, 지금까지 전체 루프가
   한 번도 실행된 적이 없다. 리허설 결과는 별도 파일에 `simulated: true` 로 표시하고 비교에 쓰지 않는다.
+- 2026-09-22 (V-7 보고 방식 명확화, **임계값 없음**): V-7 은 애초에 합격 기준이 아니라 기록 항목이다.
+  telemetry 블록이 추가되면서 지연·토큰·비용 추정치를 실제로 기록할 수 있게 됐으므로, V-7 은 그 블록에서
+  읽는다. 모델이 답하지 않은 실행과 telemetry 이전 실행(= JEV 1회차)은 여전히 `not_measured` 다.
+  24개 시나리오·8개 사례·oracle·지표 정의·다른 임계값은 전부 불변이다.
 - 2026-09-22 (§7-E 추가, 사용자 판정): (A) 총 16회 안에 첫 호출을 포함하고 별도 탐침을 두지 않는다.
   첫 응답의 형식을 엄격 검증하고, 어떤 호출이든 실패하면 즉시 중단·보고하며 남은 예산을 자동으로
   이어 쓰지 않는다. 부분 실행 결과는 비교에 쓰지 않는다.

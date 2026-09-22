@@ -11,6 +11,38 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 2,
+      "decision_telemetry": [
+        {
+          "called": false,
+          "confidence": null,
+          "estimated_cost_usd": null,
+          "failure_reason": null,
+          "input_tokens": null,
+          "kind": "cell",
+          "latency_ms": 0.0015,
+          "model": null,
+          "outcome": "chosen",
+          "output_tokens": null,
+          "probabilities": null,
+          "request_id": null,
+          "selected_candidate": "R1-C1"
+        },
+        {
+          "called": false,
+          "confidence": null,
+          "estimated_cost_usd": null,
+          "failure_reason": null,
+          "input_tokens": null,
+          "kind": "cell",
+          "latency_ms": 0.001042,
+          "model": null,
+          "outcome": "chosen",
+          "output_tokens": null,
+          "probabilities": null,
+          "request_id": null,
+          "selected_candidate": "R2-C1"
+        }
+      ],
       "defer_selections": 0,
       "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
@@ -118,6 +150,23 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": false,
+          "confidence": null,
+          "estimated_cost_usd": null,
+          "failure_reason": null,
+          "input_tokens": null,
+          "kind": "cell",
+          "latency_ms": 0.001083,
+          "model": null,
+          "outcome": "chosen",
+          "output_tokens": null,
+          "probabilities": null,
+          "request_id": null,
+          "selected_candidate": "R1-C1"
+        }
+      ],
       "defer_selections": 0,
       "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
@@ -226,6 +275,23 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": false,
+          "confidence": null,
+          "estimated_cost_usd": null,
+          "failure_reason": null,
+          "input_tokens": null,
+          "kind": "cell",
+          "latency_ms": 0.001208,
+          "model": null,
+          "outcome": "chosen",
+          "output_tokens": null,
+          "probabilities": null,
+          "request_id": null,
+          "selected_candidate": "R1-C1"
+        }
+      ],
       "defer_selections": 0,
       "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
@@ -331,6 +397,23 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": false,
+          "confidence": null,
+          "estimated_cost_usd": null,
+          "failure_reason": null,
+          "input_tokens": null,
+          "kind": "cell",
+          "latency_ms": 0.001,
+          "model": null,
+          "outcome": "chosen",
+          "output_tokens": null,
+          "probabilities": null,
+          "request_id": null,
+          "selected_candidate": "R1-C1"
+        }
+      ],
       "defer_selections": 0,
       "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
@@ -441,6 +524,38 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 2,
+      "decision_telemetry": [
+        {
+          "called": false,
+          "confidence": null,
+          "estimated_cost_usd": null,
+          "failure_reason": null,
+          "input_tokens": null,
+          "kind": "cell",
+          "latency_ms": 0.001167,
+          "model": null,
+          "outcome": "chosen",
+          "output_tokens": null,
+          "probabilities": null,
+          "request_id": null,
+          "selected_candidate": "R1-C1"
+        },
+        {
+          "called": false,
+          "confidence": null,
+          "estimated_cost_usd": null,
+          "failure_reason": null,
+          "input_tokens": null,
+          "kind": null,
+          "latency_ms": 0.000375,
+          "model": null,
+          "outcome": "deferred",
+          "output_tokens": null,
+          "probabilities": null,
+          "request_id": null,
+          "selected_candidate": "DEFER"
+        }
+      ],
       "defer_selections": 1,
       "downgraded_selections": 0,
       "excluded_from_precision": "must_not_claim",
@@ -536,6 +651,38 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 2,
+      "decision_telemetry": [
+        {
+          "called": false,
+          "confidence": null,
+          "estimated_cost_usd": null,
+          "failure_reason": null,
+          "input_tokens": null,
+          "kind": "cell",
+          "latency_ms": 0.001333,
+          "model": null,
+          "outcome": "chosen",
+          "output_tokens": null,
+          "probabilities": null,
+          "request_id": null,
+          "selected_candidate": "R1-C1"
+        },
+        {
+          "called": false,
+          "confidence": null,
+          "estimated_cost_usd": null,
+          "failure_reason": null,
+          "input_tokens": null,
+          "kind": "cell",
+          "latency_ms": 0.001042,
+          "model": null,
+          "outcome": "chosen",
+          "output_tokens": null,
+          "probabilities": null,
+          "request_id": null,
+          "selected_candidate": "R2-C1"
+        }
+      ],
       "defer_selections": 0,
       "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
@@ -645,6 +792,23 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": false,
+          "confidence": null,
+          "estimated_cost_usd": null,
+          "failure_reason": null,
+          "input_tokens": null,
+          "kind": "cell",
+          "latency_ms": 0.001042,
+          "model": null,
+          "outcome": "chosen",
+          "output_tokens": null,
+          "probabilities": null,
+          "request_id": null,
+          "selected_candidate": "R1-C1"
+        }
+      ],
       "defer_selections": 0,
       "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
@@ -738,6 +902,23 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": false,
+          "confidence": null,
+          "estimated_cost_usd": null,
+          "failure_reason": null,
+          "input_tokens": null,
+          "kind": "cell",
+          "latency_ms": 0.0015,
+          "model": null,
+          "outcome": "chosen",
+          "output_tokens": null,
+          "probabilities": null,
+          "request_id": null,
+          "selected_candidate": "R1-C1"
+        }
+      ],
       "defer_selections": 0,
       "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
@@ -852,6 +1033,7 @@
     "must_not_claim_retrievals_spent": 1,
     "oracle_runtime_cell_disagreement": 0,
     "passed": false,
+    "provider": "deterministic-code",
     "real_model_calls": 0,
     "verdict": {
       "S-1": true,
@@ -865,5 +1047,38 @@
       "no_crash": true,
       "oracle_sync": true
     }
+  },
+  "telemetry": {
+    "decision_latency_ms": {
+      "count": 11,
+      "mean": 0.001117,
+      "total": 0.012292,
+      "values": [
+        0.0015,
+        0.001042,
+        0.001083,
+        0.001208,
+        0.001,
+        0.001167,
+        0.000375,
+        0.001333,
+        0.001042,
+        0.001042,
+        0.0015
+      ]
+    },
+    "decision_strategy": "heuristic",
+    "decisions": 11,
+    "estimated_cost_basis": "estimate computed locally from usage.input_tokens at $0.042/1M input tokens (output free), rates as of 2026-09-22; the response body carries no cost field",
+    "estimated_cost_usd": null,
+    "estimated_cost_usd_is_an_estimate": true,
+    "input_tokens": null,
+    "live_model_run": false,
+    "model_calls": 0,
+    "models_answered": [],
+    "output_tokens": null,
+    "provider": "deterministic-code",
+    "real_model_calls": 0,
+    "total_latency_ms": 69.851
   }
 }

@@ -13,6 +13,49 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 2,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.5,
+          "estimated_cost_usd": 0.0,
+          "failure_reason": null,
+          "input_tokens": 0,
+          "kind": "cell",
+          "latency_ms": 0.040583,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 0,
+          "probabilities": {
+            "DEFER": 0.2,
+            "R1-C1": 0.2,
+            "R1-C2": 0.2,
+            "R1-C3": 0.2,
+            "R1-C4": 0.2
+          },
+          "request_id": "rehearsal-1",
+          "selected_candidate": "R1-C1"
+        },
+        {
+          "called": true,
+          "confidence": 0.5,
+          "estimated_cost_usd": 0.0,
+          "failure_reason": null,
+          "input_tokens": 0,
+          "kind": "cell",
+          "latency_ms": 0.03,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 0,
+          "probabilities": {
+            "DEFER": 0.25,
+            "R2-C1": 0.25,
+            "R2-C2": 0.25,
+            "R2-C3": 0.25
+          },
+          "request_id": "rehearsal-2",
+          "selected_candidate": "R2-C1"
+        }
+      ],
       "defer_selections": 0,
       "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
@@ -120,6 +163,29 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.5,
+          "estimated_cost_usd": 0.0,
+          "failure_reason": null,
+          "input_tokens": 0,
+          "kind": "cell",
+          "latency_ms": 0.031,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 0,
+          "probabilities": {
+            "DEFER": 0.2,
+            "R1-C1": 0.2,
+            "R1-C2": 0.2,
+            "R1-C3": 0.2,
+            "R1-C4": 0.2
+          },
+          "request_id": "rehearsal-1",
+          "selected_candidate": "R1-C1"
+        }
+      ],
       "defer_selections": 0,
       "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
@@ -228,6 +294,29 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.5,
+          "estimated_cost_usd": 0.0,
+          "failure_reason": null,
+          "input_tokens": 0,
+          "kind": "cell",
+          "latency_ms": 0.039833,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 0,
+          "probabilities": {
+            "DEFER": 0.2,
+            "R1-C1": 0.2,
+            "R1-C2": 0.2,
+            "R1-C3": 0.2,
+            "R1-C4": 0.2
+          },
+          "request_id": "rehearsal-1",
+          "selected_candidate": "R1-C1"
+        }
+      ],
       "defer_selections": 0,
       "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
@@ -333,6 +422,29 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.5,
+          "estimated_cost_usd": 0.0,
+          "failure_reason": null,
+          "input_tokens": 0,
+          "kind": "cell",
+          "latency_ms": 0.0375,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 0,
+          "probabilities": {
+            "DEFER": 0.2,
+            "R1-C1": 0.2,
+            "R1-C2": 0.2,
+            "R1-C3": 0.2,
+            "R1-C4": 0.2
+          },
+          "request_id": "rehearsal-1",
+          "selected_candidate": "R1-C1"
+        }
+      ],
       "defer_selections": 0,
       "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
@@ -443,6 +555,47 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 2,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.5,
+          "estimated_cost_usd": 0.0,
+          "failure_reason": null,
+          "input_tokens": 0,
+          "kind": "cell",
+          "latency_ms": 0.030458,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 0,
+          "probabilities": {
+            "DEFER": 0.25,
+            "R1-C1": 0.25,
+            "R1-C2": 0.25,
+            "R1-C3": 0.25
+          },
+          "request_id": "rehearsal-1",
+          "selected_candidate": "R1-C1"
+        },
+        {
+          "called": true,
+          "confidence": 0.5,
+          "estimated_cost_usd": 0.0,
+          "failure_reason": null,
+          "input_tokens": 0,
+          "kind": "product",
+          "latency_ms": 0.0315,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 0,
+          "probabilities": {
+            "DEFER": 0.333333,
+            "R2-C1": 0.333333,
+            "R2-C2": 0.333333
+          },
+          "request_id": "rehearsal-2",
+          "selected_candidate": "R2-C1"
+        }
+      ],
       "defer_selections": 0,
       "downgraded_selections": 0,
       "excluded_from_precision": "must_not_claim",
@@ -539,6 +692,49 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 2,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.5,
+          "estimated_cost_usd": 0.0,
+          "failure_reason": null,
+          "input_tokens": 0,
+          "kind": "cell",
+          "latency_ms": 0.028125,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 0,
+          "probabilities": {
+            "DEFER": 0.2,
+            "R1-C1": 0.2,
+            "R1-C2": 0.2,
+            "R1-C3": 0.2,
+            "R1-C4": 0.2
+          },
+          "request_id": "rehearsal-1",
+          "selected_candidate": "R1-C1"
+        },
+        {
+          "called": true,
+          "confidence": 0.5,
+          "estimated_cost_usd": 0.0,
+          "failure_reason": null,
+          "input_tokens": 0,
+          "kind": "cell",
+          "latency_ms": 0.02675,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 0,
+          "probabilities": {
+            "DEFER": 0.25,
+            "R2-C1": 0.25,
+            "R2-C2": 0.25,
+            "R2-C3": 0.25
+          },
+          "request_id": "rehearsal-2",
+          "selected_candidate": "R2-C1"
+        }
+      ],
       "defer_selections": 0,
       "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
@@ -648,6 +844,28 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.5,
+          "estimated_cost_usd": 0.0,
+          "failure_reason": null,
+          "input_tokens": 0,
+          "kind": "cell",
+          "latency_ms": 0.044125,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 0,
+          "probabilities": {
+            "DEFER": 0.25,
+            "R1-C1": 0.25,
+            "R1-C2": 0.25,
+            "R1-C3": 0.25
+          },
+          "request_id": "rehearsal-1",
+          "selected_candidate": "R1-C1"
+        }
+      ],
       "defer_selections": 0,
       "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
@@ -741,6 +959,29 @@
       "comparability_mode": "full",
       "crashed": false,
       "decision_calls": 1,
+      "decision_telemetry": [
+        {
+          "called": true,
+          "confidence": 0.5,
+          "estimated_cost_usd": 0.0,
+          "failure_reason": null,
+          "input_tokens": 0,
+          "kind": "cell",
+          "latency_ms": 0.033333,
+          "model": "jev-1.13.0",
+          "outcome": "chosen",
+          "output_tokens": 0,
+          "probabilities": {
+            "DEFER": 0.2,
+            "R1-C1": 0.2,
+            "R1-C2": 0.2,
+            "R1-C3": 0.2,
+            "R1-C4": 0.2
+          },
+          "request_id": "rehearsal-1",
+          "selected_candidate": "R1-C1"
+        }
+      ],
       "defer_selections": 0,
       "downgraded_selections": 0,
       "expect_wasted_retrievals_min": 0,
@@ -864,6 +1105,7 @@
     "must_not_claim_retrievals_spent": 2,
     "oracle_runtime_cell_disagreement": 0,
     "passed": false,
+    "provider": "rehearsal-fake",
     "real_model_calls": 0,
     "verdict": {
       "S-1": true,
@@ -877,6 +1119,39 @@
       "no_crash": true,
       "oracle_sync": true
     }
+  },
+  "telemetry": {
+    "decision_latency_ms": {
+      "count": 11,
+      "mean": 0.033928,
+      "total": 0.373207,
+      "values": [
+        0.040583,
+        0.03,
+        0.031,
+        0.039833,
+        0.0375,
+        0.030458,
+        0.0315,
+        0.028125,
+        0.02675,
+        0.044125,
+        0.033333
+      ]
+    },
+    "decision_strategy": "jev",
+    "decisions": 11,
+    "estimated_cost_basis": "estimate computed locally from usage.input_tokens at $0.042/1M input tokens (output free), rates as of 2026-09-22; the response body carries no cost field",
+    "estimated_cost_usd": 0.0,
+    "estimated_cost_usd_is_an_estimate": true,
+    "input_tokens": 0,
+    "live_model_run": false,
+    "model_calls": 11,
+    "models_answered": [],
+    "output_tokens": 0,
+    "provider": "rehearsal-fake",
+    "real_model_calls": 0,
+    "total_latency_ms": 64.526
   },
   "transport": "rehearsal"
 }

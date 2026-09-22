@@ -7,7 +7,9 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
+import time
 from dataclasses import dataclass, field
 from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
@@ -27,11 +29,13 @@ from bia.jev import (
     HttpTransport,  # noqa: E402
     REASON_BUDGET_EXHAUSTED,
     REASON_NO_CANDIDATES,
+    COST_BASIS,
     CallBudget,
     FakeTransport,
     JevSelector,
     RehearsalTransport,
     RunGuard,
+    estimate_cost_usd,
 )
 from bia.store import load_scenario  # noqa: E402
 from bia.types import DEFER  # noqa: E402
@@ -146,6 +150,210 @@ MISSING_DATA_HINT = "먼저 `python3 -m bia.challengegen` 을 실행하라"
 
 
 # --------------------------------------------------------------------------
+# run telemetry: what actually answered, how many calls, what they cost
+# --------------------------------------------------------------------------
+
+# `provider` answers exactly one question: what produced the decisions in this
+# file. It is either a pinned model id — and then a model really did answer — or
+# one of these plain markers, which say that no model was involved. A marker is
+# never a model id and a model id is never invented: a run whose calls all
+# failed reports a `*-no-response` marker rather than the version it asked for.
+PROVIDER_CODE = "deterministic-code"
+PROVIDER_REHEARSAL = "rehearsal-fake"
+NO_RESPONSE_SUFFIX = "-no-response"
+NON_LIVE_PROVIDER_MARKERS = (PROVIDER_CODE, PROVIDER_REHEARSAL)
+
+# The rehearsal transport is offline by construction; any other transport that
+# reported a model version answered with a real model id.
+REHEARSAL_TRANSPORT_NAMES = (RehearsalTransport.name,)
+
+
+def provider_is_live_model(provider: object) -> bool:
+    """True when `provider` names a model that actually answered.
+
+    Fail-closed on purpose: anything that is neither empty nor one of the known
+    offline markers is treated as a live model id. A marker this scorer does not
+    recognise — written by an older or newer revision — is therefore assumed to
+    be a model, because the cost of being wrong in that direction is a refused
+    write, and the cost of being wrong the other way is a destroyed paid file.
+    """
+    if not isinstance(provider, str):
+        return False
+    name = provider.strip()
+    if not name:
+        return False
+    if name in NON_LIVE_PROVIDER_MARKERS:
+        return False
+    if name.endswith(NO_RESPONSE_SUFFIX):
+        return False
+    return True
+
+
+@dataclass
+class DecisionTelemetry:
+    """One decision's worth of run telemetry, kept alongside the scoring.
+
+    `confidence` and `probabilities` are RECORDED ONLY. Nothing in this scorer,
+    and nothing in `bia/jev.py`, reads either of them to decide anything. They
+    are carried here so a later reader can analyse them; a decision that had no
+    call — the code baselines never make one — leaves them `None`/empty rather
+    than receiving an invented value.
+    """
+
+    selected_candidate: str = DEFER
+    kind: Optional[str] = None
+    outcome: Optional[str] = None
+    called: bool = False
+    latency_ms: Optional[float] = None
+    model: Optional[str] = None
+    confidence: Optional[float] = None
+    probabilities: Optional[Dict[str, float]] = None
+    input_tokens: Optional[int] = None
+    output_tokens: Optional[int] = None
+    estimated_cost_usd: Optional[float] = None
+    request_id: Optional[str] = None
+    failure_reason: Optional[str] = None
+
+    def as_dict(self) -> Dict[str, object]:
+        return {
+            "selected_candidate": self.selected_candidate,
+            "kind": self.kind,
+            "outcome": self.outcome,
+            "called": self.called,
+            "latency_ms": self.latency_ms,
+            "model": self.model,
+            "confidence": self.confidence,
+            "probabilities": (
+                None if self.probabilities is None else dict(self.probabilities)
+            ),
+            "input_tokens": self.input_tokens,
+            "output_tokens": self.output_tokens,
+            "estimated_cost_usd": self.estimated_cost_usd,
+            "request_id": self.request_id,
+            "failure_reason": self.failure_reason,
+        }
+
+
+class RunTelemetry:
+    """Run-level totals, accumulated across the per-case selectors.
+
+    The scorer builds a fresh selector per case, so no single selector knows
+    what the run did. This collects it. Every number here is DERIVED from what
+    the adapter wrote down: `model_calls` counts records with `called=True`, and
+    a selector that keeps no records contributes nothing — which is how the code
+    baselines reach 0 without a 0 ever being written down as a constant.
+    """
+
+    def __init__(self, decision_strategy: str = "") -> None:
+        self.decision_strategy = decision_strategy
+        self.decisions: List[DecisionTelemetry] = []
+        self.has_call_records = False
+        self.transport_names: Set[str] = set()
+        self.total_latency_ms: Optional[float] = None
+
+    def absorb(self, recorder: "_RecordingSelector") -> None:
+        self.decisions.extend(recorder.telemetry)
+        inner = recorder.inner
+        if isinstance(getattr(inner, "records", None), list):
+            self.has_call_records = True
+        transport = getattr(inner, "transport", None)
+        name = getattr(transport, "name", None)
+        if isinstance(name, str) and name:
+            self.transport_names.add(name)
+
+    # -- derived totals ----------------------------------------------------
+
+    @property
+    def model_calls(self) -> int:
+        """Attempted calls, counted from the adapter's own records."""
+        return sum(1 for d in self.decisions if d.called)
+
+    @property
+    def real_model_calls(self) -> int:
+        """Calls that a real model answered — 0 unless `provider` is a model id.
+
+        The rehearsal transport makes calls and they are counted in
+        `model_calls`, but no model answered them, so this stays 0 and the
+        summary's long-standing `real_model_calls` keeps meaning what its name
+        says. Both numbers are derived; neither is written down as a constant.
+        """
+        return self.model_calls if provider_is_live_model(self.provider) else 0
+
+    @property
+    def models_answered(self) -> List[str]:
+        return sorted({d.model for d in self.decisions if d.model})
+
+    def _token_total(self, attribute: str) -> Optional[int]:
+        values = [
+            getattr(d, attribute)
+            for d in self.decisions
+            if getattr(d, attribute) is not None
+        ]
+        return sum(values) if values else None
+
+    @property
+    def input_tokens(self) -> Optional[int]:
+        return self._token_total("input_tokens")
+
+    @property
+    def output_tokens(self) -> Optional[int]:
+        return self._token_total("output_tokens")
+
+    @property
+    def estimated_cost_usd(self) -> Optional[float]:
+        return estimate_cost_usd(self.input_tokens, self.output_tokens)
+
+    @property
+    def decision_latencies_ms(self) -> List[float]:
+        return [d.latency_ms for d in self.decisions if d.latency_ms is not None]
+
+    @property
+    def provider(self) -> str:
+        """What answered. Never a model id unless a model reported one."""
+        if not self.has_call_records:
+            return PROVIDER_CODE
+        if self.transport_names & set(REHEARSAL_TRANSPORT_NAMES):
+            return PROVIDER_REHEARSAL
+        answered = self.models_answered
+        if answered:
+            return "+".join(answered)
+        transport = sorted(self.transport_names)
+        stem = "+".join(transport) if transport else "unknown-transport"
+        return stem + NO_RESPONSE_SUFFIX
+
+    def as_dict(self) -> Dict[str, object]:
+        latencies = self.decision_latencies_ms
+        total = round(sum(latencies), 6) if latencies else 0.0
+        input_tokens = self.input_tokens
+        cost = self.estimated_cost_usd
+        provider = self.provider
+        return {
+            "decision_strategy": self.decision_strategy,
+            "provider": provider,
+            "live_model_run": provider_is_live_model(provider),
+            "model_calls": self.model_calls,
+            "real_model_calls": self.real_model_calls,
+            # Only a live run may claim a model answered. A fake transport echoes
+            # the pinned id back, and that string quoted on its own would read as
+            # evidence of a paid call.
+            "models_answered": self.models_answered if provider_is_live_model(provider) else [],
+            "decisions": len(self.decisions),
+            "input_tokens": input_tokens,
+            "output_tokens": self.output_tokens,
+            "estimated_cost_usd": cost,
+            "estimated_cost_usd_is_an_estimate": True,
+            "estimated_cost_basis": COST_BASIS,
+            "total_latency_ms": self.total_latency_ms,
+            "decision_latency_ms": {
+                "total": total,
+                "count": len(latencies),
+                "mean": round(total / len(latencies), 6) if latencies else None,
+                "values": [round(v, 6) for v in latencies],
+            },
+        }
+
+
+# --------------------------------------------------------------------------
 # observation: everything the scorer is allowed to look at after a run
 # --------------------------------------------------------------------------
 
@@ -179,6 +387,9 @@ class RunObservation:
     downgraded_selections: int = 0
     finish_reason: str = "not_finished"
     accounting_ok: bool = True
+    # Recorded only. Nothing in scoring reads these — no failure code, no
+    # metric and no threshold is computed from them.
+    decision_telemetry: List[Dict[str, object]] = field(default_factory=list)
 
 
 # What a single decision turned out to be (§7-E 굶은 결정은 보류가 아니다, 3항:
@@ -216,14 +427,67 @@ class _RecordingSelector(DecisionProvider):
         self.name = inner.name
         self.offerings: List[Dict[str, str]] = []
         self.decisions: List[Dict[str, Optional[str]]] = []
+        self.telemetry: List[DecisionTelemetry] = []
+
+    @property
+    def inner(self) -> DecisionProvider:
+        """The wrapped provider, for run-level telemetry to read its records."""
+        return self._inner
 
     def select_next_evidence(self, state, candidates):
-        self.offerings.append({c.candidate_id: c.kind for c in candidates})
+        offered = {c.candidate_id: c.kind for c in candidates}
+        self.offerings.append(offered)
         records = getattr(self._inner, "records", None)
         before = len(records) if isinstance(records, list) else None
+        started = time.perf_counter()
         returned = self._inner.select_next_evidence(state, candidates)
-        self.decisions.append(self._classify(candidates, returned, before))
+        latency_ms = (time.perf_counter() - started) * 1000.0
+        decision = self._classify(candidates, returned, before)
+        self.decisions.append(decision)
+        self.telemetry.append(
+            self._telemetry(offered, returned, decision, latency_ms, before)
+        )
         return returned
+
+    def _telemetry(
+        self, offered, returned, decision, latency_ms, before
+    ) -> DecisionTelemetry:
+        """Per-decision telemetry. Absent values stay absent.
+
+        `confidence` and `probabilities` are copied off the provider's record
+        for reporting and are read by nothing that decides anything — neither
+        here nor in the provider, whose only deciding line is `choice`.
+        """
+        item = DecisionTelemetry(
+            selected_candidate=returned,
+            kind=offered.get(returned),
+            outcome=decision.get("outcome"),
+            latency_ms=round(latency_ms, 6),
+            failure_reason=decision.get("reason"),
+        )
+        record = self._last_record(before)
+        if record is None:
+            return item
+        item.called = bool(getattr(record, "called", False))
+        item.model = getattr(record, "response_model", None)
+        item.confidence = getattr(record, "confidence", None)
+        probabilities = getattr(record, "probabilities", None)
+        item.probabilities = dict(probabilities) if probabilities else None
+        item.input_tokens = getattr(record, "input_tokens", None)
+        item.output_tokens = getattr(record, "output_tokens", None)
+        item.estimated_cost_usd = getattr(record, "estimated_cost_usd", None)
+        item.request_id = getattr(record, "request_id", None)
+        if item.failure_reason is None:
+            item.failure_reason = getattr(record, "failure_reason", None)
+        return item
+
+    def _last_record(self, before):
+        if before is None:
+            return None
+        records = getattr(self._inner, "records", None)
+        if not isinstance(records, list) or len(records) <= before:
+            return None
+        return records[-1]
 
     def _classify(self, candidates, returned, before) -> Dict[str, Optional[str]]:
         outcome, reason = self._provider_verdict(before)
@@ -352,6 +616,7 @@ def observe(result, tickets, recorder: _RecordingSelector) -> RunObservation:
         downgraded_selections=sum(1 for r in state.rounds if r.violation),
         finish_reason=state.finish_reason,
         accounting_ok=len(valid_rounds) >= state.retrievals,
+        decision_telemetry=[t.as_dict() for t in recorder.telemetry],
     )
 
 
@@ -515,6 +780,8 @@ def score_case(
         record["failed_decisions"] = obs.failed_decisions
         record["failed_decision_reasons"] = list(obs.failed_decision_reasons)
     record["downgraded_selections"] = obs.downgraded_selections
+    # Per-decision telemetry (recorded only — no failure code reads it).
+    record["decision_telemetry"] = list(obs.decision_telemetry)
     record["investigated_kind_counts"] = {
         kind: obs.investigated_kinds.count(kind) for kind in CANDIDATE_KINDS
     }
@@ -640,7 +907,15 @@ def score_case(
 V1_FAILURE_CODES = ("S-1", "S-3", "V-1/GROUPS", "STATUS", "EXEC")
 
 
-def aggregate(records: List[Dict[str, object]]) -> Dict[str, object]:
+def aggregate(
+    records: List[Dict[str, object]], telemetry: Optional[RunTelemetry] = None
+) -> Dict[str, object]:
+    """Scoring is unchanged. The one addition is that `real_model_calls` is now
+    counted off the adapter's records instead of being the literal 0 it used to
+    be — that literal is why `eval/v1/results/jev.json` reports 0 calls for a run
+    that made ten paid ones (see `jev_RECORD_CORRECTION.md`). With no telemetry
+    to count, an empty telemetry is counted, which yields 0 by derivation."""
+    telemetry = telemetry if telemetry is not None else RunTelemetry()
     def count_fail(code: str) -> int:
         return sum(1 for r in records if code in r["failures"])
 
@@ -696,7 +971,8 @@ def aggregate(records: List[Dict[str, object]]) -> Dict[str, object]:
         "V-7_latency_and_model_cost": "not_measured",
         "investigated_kind_counts": kind_counts,
         "budget_exceeded": count_fail("BUDGET"),
-        "real_model_calls": 0,
+        "real_model_calls": telemetry.real_model_calls,
+        "provider": telemetry.provider,
     }
 
     verdict = {
@@ -747,7 +1023,10 @@ def case_dir(case_id: str) -> str:
 
 
 def run_case(
-    case_id: str, selector: str, factory=None
+    case_id: str,
+    selector: str,
+    factory=None,
+    telemetry: Optional[RunTelemetry] = None,
 ) -> Tuple[Optional[RunObservation], Optional[str]]:
     directory = case_dir(case_id)
     if not os.path.isdir(directory):
@@ -760,6 +1039,11 @@ def run_case(
         result = investigate(intent, rows, tickets, recorder)
     except Exception as exc:  # a guard firing is a failure of the run, never swallowed
         return None, "%s: %s" % (type(exc).__name__, exc)
+    finally:
+        # A crashed case still spent whatever calls it spent, so its telemetry
+        # is collected on both paths. Nothing here can change the scoring.
+        if telemetry is not None:
+            telemetry.absorb(recorder)
     return observe(result, tickets, recorder), None
 
 
@@ -794,6 +1078,7 @@ def partial_document(
     calls_spent: int,
     total_cases: int,
     dry_run: bool = False,
+    telemetry: Optional[RunTelemetry] = None,
 ) -> Dict[str, object]:
     """The marked-partial payload. It carries no summary and no verdict: there
     is nothing to pass or fail, and a reader must not be able to mistake a
@@ -809,6 +1094,9 @@ def partial_document(
         "cases_total": total_cases,
         "cases_not_run": max(0, total_cases - len(records)),
         "calls_spent": calls_spent,
+        "telemetry": (
+            telemetry if telemetry is not None else RunTelemetry(selector)
+        ).as_dict(),
         "cases": records,
     }
     if dry_run:
@@ -827,11 +1115,19 @@ def partial_document(
     return document
 
 
-def write_partial(path: str, document: Dict[str, object]) -> None:
+def write_document(path: str, document: Dict[str, object]) -> None:
+    """The one place a result file is written — and therefore the one place the
+    overwrite gate has to be passed. Nothing is opened before it passes, so a
+    refusal leaves the existing file untouched down to its mtime."""
+    assert_writable(path)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as handle:
         json.dump(document, handle, ensure_ascii=False, indent=2, sort_keys=True)
         handle.write("\n")
+
+
+def write_partial(path: str, document: Dict[str, object]) -> None:
+    write_document(path, document)
 
 
 def print_halt_report(document: Dict[str, object], path: str) -> None:
@@ -923,10 +1219,12 @@ def dry_run_document(
     records: List[Dict[str, object]],
     summary: Dict[str, object],
     calls_spent: int,
+    telemetry: Optional[RunTelemetry] = None,
 ) -> Dict[str, object]:
     """The normal scoring fields are kept — that is the point, the scorer's
     plumbing is being exercised — wrapped in markings that make the document
     unusable as a measurement."""
+    telemetry = telemetry if telemetry is not None else RunTelemetry(selector)
     return {
         "selector": selector,
         "simulated": True,
@@ -935,7 +1233,11 @@ def dry_run_document(
         "transport": RehearsalTransport.name,
         "choice_policy": RehearsalTransport.policy,
         "choice_policy_description": RehearsalTransport.policy_description,
-        "real_model_calls": 0,
+        # Derived, like everywhere else. A rehearsal makes calls — to a fake —
+        # so `telemetry.model_calls` counts them while this stays 0, because
+        # `provider` is `rehearsal-fake` and no model answered.
+        "real_model_calls": telemetry.real_model_calls,
+        "telemetry": telemetry.as_dict(),
         "calls_spent": calls_spent,
         "call_budget_maximum": _JEV_PROCESS_BUDGET.maximum,
         "halted": _JEV_PROCESS_GUARD.halted,
@@ -958,11 +1260,163 @@ def print_dry_run_banner() -> None:
     print("=" * 72)
 
 
+# --------------------------------------------------------------------------
+# overwrite protection: a paid result file is written once and cannot be redone
+# --------------------------------------------------------------------------
+
+# Result files that were produced by paid model calls and cannot be reproduced.
+# A run never overwrites one, whatever it contains.
+#
+# `eval/v1/results/jev.json` is named here BY PATH rather than detected, because
+# it predates the telemetry block entirely: it was written by the revision that
+# hardcoded `real_model_calls: 0`, so nothing inside the file can prove that ten
+# paid calls produced it. The evidence that they did is external
+# (`jev_RECORD_CORRECTION.md`). A detector reading only the file's own contents
+# would classify the most expensive artifact in the repository as free.
+#
+# Built from REPO_ROOT, not from RESULTS_DIR: tests redirect RESULTS_DIR to a
+# temporary directory, and this set must keep pointing at the real file.
+KNOWN_PAID_ARTIFACTS = frozenset(
+    {os.path.join(REPO_ROOT, "eval", "v1", "results", "jev.json")}
+)
+
+# A label becomes part of a filename, so it is restricted rather than sanitised:
+# no separators, no traversal, no leading dot, nothing that is not obviously a
+# name. Rejected labels stop the run instead of being silently rewritten.
+LABEL_PATTERN = re.compile(r"\A[A-Za-z0-9][A-Za-z0-9._-]{0,63}\Z")
+
+OVERWRITE_REFUSAL_HINT = (
+    "덮어쓰지 않았다. 다른 이름으로 쓰려면 --label <이름> 을 붙여 실행하라 "
+    "(예: --label rerun → <selector>_rerun.json). "
+    "허용 문자: 영문·숫자·`.`·`_`·`-` (최대 64자)."
+)
+
+
+class ResultsOverwriteRefused(Exception):
+    """Refusal to overwrite a results file that a live model run produced."""
+
+    def __init__(self, path: str, reason: str) -> None:
+        super().__init__("%s: %s" % (path, reason))
+        self.path = path
+        self.reason = reason
+
+
+def validate_label(label: Optional[str]) -> Optional[str]:
+    if label is None:
+        return None
+    if not LABEL_PATTERN.match(label):
+        raise SystemExit(
+            "--label 값이 허용되지 않는다: %r. "
+            "영문·숫자로 시작하고 영문·숫자·`.`·`_`·`-` 만 쓰며 최대 64자다. "
+            "경로 구분자·상위 경로(`..`)는 쓸 수 없다." % label
+        )
+    return label
+
+
+def existing_run_is_live(path: str) -> Tuple[bool, str]:
+    """Was the file at `path` produced by a live model? Fail-closed.
+
+    `provider` answers first, because it is the field that says WHAT answered: a
+    rehearsal makes calls to a fake, so `model_calls > 0` on its own would
+    quarantine every rehearsal file. Only when the file names no provider at all
+    does the call count decide.
+
+    A file that cannot be read or parsed is ALSO treated as live: an unreadable
+    file cannot prove it is free, and the asymmetry between a refused write and
+    a destroyed paid measurement is the whole reason this check exists.
+    """
+    try:
+        with open(path, encoding="utf-8") as handle:
+            document = json.load(handle)
+    except Exception as exc:
+        return True, "기존 파일을 읽거나 해석할 수 없어 유료 산출물로 간주한다 (%s)" % (
+            type(exc).__name__,
+        )
+    if not isinstance(document, dict):
+        return True, "기존 파일이 결과 문서 형태가 아니어서 유료 산출물로 간주한다"
+    telemetry = document.get("telemetry")
+    if isinstance(telemetry, dict):
+        provider = telemetry.get("provider")
+        if provider_is_live_model(provider):
+            return True, "기존 파일의 telemetry.provider 가 모델 식별자다 (%s)" % provider
+        if isinstance(provider, str) and provider.strip():
+            # A named offline provider settles it: no model answered.
+            return False, ""
+        if telemetry.get("live_model_run") is True:
+            return True, "기존 파일의 telemetry.live_model_run 이 true 이다"
+        calls = telemetry.get("model_calls")
+        if isinstance(calls, int) and not isinstance(calls, bool) and calls > 0:
+            return True, "기존 파일의 telemetry.model_calls 가 %d 이다 (실모델 호출 기록)" % calls
+    return False, ""
+
+
+def assert_writable(path: str) -> None:
+    """The single gate every write in this module passes through."""
+    real = os.path.realpath(path)
+    if real in {os.path.realpath(p) for p in KNOWN_PAID_ARTIFACTS}:
+        raise ResultsOverwriteRefused(
+            path,
+            "알려진 유료 산출물이다 (KNOWN_PAID_ARTIFACTS). 재현 불가능하며 "
+            "telemetry 도입 이전 파일이라 내용만으로는 식별되지 않는다",
+        )
+    if not os.path.exists(path):
+        return
+    live, reason = existing_run_is_live(path)
+    if live:
+        raise ResultsOverwriteRefused(path, reason)
+
+
+TELEMETRY_PRINT_KEYS = (
+    "decision_strategy",
+    "provider",
+    "live_model_run",
+    "model_calls",
+    "real_model_calls",
+    "models_answered",
+    "decisions",
+    "input_tokens",
+    "output_tokens",
+    "estimated_cost_usd",
+    "total_latency_ms",
+)
+
+
+def print_telemetry(telemetry: RunTelemetry) -> None:
+    """Observation, not scoring. Printed apart from the 요약 block so it cannot
+    be mistaken for a metric."""
+    block = telemetry.as_dict()
+    print("\n== 실행 telemetry (관측값 — 점수가 아니다) ==")
+    for key in TELEMETRY_PRINT_KEYS:
+        print("%-34s %s" % (key, block[key]))
+    latency = block["decision_latency_ms"]
+    print(
+        "%-34s total=%s count=%s mean=%s"
+        % (
+            "decision_latency_ms",
+            latency["total"],
+            latency["count"],
+            latency["mean"],
+        )
+    )
+    if block["estimated_cost_usd"] is not None:
+        print("%-34s %s" % ("estimated_cost_basis", block["estimated_cost_basis"]))
+
+
+def print_overwrite_refusal(exc: ResultsOverwriteRefused) -> None:
+    print("\n" + "=" * 72, file=sys.stderr)
+    print("!! 결과 파일 덮어쓰기 거부 — 실모델 실행 산출물이다", file=sys.stderr)
+    print("=" * 72, file=sys.stderr)
+    print("대상 파일 : %s" % exc.path, file=sys.stderr)
+    print("사유      : %s" % exc.reason, file=sys.stderr)
+    print(OVERWRITE_REFUSAL_HINT, file=sys.stderr)
+
+
 def results_path_for(
     selector: str,
     dry_run: bool = False,
     halted: bool = False,
     starved: bool = False,
+    label: Optional[str] = None,
 ) -> str:
     """The one place a run's output filename is decided.
 
@@ -979,13 +1433,16 @@ def results_path_for(
     because the thing it protects — a paid result file — cannot be recovered if
     a future change picks the other branch.
     """
+    # `--label` renames the whole family, so a labelled halted or starved run
+    # stays distinguishable from the unlabelled one it was told not to touch.
+    stem = selector if not label else "%s_%s" % (selector, label)
     if halted:
-        return partial_results_path(selector, dry_run=dry_run)
+        return partial_results_path(stem, dry_run=dry_run)
     if starved:
-        return starved_results_path(selector, dry_run=dry_run)
+        return starved_results_path(stem, dry_run=dry_run)
     if dry_run:
-        return dry_run_results_path(selector)
-    return os.path.join(RESULTS_DIR, "%s.json" % selector)
+        return dry_run_results_path(stem)
+    return os.path.join(RESULTS_DIR, "%s.json" % stem)
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -1002,7 +1459,16 @@ def main(argv: Optional[List[str]] = None) -> int:
             % (DRY_RUN_SELECTOR, DRY_RUN_SELECTOR)
         ),
     )
+    parser.add_argument(
+        "--label",
+        default=None,
+        help=(
+            "결과를 <selector>_<label>.json 에 쓴다. 실모델 실행 산출물을 덮어쓰지 않고 "
+            "다시 돌릴 때 쓴다. 영문·숫자로 시작하고 영문·숫자·`.`·`_`·`-` 만, 최대 64자."
+        ),
+    )
     args = parser.parse_args(argv)
+    label = validate_label(args.label)
 
     if args.dry_run and args.selector not in DRY_RUN_FACTORIES:
         raise SystemExit(
@@ -1025,9 +1491,13 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     case_ids = sorted(oracle_cases)
     records: List[Dict[str, object]] = []
+    telemetry = RunTelemetry(decision_strategy=args.selector)
+    run_started = time.perf_counter()
     for case_id in case_ids:
         halted_before = _JEV_PROCESS_GUARD.halted
-        obs, error = run_case(case_id, args.selector, **run_kwargs)
+        obs, error = run_case(
+            case_id, args.selector, telemetry=telemetry, **run_kwargs
+        )
         # The case the halt was raised DURING: a decision was attempted inside
         # it and never completed. It is still scored and still included (§7-E
         # halts between cases), so it is marked rather than silently mixed in.
@@ -1044,6 +1514,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         # §7-E: the halt is checked BETWEEN cases. The remaining cases are not
         # run and the remaining budget is not spent automatically.
         if _JEV_PROCESS_GUARD.halted:
+            telemetry.total_latency_ms = round(
+                (time.perf_counter() - run_started) * 1000.0, 3
+            )
             document = partial_document(
                 selector=args.selector,
                 records=records,
@@ -1051,23 +1524,30 @@ def main(argv: Optional[List[str]] = None) -> int:
                 calls_spent=_JEV_PROCESS_BUDGET.used,
                 total_cases=len(case_ids),
                 dry_run=args.dry_run,
+                telemetry=telemetry,
             )
             path = results_path_for(
                 args.selector,
                 dry_run=args.dry_run,
                 halted=True,
                 starved=bool(starved_case_ids(records)),
+                label=label,
             )
-            write_partial(path, document)
+            try:
+                write_partial(path, document)
+            except ResultsOverwriteRefused as refusal:
+                print_overwrite_refusal(refusal)
+                return 3
             print_halt_report(document, path)
             return 2
 
-    summary = aggregate(records)
+    telemetry.total_latency_ms = round((time.perf_counter() - run_started) * 1000.0, 3)
+    summary = aggregate(records, telemetry)
     starved = starved_case_ids(records)
 
     os.makedirs(RESULTS_DIR, exist_ok=True)
     out_path = results_path_for(
-        args.selector, dry_run=args.dry_run, starved=bool(starved)
+        args.selector, dry_run=args.dry_run, starved=bool(starved), label=label
     )
     if args.dry_run:
         payload: Dict[str, object] = dry_run_document(
@@ -1075,9 +1555,15 @@ def main(argv: Optional[List[str]] = None) -> int:
             records=records,
             summary=summary,
             calls_spent=_JEV_PROCESS_BUDGET.used,
+            telemetry=telemetry,
         )
     else:
-        payload = {"selector": args.selector, "summary": summary, "cases": records}
+        payload = {
+            "selector": args.selector,
+            "telemetry": telemetry.as_dict(),
+            "summary": summary,
+            "cases": records,
+        }
     # A starved run is not a comparison, exactly as a halted one is not. The two
     # conditions are marked separately so a reader can tell which one happened.
     if starved:
@@ -1088,15 +1574,11 @@ def main(argv: Optional[List[str]] = None) -> int:
         notice = starved_notice(starved)
         existing = payload.get("notice")
         payload["notice"] = "%s %s" % (existing, notice) if existing else notice
-    with open(out_path, "w", encoding="utf-8") as handle:
-        json.dump(
-            payload,
-            handle,
-            ensure_ascii=False,
-            indent=2,
-            sort_keys=True,
-        )
-        handle.write("\n")
+    try:
+        write_document(out_path, payload)
+    except ResultsOverwriteRefused as refusal:
+        print_overwrite_refusal(refusal)
+        return 3
 
     print("== 사례별 ==")
     print(
@@ -1142,6 +1624,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         if key in ("verdict", "passed"):
             continue
         print("%-34s %s" % (key, summary[key]))
+
+    print_telemetry(telemetry)
+
     if args.dry_run:
         # No verdict is printed. A rehearsal has nothing to pass or fail, and a
         # PASS/FAIL line is the single thing most likely to be quoted as if it

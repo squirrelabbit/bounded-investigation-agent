@@ -1394,9 +1394,9 @@ class ScorerHaltTests(unittest.TestCase):
         tmpdir = tempfile.mkdtemp(prefix="bia-halt-")
         seen = []
 
-        def failing_run_case(case_id, selector):
+        def failing_run_case(case_id, selector, **kwargs):
             seen.append(case_id)
-            observation, error = real_run_case(case_id, selector)
+            observation, error = real_run_case(case_id, selector, **kwargs)
             if len(seen) == 2:
                 scorer._JEV_PROCESS_GUARD.halt("http_status:429")
             return observation, error
