@@ -269,9 +269,58 @@ JEV 비교는 **v1.1 경계에서** 수행한다. §7·§7-A의 승리 조건과
 **총 16회 호출 상한(프로세스 전역 단일 예산)**, 확률을 권한으로 쓰지 않는 규칙,
 `state` 20개 키 사전등록 — 전부 그대로다.
 
+### 공식 문서로 확인한 형상 (2026-09-22, docs.typesafe.ai)
+
+```
+POST https://api.typesafe.ai/v1/systemone
+Authorization: Bearer <TYPESAFE_API_KEY>
+Content-Type: application/json
+
+{"state": <string|object|array>, "model": "jev-1.13.0",
+ "questions": {"<우리가 정한 키>": {"type": "choice",
+                                  "instructions": "...",
+                                  "criteria": {"<선택지>": "<설명>", ...}}}}
+```
+
+- 요청 최상위 필드는 **`state`·`model`·`questions` 셋뿐**이고 전부 필수다. 다른 최상위 필드는 문서에 없다.
+- `choice` 질문에 **`options` 필드는 없다.** 선택지는 `criteria` 의 **키**다. 최대 255개.
+- 응답:
+```
+{"model": "jev-1.13.0",
+ "answers": {"<키>": {"type": "choice", "choice": "...", "confidence": 0.78,
+                      "probabilities": {"...": 0.85}}},
+ "usage": {"input_tokens": 392, "output_tokens": 65}}
+```
+- **`usage.input_tokens` / `usage.output_tokens`** — snake_case, `usage` 아래 중첩. 확인 완료.
+- **응답 본문에 비용 필드가 없다.** 요청 식별자도 본문이 아니라 `x-typesafe-request-id` **헤더**다.
+- 오류: `401` 인증, `422` 검증 실패, `429` 한도 초과, `529` 과부하.
+  **오류 본문의 JSON 스키마는 문서화돼 있지 않다** — 필드명을 가정하지 말고 방어적으로 파싱한다.
+- **`seed`·`temperature`·`top_p` 등 재현성 제어가 문서에 없다.** 보내지 않는다.
+  §7-C에 적어둔 "재현 불가능한 단일 표본"은 직접 경로에서도 그대로다.
+- 한도: 요청당 64k 토큰(`state` + 모든 질문), `state` + 가장 긴 질문은 32k. 250k tok/s, 1200 req/min.
+
+### 모델 버전 고정
+
+**`jev-1.13.0` 으로 핀한다.** `jev-latest`·`jev-preview` 는 움직이는 별칭이라, 같은 시험지가
+다른 모델을 부를 수 있어 비교를 무효로 만든다. 공식 문서도 "별칭은 릴리스가 나오면 움직이므로,
+특정 버전에 맞춰 두었다면 그 버전 ID를 핀하라"고 적고 있다.
+**매 호출마다 응답의 `model` 을 기록한다** — 실제로 어떤 버전이 답했는지 사후 확인 가능해야 한다.
+
+### `confidence` 의 취급
+
+응답에는 `confidence` 가 있다. **기록만 한다.** 정답 확률로도, 실행 권한으로도 쓰지 않는다.
+임계값을 두어 자동 판단에 쓰지 않는다. `probabilities` 와 동일한 규칙이다.
+
+### 비용 기록
+
+응답에 비용이 없으므로, 공식 요율(**입력 $0.042/Mtok, 출력 무료**, 2026-09-22 확인)과
+`usage.input_tokens` 로 **추정치**를 계산해 기록한다. 추정임을 이름과 보고 문구에 명시한다.
+문서에 무료 티어·프로모션·체험 기간 표기는 없다.
+
 ### 이번 단계의 범위
 
 **fake 테스트까지만 구현한다. 키를 읽지 않고 실호출하지 않는다.**
+직접 경로의 실호출은 fake 검증 후 **별도로 다시 확정**받는다 (§7-D 승인 비이전).
 
 ## 7-C. (경로 변경으로 대체됨) Vercel AI Gateway 조사 기록 — 공식 문서로 확인한 형상과 실행 잠금
 
