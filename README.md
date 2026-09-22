@@ -471,6 +471,17 @@ v1.0에서 greedy는 yield를 0.37에서 0.66으로 올리는 대가로 잘못�
 
 함정 사례에서 greedy 도 JEV 도 물러서지 않았다. 둘 다 조회 예산을 전부 쓰고 근거 0건으로 끝났다(`selector_defer=N`). 그런데도 **세 selector 전부 최종 잘못된 근거가 0건이다.** 서버의 채택 규칙이 증가하지 않은 그룹의 문의를 거부했기 때문이다. 실제로 보류를 **선택**한 것은 좁은 기준선뿐이다.
 
+**어떤 파일이 재현되고 어떤 파일이 안 되는지**
+
+| 파일 | 재현 가능한가 |
+|---|---|
+| `data/scenarios/**`, `data/challenges/**`, `data/oracle/**` | **예.** `python3 -m bia.datagen` / `bia.challengegen` 로 바이트 동일하게 재생성된다 (고정 seed, 인터프리터 3.9/3.11 교차 확인) |
+| `eval/results/heuristic.json`, `eval/v1/results/{heuristic,greedy}.json` | **예.** 코드 selector라 언제든 다시 돌리면 같은 값이 나온다 (지연 수치만 머신에 따라 다르다) |
+| `eval/v1/results/jev.json`, `jev_run2.json` | **아니오.** 유료 호출로만 만들어진다. 바이트 그대로 보존하며, 채점기는 이 파일들을 덮어쓰지 않는다 — 재실행하려면 `--label` 이 필요하다 |
+| `eval/v1/results/*_v1_0.json`, `heuristic_before_amendment1.json` | **아니오 (의도적).** 계약 개정 이전 시점의 기록이다. 그때 무엇이 측정됐는지 남기려고 보존한다 |
+
+동결된 것은 **데이터와 채점 기준**이지 코드가 아니다. 코드는 계속 고쳤고(마지막이 외부 데이터 경계 수정), 고칠 때마다 위 재현 가능한 파일들이 바이트 불변인지 확인했다. 그것이 "코드를 고쳐도 벤치마크는 움직이지 않았다"의 증거다.
+
 **결과 파일을 인용할 때**
 
 - 1회차 `eval/v1/results/jev.json` 은 유료 산출물이라 바이트 그대로 보존한다. **[정정 문서](eval/v1/results/jev_RECORD_CORRECTION.md)를 반드시 함께 읽어야 한다** — 그 파일의 `real_model_calls: 0` 은 사실이 아니고, telemetry 가 없다.
