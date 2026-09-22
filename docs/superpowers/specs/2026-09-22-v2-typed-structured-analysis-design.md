@@ -236,6 +236,10 @@ entry_exit_effect = Σ net_contribution_g   for non-comparable groups
 
 breakdown 그룹은 전체 population 을 **상호배타적이고 완전하게 partition** 해야 한다. 이것이 깨지면 위 불변식이 무의미하다.
 
+- **유효한 기간 안에서 그룹 키가 없다는 것은 활동이 0 이라는 뜻이다** (`N=0, D=0`).
+  entry/exit 분해는 baseline 과 current 의 그룹 키 **합집합** 위에서 이뤄지고, 한쪽에 없는 그룹을
+  그렇게 해석해야 성립한다. "데이터 누락" 과 "실제 활동 0" 을 구분하지 않는다는 선언이며,
+  날짜 자체가 빠진 경우는 기존 integrity 의 기간 완결성 검사가 따로 막는다.
 - dimension 값이 NULL 이면 drop 하지 않고 `__UNKNOWN__` 버킷에 넣거나 integrity 에서 거부한다.
 - **v2 엔진은 breakdown 그룹을 top-N 으로 절단하지 않는다. 따라서 `OTHER` 버킷을 만들지 않는다.**
   교차 셀이 많으면 절단이 아니라 `omitted` 로 처리한다.
@@ -247,6 +251,10 @@ breakdown 그룹은 전체 population 을 **상호배타적이고 완전하게 p
 ## 5. 출력 정책
 
 ### 플래그 (전부 breakdown-local)
+
+부호 비교는 전부 **tolerance-aware** 다. `|x| ≤ FLOAT_TOL` 이면 `x` 를 0 으로 본다
+(`sign_with_tol`). 정확한 `x != 0` 이나 단순 `sign(x)` 를 쓰면 `1e-16` 같은 부동소수 노이즈가
+플래그를 뒤집는다. 새 상수는 필요 없다 — 이미 사전 등록된 `FLOAT_TOL` 을 쓴다.
 
 ```
 decomposition_complete =  |entry_exit_effect| ≤ FLOAT_TOL
@@ -289,6 +297,9 @@ suppress_top_contributor  =  composition_dominant
 넷 모두 "이 그룹이 제일 나빴다" 는 요약이 오도한다 — 구성 이동이 지배했거나, 진입/이탈이 지배했거나,
 내부 상쇄가 크거나, 전체 변화가 표시 가능한 크기보다 작기 때문이다. 억제되면 rate/mix/entry_exit
 세 항을 분리해 제시한다.
+
+**이 값은 `flags.suppress_top_contributor` 로 결과에 실어 보낸다.** renderer 나 adapter 가 다시
+계산하게 두면 두 곳의 판정이 어긋날 수 있다.
 
 `contribution_share` 노출 조건과 **같은 철학을 따른다.** share 는 숨기면서 상위 기여 문장은
 살아남는 상태가 되면 두 정책이 어긋난다.
@@ -365,7 +376,8 @@ non-comparable 그룹은 수학적으로 share 계산이 가능하지만 노출�
                   "entry_exit_effect": 0.0, "gross_movement": 0.0110 },
       "ranking": { "by": "net_contribution", "groups": ["paid"] },
       "flags": { "composition_dominant": false, "simpson_strict": false,
-                 "heavy_cancellation": false, "decomposition_complete": true },
+                 "heavy_cancellation": false, "decomposition_complete": true,
+                 "suppress_top_contributor": false },
       "non_comparable_groups": []
     }
   ]
