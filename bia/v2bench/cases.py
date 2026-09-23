@@ -1,4 +1,8 @@
-"""18 사례. spec 의 표를 그대로 옮긴 것이며 데이터 생성 전에 고정됐다.
+"""벤치마크 사례. spec 의 표를 그대로 옮긴 것이며 데이터 생성 전에 고정됐다.
+
+C01~C18 은 계획의 18 사례이고, C19~C24 는 수정 라운드 1 에서 닫은 커버리지
+공백(그룹 bounded 거부·비율×교차 분해·support_ops additive·교차 한도 경계·
+composition_dominant 와 simpson_strict 의 비동치)이다.
 
 모든 수치는 손으로 검산 가능한 작은 정수다. oracle 이 exact arithmetic 으로
 같은 값을 독립 계산할 수 있어야 하기 때문이다.
@@ -60,10 +64,17 @@ def _rev(day, channel, device, category, revenue):
 
 
 def _ops(day, queue, priority, received, resolved):
-    """support_ops 행. day 는 접수 cohort 다."""
+    """support_ops sla_resolution_rate 행. day 는 접수 cohort 다."""
     return Row(day=day,
                keys=(("priority", priority), ("queue", queue)),
                measures=(("received", received), ("resolved_within_sla", resolved)))
+
+
+def _tickets(day, queue, priority, received):
+    """support_ops tickets_received 행. additive metric 이라 컬럼은 received 하나다."""
+    return Row(day=day,
+               keys=(("priority", priority), ("queue", queue)),
+               measures=(("received", received),))
 
 
 B1 = ("2026-06-01", "2026-06-01")
@@ -403,7 +414,145 @@ C18 = CaseSpec(
 )
 
 
+# C19 분모는 살아 있는데 분자가 분모보다 크다 — bounded 계약 위반.
+C19 = CaseSpec(
+    case_id="C19", domain="ecommerce", metric="conversion_rate",
+    breakdowns=("channel",), rank_by="net_contribution",
+    baseline=B1, current=C1,
+    rows=(
+        _row("2026-06-01", "paid", "mobile", 100, 20),
+        _row("2026-06-01", "organic", "mobile", 100, 10),
+        _row("2026-07-01", "paid", "mobile", 10, 40),
+        _row("2026-07-01", "organic", "mobile", 100, 10),
+    ),
+    notes=("current 의 paid 는 세션 10 에 주문 40 이다. 분모가 0 이 아니라서 "
+           "분모0 검사(C09 가 밟는 가지)는 통과하고, conversion_rate 가 선언한 "
+           "numerator_bounded_by_denominator 검사가 처음으로 걸린다. "
+           "전체는 baseline 30/200, current 50/110 으로 분자<=분모라 aggregate 와 "
+           "overall 분기를 통과한다 — 그래야 그룹 단계까지 내려간다. "
+           "organic 은 전체 분모를 살려두는 역할이다."),
+    expect_refused=("integrity", "bounded by the denominator"),
+)
+
+# C20 비율 지표 × 교차 분해. 엔진에서 가장 복잡한 경로다.
+C20 = CaseSpec(
+    case_id="C20", domain="ecommerce", metric="conversion_rate",
+    breakdowns=("channel", "device"), rank_by="rate_effect",
+    baseline=B1, current=C1,
+    rows=(
+        _row("2026-06-01", "paid", "desktop", 100, 10),
+        _row("2026-06-01", "paid", "mobile", 100, 20),
+        _row("2026-06-01", "organic", "desktop", 100, 30),
+        _row("2026-06-01", "organic", "mobile", 100, 40),
+        _row("2026-07-01", "paid", "desktop", 100, 20),
+        _row("2026-07-01", "paid", "mobile", 200, 60),
+        _row("2026-07-01", "organic", "desktop", 100, 30),
+        _row("2026-07-01", "organic", "mobile", 100, 55),
+    ),
+    notes=("전체 100/400=0.25 → 165/500=0.33, delta=+0.08. 교차 셀은 4 개뿐이라 "
+           "한도(1000) 안에서 실제로 계산된다. 교차 셀 rate/mix: "
+           "paid|desktop 0.0225/-0.0075, paid|mobile 0.0325/+0.0375, "
+           "organic|desktop 0/-0.015, organic|mobile 0.03375/-0.02375. "
+           "합은 total_rate=0.08875, total_mix=-0.00875, entry_exit=0. "
+           "channel 분기의 total_rate=47/480 이 golden 이다. "
+           "rank_by=rate_effect 라 세 분기 모두 rate_effect 로 정렬된다. "
+           "네 rate 값은 일부러 서로 다르게 뒀다 — production 의 RANK 는 float 를 "
+           "허용오차 없이 비교하므로, 수학적으로 같은 두 rate 는 1e-17 수준의 "
+           "표현 오차로 순서가 갈리고 선언된 동률 규칙이 적용되지 않는다. "
+           "자세한 내용은 task-5-fix1-report.md 의 F1."),
+    golden={"delta": 0.08, "total_rate_effect": "47/480", "entry_exit_effect": 0},
+)
+
+# C21 support_ops 의 additive 지표를 priority 로 분해한다.
+C21 = CaseSpec(
+    case_id="C21", domain="support_ops", metric="tickets_received",
+    breakdowns=("priority",), rank_by="group_delta",
+    baseline=B1, current=C1,
+    rows=(
+        _tickets("2026-06-01", "billing", "high", 60),
+        _tickets("2026-06-01", "tech", "high", 40),
+        _tickets("2026-06-01", "billing", "low", 120),
+        _tickets("2026-06-01", "tech", "low", 80),
+        _tickets("2026-07-01", "billing", "high", 70),
+        _tickets("2026-07-01", "tech", "high", 60),
+        _tickets("2026-07-01", "billing", "low", 90),
+        _tickets("2026-07-01", "tech", "low", 60),
+        _tickets("2026-07-01", "billing", "urgent", 40),
+    ),
+    notes=("300 → 320, delta=+20. priority 별로 high 100→130 (+30), "
+           "low 200→150 (-50), urgent 0→40 (+40). "
+           "gross_movement=30+50+40=120. urgent 는 baseline 에 없지만 additive 라 "
+           "0 으로 비교돼 분해가 닫힌다. rank_by=group_delta 로 정렬하면 "
+           "urgent(+40), high(+30), low(-50) 순이다."),
+    golden={"baseline": 300, "current": 320, "delta": 20, "gross_movement": 120},
+)
+
+
+def _grid_rows(channels, devices):
+    """channel x device 교차 셀을 정확히 `channels * devices` 개 만든다.
+
+    한 셀은 한 기간에만 둔다 — 교차 우주는 두 기간 키의 합집합이라 곱 그대로다.
+    셀 수만 채우고 행은 셀당 하나로 유지한다. 난수는 없다.
+    """
+    rows: List[Row] = []
+    index = 0
+    for channel_i in range(channels):
+        for device_i in range(devices):
+            day = "2026-06-01" if index % 2 == 0 else "2026-07-01"
+            rows.append(_rev(day, "ch%03d" % channel_i, "dv%03d" % device_i,
+                             "all", 100 + (index % 7)))
+            index += 1
+    return tuple(rows)
+
+
+# C22 교차 셀이 정확히 CROSS_CELL_LIMIT — 비교 연산자가 `>` 인지 `>=` 인지 고정한다.
+C22 = CaseSpec(
+    case_id="C22", domain="ecommerce", metric="revenue",
+    breakdowns=("channel", "device"), rank_by="net_contribution",
+    baseline=B1, current=C1,
+    rows=_grid_rows(100, 10),
+    notes=("교차 셀 100*10=1000 개로 CROSS_CELL_LIMIT 과 정확히 같다. "
+           "한도는 초과(>)일 때만 걸리므로 교차 분기가 계산돼야 한다 — "
+           "omitted 가 하나도 없어야 한다. C23 과 짝을 이뤄 경계를 고정한다."),
+)
+
+# C23 교차 셀이 한도+1 — 여기서부터 omitted.
+C23 = CaseSpec(
+    case_id="C23", domain="ecommerce", metric="revenue",
+    breakdowns=("channel", "device"), rank_by="net_contribution",
+    baseline=B1, current=C1,
+    rows=_grid_rows(91, 11),
+    notes=("교차 셀 91*11=1001 개로 한도보다 정확히 하나 많다. "
+           "교차 분기만 omitted 이고 단일 차원 분기(91, 11 그룹)는 정상이다."),
+)
+
+# C24 composition_dominant 는 참인데 simpson_strict 는 거짓 — 함의가 동치가 아님을 보인다.
+C24 = CaseSpec(
+    case_id="C24", domain="ecommerce", metric="conversion_rate",
+    breakdowns=("channel",), rank_by="net_contribution",
+    baseline=B1, current=C1,
+    rows=(
+        _row("2026-06-01", "paid", "mobile", 100, 50),
+        _row("2026-06-01", "organic", "mobile", 100, 10),
+        _row("2026-06-01", "partner", "mobile", 100, 30),
+        _row("2026-07-01", "paid", "mobile", 100, 60),
+        _row("2026-07-01", "organic", "mobile", 300, 24),
+        _row("2026-07-01", "partner", "mobile", 100, 30),
+    ),
+    notes=("전체 90/300=0.30 → 114/500=0.228, delta=-0.072. "
+           "그룹 비율은 paid 0.50→0.60 (rate +2/75), organic 0.10→0.08 "
+           "(rate -7/750), partner 0.30→0.30 (rate 0) 으로 부호가 섞여 있다. "
+           "total_rate=13/750=+0.0173333 은 delta 와 부호가 반대라 "
+           "composition_dominant 는 참이지만, comparable 의 rate 부호가 하나가 "
+           "아니므로 simpson_strict 는 거짓이다. total_mix=-67/750, entry_exit=0. "
+           "gross=76/750, |delta|/gross=54/76=0.711>0.20 이라 heavy 도 거짓."),
+    golden={"delta": -0.072, "composition_dominant": True,
+            "simpson_strict": False},
+)
+
+
 CASES: Tuple[CaseSpec, ...] = (
     C01, C02, C03, C04, C05, C06, C07, C08, C09,
     C10, C11, C12, C13, C14, C15, C16, C17, C18,
+    C19, C20, C21, C22, C23, C24,
 )

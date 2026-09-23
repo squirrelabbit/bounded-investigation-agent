@@ -1,4 +1,4 @@
-"""18 사례 벤치마크. 기대값은 `bia.analysis` 를 전혀 모르는 oracle 에서 온다."""
+"""사례 벤치마크. 기대값은 `bia.analysis` 를 전혀 모르는 oracle 에서 온다."""
 from __future__ import annotations
 
 import ast
@@ -37,11 +37,13 @@ def _label(breakdown, group_key):
 
 
 class BenchmarkInventoryTests(unittest.TestCase):
-    def test_eighteen_cases_with_unique_ids(self):
+    def test_cases_have_unique_ids_and_match_the_oracle(self):
         ids = [case.case_id for case in CASES]
-        self.assertEqual(len(ids), 18)
-        self.assertEqual(len(set(ids)), 18)
+        self.assertEqual(len(set(ids)), len(ids))
+        # 18 은 계획의 목표치다. 사례는 늘어날 수 있어도 줄어들면 안 된다.
+        self.assertGreaterEqual(len(ids), 18)
         self.assertEqual(sorted(ORACLE["cases"]), sorted(ids))
+        self.assertEqual(ORACLE["case_count"], len(ids))
 
     def test_every_case_has_a_hand_checked_note(self):
         for case in CASES:
@@ -91,6 +93,54 @@ class OracleIndependenceTests(unittest.TestCase):
         )
         out = subprocess.check_output([sys.executable, "-c", script], cwd=REPO_ROOT)
         self.assertEqual(out.decode("utf-8").strip(), "")
+
+
+class FlagImplicationTests(unittest.TestCase):
+    """`simpson_strict ⟹ composition_dominant` 은 사례 설계의 우연이 아니라 정리다.
+
+    현행 정의에서 simpson_strict 는 comparable 의 rate_effect 가 전부 같은 부호
+    s(≠0)이고 s ≠ sign(delta) 를 요구한다. total_rate 는 comparable 만 합산하므로
+    상쇄 없이 sign(total_rate)=s 가 되고, decomposition_complete 와 sign(delta)≠0
+    까지 이미 요구하므로 composition_dominant 의 네 조건이 모두 충족된다.
+    역은 성립하지 않는다 — rate 부호가 섞이면 simpson 만 거짓이 된다.
+    """
+
+    def _breakdowns(self):
+        for case_id, entry in sorted(ORACLE["cases"].items()):
+            for name, breakdown in sorted(entry.get("breakdowns", {}).items()):
+                yield case_id, name, breakdown
+
+    def test_simpson_strict_implies_composition_dominant(self):
+        witnesses = []
+        for case_id, name, breakdown in self._breakdowns():
+            flags = breakdown["expect_flags"]
+            if not flags["simpson_strict"]:
+                continue
+            witnesses.append("%s/%s" % (case_id, name))
+            self.assertTrue(flags["composition_dominant"],
+                            "%s/%s: simpson_strict 인데 composition_dominant 가 "
+                            "거짓이다" % (case_id, name))
+        self.assertTrue(witnesses,
+                        "simpson_strict 가 참인 분해가 하나도 없다 — 함의가 공허하다")
+
+    def test_the_implication_is_not_an_equivalence(self):
+        witnesses = []
+        for case_id, name, breakdown in self._breakdowns():
+            flags = breakdown["expect_flags"]
+            if not (flags["composition_dominant"] and not flags["simpson_strict"]):
+                continue
+            witnesses.append("%s/%s" % (case_id, name))
+            signs = set()
+            for entry in breakdown["groups"].values():
+                if entry["expect_comparable"]:
+                    rate = entry["expect_rate_effect"]
+                    signs.add(0 if rate == 0 else (1 if rate > 0 else -1))
+            self.assertGreater(len(signs), 1,
+                               "%s/%s: composition_dominant 만 참인데 rate 부호가 "
+                               "섞여 있지 않다" % (case_id, name))
+        self.assertTrue(
+            witnesses,
+            "composition_dominant 만 참인 사례가 없어 함의가 동치처럼 보인다")
 
 
 class OracleFailClosedTests(unittest.TestCase):

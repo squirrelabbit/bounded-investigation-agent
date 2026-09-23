@@ -1,0 +1,10 @@
+day,priority,queue,received
+2026-06-01,high,billing,60
+2026-06-01,high,tech,40
+2026-06-01,low,billing,120
+2026-06-01,low,tech,80
+2026-07-01,high,billing,70
+2026-07-01,high,tech,60
+2026-07-01,low,billing,90
+2026-07-01,low,tech,60
+2026-07-01,urgent,billing,40
