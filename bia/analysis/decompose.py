@@ -23,6 +23,23 @@ def sign_with_tol(value: float) -> int:
     return 1 if value > 0 else -1
 
 
+def snap_share_boundary(candidate: float) -> float:
+    """`0 < share <= 1` 판정의 두 경계를 FLOAT_TOL 로 본다.
+
+    엔진의 candidate 는 float 이라 수학적으로 딱 1 인 기여율이 표현 오차 1 ulp 로
+    `>1` 이 될 수 있고, 그러면 엔진만 share 를 버려 정확 산술과 결론이 갈린다.
+    선언한 규칙이 표현 오차로 뒤집혀서는 안 되므로 1 에서 FLOAT_TOL 이내는 정확히
+    `1.0` 으로, 0 에서 FLOAT_TOL 이내는 `0.0` 으로 스냅한다. 스냅 뒤에도 비교는
+    그대로 `0 < c <= 1` 이므로 진짜로 1 을 넘는 값은 여전히 버려지고(100% 를 넘는
+    기여율을 보이지 않는다), 0 인 값은 여전히 share 를 내지 않는다.
+    """
+    if abs(candidate - 1.0) <= FLOAT_TOL:
+        return 1.0
+    if abs(candidate) <= FLOAT_TOL:
+        return 0.0
+    return candidate
+
+
 def decompose_ratio(
     current: Dict[Tuple[str, ...], Dict[str, int]],
     baseline: Dict[Tuple[str, ...], Dict[str, int]],
@@ -103,7 +120,7 @@ def decompose_ratio(
             and group.comparable
             and abs(delta_r) > SHARE_EPSILON
         ):
-            candidate = group.net_contribution / delta_r
+            candidate = snap_share_boundary(group.net_contribution / delta_r)
             if 0 < candidate <= 1:
                 share = candidate
         group.contribution_share = share

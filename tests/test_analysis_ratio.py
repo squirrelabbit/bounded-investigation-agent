@@ -4,7 +4,8 @@ import unittest
 from fractions import Fraction
 
 from bia.analysis.compiler import compile_request
-from bia.analysis.decompose import FLOAT_TOL, decompose_ratio, sign_with_tol
+from bia.analysis.decompose import (FLOAT_TOL, decompose_ratio,
+                                   sign_with_tol, snap_share_boundary)
 from bia.analysis.engine import run_plan
 from bia.analysis.errors import AnalysisRefused
 from bia.analysis.frame import Observation
@@ -177,6 +178,93 @@ class FloatTolBoundaryTests(unittest.TestCase):
     def test_just_above_tolerance_is_nonzero(self):
         self.assertEqual(sign_with_tol(FLOAT_TOL * 1.1), 1)
         self.assertEqual(sign_with_tol(-FLOAT_TOL * 1.1), -1)
+
+
+class ShareBoundaryToleranceTests(unittest.TestCase):
+    """`0 < share <= 1` 의 경계는 float 표현 오차로 뒤집혀서는 안 된다.
+
+    한 그룹이 전체 변화를 **정확히** 혼자 설명하는 배치(candidate 가 정확 산술로 딱 1)를
+    두 벌 만든다. 같은 수학인데 float 로는 하나는 1 을 밑돌고 하나는 1 을 웃돈다 —
+    스냅이 없으면 웃도는 쪽만 share 를 잃는다. 진짜로 1 을 넘는 배치는 계속 버려야 한다.
+    """
+
+    def _shares(self, moving_d, static_d, static_n):
+        """A 만 움직이고 B 는 양 기간 동일한 2 그룹 비율 분해를 돌린다."""
+        total_d = moving_d + static_d
+        current = {("A",): {"n": 1, "d": moving_d},
+                   ("B",): {"n": static_n, "d": static_d}}
+        baseline = {("A",): {"n": 0, "d": moving_d},
+                    ("B",): {"n": static_n, "d": static_d}}
+        groups, _totals, _flags = decompose_ratio(
+            current, baseline, (("A",), ("B",)), "n", "d",
+            {"n": 1 + static_n, "d": total_d}, {"n": static_n, "d": total_d},
+        )
+        return dict((g.key["dim"], g) for g in groups)
+
+    def _raw_candidate(self, group, moving_d, static_d, static_n):
+        total_d = float(moving_d + static_d)
+        delta = (1 + static_n) / total_d - static_n / total_d
+        return group.net_contribution / delta
+
+    def test_a_candidate_that_lands_just_below_one_reports_exactly_one(self):
+        # A: 0/1 -> 1/1, B: 2/2 고정. 정확 산술로 candidate = 1.
+        group = self._shares(1, 2, 2)["A"]
+        raw = self._raw_candidate(group, 1, 2, 2)
+        self.assertLess(raw, 1.0)
+        self.assertGreater(raw, 1.0 - FLOAT_TOL)
+        self.assertEqual(group.contribution_share, 1.0)
+
+    def test_a_candidate_that_lands_just_above_one_reports_exactly_one(self):
+        # A: 0/1 -> 1/1, B: 2/4 고정. 같은 수학인데 float 는 1 을 웃돈다.
+        group = self._shares(1, 4, 2)["A"]
+        raw = self._raw_candidate(group, 1, 4, 2)
+        self.assertGreater(raw, 1.0)
+        self.assertLess(raw, 1.0 + FLOAT_TOL)
+        self.assertEqual(group.contribution_share, 1.0)
+
+    def test_a_candidate_genuinely_above_one_is_still_dropped(self):
+        # A 가 +2/10, B 가 -1/10 이라 delta 는 +1/10 이고 A 의 candidate 는 2 다.
+        current = {("A",): {"n": 3, "d": 5}, ("B",): {"n": 1, "d": 5}}
+        baseline = {("A",): {"n": 1, "d": 5}, ("B",): {"n": 2, "d": 5}}
+        groups, _totals, flags = decompose_ratio(
+            current, baseline, (("A",), ("B",)), "n", "d",
+            {"n": 4, "d": 10}, {"n": 3, "d": 10},
+        )
+        by_key = dict((g.key["dim"], g) for g in groups)
+        self.assertFalse(flags["suppress_top_contributor"])
+        self.assertAlmostEqual(
+            by_key["A"].net_contribution / (Fraction(4, 10) - Fraction(3, 10)), 2.0)
+        self.assertIsNone(by_key["A"].contribution_share)
+
+    def test_a_group_with_no_movement_still_reports_no_share(self):
+        group = self._shares(1, 2, 2)["B"]
+        self.assertEqual(group.net_contribution, 0.0)
+        self.assertIsNone(group.contribution_share)
+
+
+class SnapShareBoundaryTests(unittest.TestCase):
+    """스냅 규칙 자체의 네 갈래. 0 쪽 띠는 정수 사례로 만들 수 없어 여기서 고정한다."""
+
+    def test_within_tolerance_of_one_snaps_to_one(self):
+        # `1.0 + FLOAT_TOL` 은 double 로 반올림되면서 차이가 1e-9 를 아주 살짝 넘는다.
+        # 띠의 **안쪽**을 보는 것이 목적이므로 절반 폭을 쓴다.
+        for value in (1.0 - FLOAT_TOL / 2, 1.0, 1.0 + FLOAT_TOL / 2):
+            with self.subTest(value=value):
+                self.assertEqual(snap_share_boundary(value), 1.0)
+
+    def test_beyond_tolerance_of_one_is_left_alone_and_therefore_dropped(self):
+        value = 1.0 + FLOAT_TOL * 10
+        self.assertEqual(snap_share_boundary(value), value)
+        self.assertFalse(0 < snap_share_boundary(value) <= 1)
+
+    def test_within_tolerance_of_zero_snaps_to_zero_and_is_dropped(self):
+        for value in (FLOAT_TOL, -FLOAT_TOL, 0.0, 1e-12):
+            with self.subTest(value=value):
+                self.assertEqual(snap_share_boundary(value), 0.0)
+                self.assertFalse(0 < snap_share_boundary(value) <= 1)
+
+    def test_an_ordinary_share_is_untouched(self):
+        self.assertEqual(snap_share_boundary(0.25), 0.25)
 
 
 _INTEGRITY_DOMAIN = DomainSpec(

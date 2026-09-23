@@ -13,6 +13,7 @@ import unittest
 from fractions import Fraction
 
 from bia.analysis.compiler import compile_request
+from bia.analysis.decompose import snap_share_boundary
 from bia.analysis.engine import run_plan
 from bia.analysis.errors import AnalysisRefused, RequestError
 from bia.analysis.frame import load_observations
@@ -321,6 +322,28 @@ class OracleFailClosedTests(unittest.TestCase):
         with self.assertRaises(generate.OracleError) as caught:
             generate._apply_golden(case, entry, {"bogus_total": Fraction(1)})
         self.assertIn("bogus_total", str(caught.exception))
+
+
+class ShareBoundaryAgreementTests(unittest.TestCase):
+    """share 경계 규칙은 oracle(정확 유리수)과 엔진(float)이 같이 진술해야 한다.
+
+    oracle 만 정확 비교를 하면 경계에 정확히 걸린 사례에서 두 판정이 갈리고, 그
+    불일치는 엔진 결함처럼 보인다(C15 의 paid 가 실제로 그 자리에 있다).
+    """
+
+    def test_both_sides_keep_or_drop_the_same_candidates(self):
+        tol = generate.FLOAT_TOL
+        probes = (Fraction(0), tol / 2, -tol / 2, Fraction(1, 4), Fraction(1),
+                  Fraction(1) - tol / 2, Fraction(1) + tol / 2,
+                  Fraction(3, 2), Fraction(-1, 4))
+        for exact in probes:
+            with self.subTest(candidate=exact):
+                oracle_value = generate._snap_share_boundary(exact)
+                engine_value = snap_share_boundary(float(exact))
+                self.assertEqual(0 < oracle_value <= 1, 0 < engine_value <= 1)
+                if 0 < oracle_value <= 1:
+                    self.assertAlmostEqual(float(oracle_value), engine_value,
+                                           places=PLACES)
 
 
 class BenchmarkTests(unittest.TestCase):

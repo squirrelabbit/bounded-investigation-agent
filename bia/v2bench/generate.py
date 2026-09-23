@@ -237,6 +237,21 @@ def _rank(entries: Sequence[Tuple[Tuple[str, ...], Dict[str, Optional[Fraction]]
     return ["|".join(key) for _value, _tie, key in ordered]
 
 
+def _snap_share_boundary(candidate: Fraction) -> Fraction:
+    """production 의 `snap_share_boundary` 와 같은 규칙을 정확 산술로 다시 진술한다.
+
+    oracle 자체는 정확하므로 스냅이 필요 없다. 그러나 엔진은 1 에서 FLOAT_TOL 이내를
+    1 로, 0 에서 FLOAT_TOL 이내를 0 으로 보고 `0 < c <= 1` 을 판정한다. oracle 이
+    정확 비교를 고집하면 그 띠 안의 사례에서만 두 판정이 갈린다 — 규칙을 여기서도
+    같이 진술해야 두 쪽이 모든 입력에서 같은 결론에 이른다.
+    """
+    if abs(candidate - 1) <= FLOAT_TOL:
+        return Fraction(1)
+    if abs(candidate) <= FLOAT_TOL:
+        return Fraction(0)
+    return candidate
+
+
 def additive_breakdown(current, baseline, universe, column,
                        dimensions, rank_by) -> Dict[str, object]:
     groups: Dict[str, Dict[str, object]] = {}
@@ -358,7 +373,7 @@ def ratio_breakdown(current, baseline, universe, numerator, denominator,
         share = None
         if (not dominant and complete and not heavy
                 and entry["expect_comparable"] and abs(delta) > SHARE_EPSILON):
-            candidate = nets[label] / delta
+            candidate = _snap_share_boundary(nets[label] / delta)
             if 0 < candidate <= 1:
                 share = candidate
         entry["expect_contribution_share"] = _f(share)
