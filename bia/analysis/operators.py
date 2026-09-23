@@ -1,4 +1,10 @@
-"""여섯 개로 닫힌 연산자. 일곱 번째가 필요하면 그것은 v2 확장이 아니다."""
+"""여섯 개로 닫힌 연산자. 일곱 번째가 필요하면 그것은 v2 확장이 아니다.
+
+AGGREGATE·COMPARE·BREAKDOWN·CONTRIBUTION·RATE·RANK 이고, CONTRIBUTION 과 RATE 는
+`decompose.py`·`engine.py` 에 있다. 목록과 구현 위치는 주석이 아니라
+`tests/test_operator_closure.py` 가 고정한다 — 세 모듈에 함수를 더하면 그 테스트가
+"이것이 일곱 번째인가" 를 먼저 묻는다.
+"""
 from __future__ import annotations
 
 from typing import Dict, List, Sequence, Tuple
