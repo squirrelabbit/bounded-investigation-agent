@@ -252,8 +252,11 @@ def _snap_share_boundary(candidate: Fraction) -> Fraction:
     return candidate
 
 
-def additive_breakdown(current, baseline, universe, column,
-                       dimensions, rank_by) -> Dict[str, object]:
+def additive_breakdown(current: Dict[Tuple[str, ...], Dict[str, int]],
+                       baseline: Dict[Tuple[str, ...], Dict[str, int]],
+                       universe: Sequence[Tuple[str, ...]], column: str,
+                       dimensions: Sequence[str],
+                       rank_by: str) -> Dict[str, object]:
     groups: Dict[str, Dict[str, object]] = {}
     entries: List[Tuple[Tuple[str, ...], Dict[str, Optional[Fraction]]]] = []
     gross = Fraction(0)
@@ -281,8 +284,11 @@ def additive_breakdown(current, baseline, universe, column,
     }
 
 
-def ratio_breakdown(current, baseline, universe, numerator, denominator,
-                    dimensions, rank_by) -> Dict[str, object]:
+def ratio_breakdown(current: Dict[Tuple[str, ...], Dict[str, int]],
+                    baseline: Dict[Tuple[str, ...], Dict[str, int]],
+                    universe: Sequence[Tuple[str, ...]], numerator: str,
+                    denominator: str, dimensions: Sequence[str],
+                    rank_by: str) -> Dict[str, object]:
     """spec 의 분해 수식을 Fraction 으로 다시 진술한다."""
     d0 = Fraction(sum(c[denominator] for c in baseline.values()))
     d1 = Fraction(sum(c[denominator] for c in current.values()))

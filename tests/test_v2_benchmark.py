@@ -34,6 +34,28 @@ with open(os.path.join(V2_ROOT, "oracle.json"), encoding="utf-8") as _handle:
 
 PLACES = 9
 
+# 검사 루프가 oracle 자신의 키를 순회하면 oracle 이 내보내지 않은 항목은 조용히
+# 검사에서 빠진다 — 적게 내보내는 회귀가 통과한다. 기대하는 키 집합을 여기 적어 두고
+# oracle 산출이 그 집합을 담고 있는지 먼저 단언한다.
+EXPECTED_FLAGS = frozenset((
+    "decomposition_complete", "composition_dominant", "simpson_strict",
+    "heavy_cancellation", "suppress_top_contributor"))
+EXPECTED_TOTALS = {
+    "additive": frozenset(("gross_movement",)),
+    "ratio": frozenset(("total_rate_effect", "total_mix_effect",
+                        "entry_exit_effect", "gross_movement")),
+}
+# 비교 불가 그룹에는 rate/mix 가 없다(production 이 None 으로 두는 자리다).
+EXPECTED_GROUP_FIELDS = {
+    ("additive", True): frozenset(("expect_net_contribution", "expect_comparable",
+                                   "expect_group_delta")),
+    ("ratio", True): frozenset(("expect_net_contribution", "expect_comparable",
+                                "expect_rate_effect", "expect_mix_effect",
+                                "expect_contribution_share")),
+    ("ratio", False): frozenset(("expect_net_contribution", "expect_comparable",
+                                 "expect_contribution_share")),
+}
+
 
 def _label(breakdown, group_key):
     return "|".join(group_key[d] for d in breakdown.dimensions)
@@ -406,15 +428,39 @@ class BenchmarkTests(unittest.TestCase):
                     expected["expect_omitted_observed_cells"][name], name)
                 continue
             self.assertEqual(breakdown.status, STATUS_OK, name)
-            self._check_breakdown(case, name, breakdown, expected["breakdowns"][name])
+            self._check_breakdown(case, name, breakdown,
+                                  expected["breakdowns"][name], expected["kind"])
         self.assertEqual(sorted(seen),
                          sorted(list(expected["breakdowns"])
                                 + expected["expect_omitted_breakdowns"]))
 
-    def _check_breakdown(self, case, name, breakdown, want):
+    def _check_breakdown(self, case, name, breakdown, want, kind):
         where = "%s %s" % (case.case_id, name)
         self.assertEqual(len(breakdown.groups), len(want["groups"]), where)
+        self._assert_oracle_is_complete(where, want, kind)
+        self._compare_breakdown(case, name, breakdown, want)
 
+    def _assert_oracle_is_complete(self, where, want, kind):
+        """oracle 이 기대 키를 **전부** 내보냈는지 먼저 본다.
+
+        아래의 대조 루프들은 oracle 의 키를 순회한다. oracle 이 어떤 total 이나 flag 를
+        빼먹으면 그 항목은 검사에서 조용히 사라지고, 벤치마크는 줄어든 산출을 통과시킨다.
+        기대 집합은 테스트 쪽에 적혀 있으므로 oracle 과 같이 줄어들지 않는다.
+        """
+        self.assertEqual(frozenset(want["expect_flags"]), EXPECTED_FLAGS, where)
+        self.assertEqual(frozenset(want["expect_totals"]), EXPECTED_TOTALS[kind],
+                         where)
+        self.assertIn("expect_ranking", want, where)
+        self.assertEqual(sorted(want["expect_ranking"]), sorted(want["groups"]),
+                         where)
+        for label, entry in want["groups"].items():
+            self.assertEqual(
+                frozenset(entry),
+                EXPECTED_GROUP_FIELDS[(kind, bool(entry.get("expect_comparable")))],
+                "%s %s" % (where, label))
+
+    def _compare_breakdown(self, case, name, breakdown, want):
+        where = "%s %s" % (case.case_id, name)
         for key, value in want["expect_totals"].items():
             self.assertAlmostEqual(breakdown.totals[key], value, places=PLACES,
                                    msg="%s %s" % (where, key))
