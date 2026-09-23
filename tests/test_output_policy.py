@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from bia.analysis.decompose import decompose_ratio
+from bia.analysis.decompose import CANCELLATION_THRESHOLD, SHARE_EPSILON, decompose_ratio
 
 
 def run(current, baseline, total_current, total_baseline):
@@ -56,3 +56,48 @@ class NearZeroTests(unittest.TestCase):
                                       {"n": 10001, "d": 200000},
                                       {"n": 10001, "d": 200000})
         self.assertTrue(flags["suppress_top_contributor"])
+
+
+class CancellationThresholdBoundaryTests(unittest.TestCase):
+    """CANCELLATION_THRESHOLD = 0.20 의 양쪽. gross 는 두 경우 모두 0.2 로 고정하고
+    |delta_r| 만 0.038(비율 0.19) 과 0.042(비율 0.21) 로 갈라 경계를 사이에 둔다.
+    CANCELLATION_THRESHOLD 상수 자체는 건드리지 않는다."""
+
+    def test_ratio_just_below_threshold_is_heavy_cancellation(self):
+        # A: +0.119, B: -0.081 -> gross=0.2, delta_r=0.038, ratio=0.19 (< 0.20)
+        current = {("A",): {"n": 219, "d": 500}, ("B",): {"n": 19, "d": 500}}
+        baseline = {("A",): {"n": 100, "d": 500}, ("B",): {"n": 100, "d": 500}}
+        _groups, _totals, flags = run(current, baseline,
+                                      {"n": 238, "d": 1000}, {"n": 200, "d": 1000})
+        self.assertTrue(flags["heavy_cancellation"])
+
+    def test_ratio_just_above_threshold_is_not_heavy_cancellation(self):
+        # A: +0.121, B: -0.079 -> gross=0.2, delta_r=0.042, ratio=0.21 (>= 0.20)
+        current = {("A",): {"n": 221, "d": 500}, ("B",): {"n": 21, "d": 500}}
+        baseline = {("A",): {"n": 100, "d": 500}, ("B",): {"n": 100, "d": 500}}
+        _groups, _totals, flags = run(current, baseline,
+                                      {"n": 242, "d": 1000}, {"n": 200, "d": 1000})
+        self.assertFalse(flags["heavy_cancellation"])
+
+
+class ShareEpsilonBoundaryTests(unittest.TestCase):
+    """SHARE_EPSILON = 0.0001 의 양쪽. 그룹을 하나만 둬 gross == |delta_r| 이 되게
+    만들어(ratio 는 항상 1.0) heavy_cancellation 이 절대 끼어들지 못하게 하고
+    delta_r 자체를 임계값 바로 아래/위로 둔다. SHARE_EPSILON 상수는 건드리지 않는다."""
+
+    def test_delta_just_below_epsilon_suppresses(self):
+        current = {("A",): {"n": 5000900, "d": 10000000}}
+        baseline = {("A",): {"n": 5000000, "d": 10000000}}
+        _groups, _totals, flags = run(current, baseline,
+                                      {"n": 5000900, "d": 10000000},
+                                      {"n": 5000000, "d": 10000000})
+        self.assertTrue(flags["suppress_top_contributor"])
+
+    def test_delta_just_above_epsilon_does_not_suppress(self):
+        current = {("A",): {"n": 5001100, "d": 10000000}}
+        baseline = {("A",): {"n": 5000000, "d": 10000000}}
+        groups, _totals, flags = run(current, baseline,
+                                     {"n": 5001100, "d": 10000000},
+                                     {"n": 5000000, "d": 10000000})
+        self.assertFalse(flags["suppress_top_contributor"])
+        self.assertAlmostEqual(groups[0].contribution_share, 1.0, places=9)
