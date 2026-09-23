@@ -5,7 +5,8 @@ from typing import Dict, List, Sequence, Tuple
 
 from ..integrity import dedupe_observations
 from .compiler import ExecutionPlan, PlanBranch
-from .decompose import decompose_ratio
+from .decompose import (CANCELLATION_THRESHOLD, GROSS_EPSILON, SHARE_EPSILON,
+                        decompose_ratio)
 from .errors import AnalysisRefused
 from .frame import Observation
 from .operators import CROSS_CELL_LIMIT, aggregate, compare, group_universe, rank
@@ -94,11 +95,26 @@ def _additive_branch(plan, branch, current, baseline, universe) -> BreakdownResu
             net_contribution=float(delta), group_delta=delta, comparable=True,
         ))
 
+    net_delta = sum(g.net_contribution for g in groups)
+    gross = sum(abs(g.net_contribution) for g in groups)
+    # 상쇄는 합 metric 에도 그대로 일어난다. +100 과 -100 으로 Δ=0 인 분해는
+    # 교과서적 상쇄인데, 전에는 이 자리가 `heavy_cancellation: False` 를 무조건
+    # 실어 보내 "검사했고 아니다" 라는 거짓 신호를 냈다. 판정 규칙은 비율 분기와
+    # 같다 — gross 대비 |Δ| 비율, 그리고 `SHARE_EPSILON` 하한.
+    heavy_cancellation = (
+        gross > GROSS_EPSILON and abs(net_delta) / gross < CANCELLATION_THRESHOLD
+    )
+
     out = BreakdownResult(dimensions=branch.dimensions, cross=branch.cross, groups=groups)
-    out.totals = {"gross_movement": sum(abs(g.net_contribution) for g in groups)}
-    out.flags = {"decomposition_complete": True, "composition_dominant": False,
-                 "simpson_strict": False, "heavy_cancellation": False,
-                 "suppress_top_contributor": False}
+    out.totals = {"gross_movement": gross}
+    # `composition_dominant` 와 `simpson_strict` 는 rate/mix 분해가 있어야 정의되는
+    # 비율 전용 개념이다. 합 metric 에는 그 분해 자체가 없으므로 **키를 싣지 않는다.**
+    # `False` 로 적는 것은 검사했다는 거짓 신호다. 합 분해는 그룹이 전부 comparable
+    # 이고 진입/이탈 잔차가 없으므로 `decomposition_complete` 는 항상 참이다.
+    out.flags = {"decomposition_complete": True,
+                 "heavy_cancellation": heavy_cancellation,
+                 "suppress_top_contributor": (heavy_cancellation
+                                              or abs(net_delta) <= SHARE_EPSILON)}
     if branch.dimensions:
         out.ranking = rank(groups, plan.rank_by)
     return out

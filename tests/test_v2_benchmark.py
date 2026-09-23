@@ -37,9 +37,17 @@ PLACES = 9
 # 검사 루프가 oracle 자신의 키를 순회하면 oracle 이 내보내지 않은 항목은 조용히
 # 검사에서 빠진다 — 적게 내보내는 회귀가 통과한다. 기대하는 키 집합을 여기 적어 두고
 # oracle 산출이 그 집합을 담고 있는지 먼저 단언한다.
-EXPECTED_FLAGS = frozenset((
-    "decomposition_complete", "composition_dominant", "simpson_strict",
-    "heavy_cancellation", "suppress_top_contributor"))
+# 기대 집합은 kind 에 따라 갈린다. `composition_dominant` 와 `simpson_strict` 는
+# rate/mix 분해가 있어야 정의되는 비율 전용 개념이라 합 분해에는 **없어야** 한다 —
+# False 로 실려 있으면 "검사했고 아니다" 라는 거짓 신호다.
+RATIO_ONLY_FLAGS = frozenset(("composition_dominant", "simpson_strict"))
+EXPECTED_FLAGS = {
+    "additive": frozenset(("decomposition_complete", "heavy_cancellation",
+                           "suppress_top_contributor")),
+    "ratio": frozenset(("decomposition_complete", "composition_dominant",
+                        "simpson_strict", "heavy_cancellation",
+                        "suppress_top_contributor")),
+}
 EXPECTED_TOTALS = {
     "additive": frozenset(("gross_movement",)),
     "ratio": frozenset(("total_rate_effect", "total_mix_effect",
@@ -170,8 +178,10 @@ class FlagImplicationTests(unittest.TestCase):
     역은 성립하지 않는다 — rate 부호가 섞이면 simpson 만 거짓이 된다.
     """
 
-    def _breakdowns(self):
+    def _breakdowns(self, kind="ratio"):
         for case_id, entry in sorted(ORACLE["cases"].items()):
+            if kind is not None and entry.get("kind") != kind:
+                continue
             for name, breakdown in sorted(entry.get("breakdowns", {}).items()):
                 yield case_id, name, breakdown
 
@@ -207,6 +217,34 @@ class FlagImplicationTests(unittest.TestCase):
             witnesses,
             "composition_dominant 만 참인 사례가 없어 함의가 동치처럼 보인다")
 
+    def test_additive_breakdowns_never_carry_the_ratio_only_flags(self):
+        """합 분해는 두 플래그를 **부재**로 말해야 한다. oracle 과 엔진 양쪽에서 본다."""
+        oracle_seen = []
+        for case_id, name, breakdown in self._breakdowns(kind="additive"):
+            oracle_seen.append("%s/%s" % (case_id, name))
+            self.assertFalse(
+                RATIO_ONLY_FLAGS & frozenset(breakdown["expect_flags"]),
+                "%s/%s: oracle 이 비율 전용 플래그를 합 분해에 실었다"
+                % (case_id, name))
+        self.assertTrue(oracle_seen, "합 분해가 하나도 없다 — 검사가 공허하다")
+
+        engine_seen = []
+        for case in CASES:
+            if case.expect_refused or ORACLE["cases"][case.case_id]["kind"] != "additive":
+                continue
+            for breakdown in _run_engine(case).breakdowns:
+                if breakdown.status != STATUS_OK:
+                    continue
+                engine_seen.append(case.case_id)
+                self.assertFalse(
+                    RATIO_ONLY_FLAGS & frozenset(breakdown.flags),
+                    "%s/%s: 엔진이 비율 전용 플래그를 합 분해에 실었다"
+                    % (case.case_id, ",".join(breakdown.dimensions)))
+                self.assertEqual(
+                    frozenset(breakdown.flags), EXPECTED_FLAGS["additive"],
+                    "%s/%s" % (case.case_id, ",".join(breakdown.dimensions)))
+        self.assertTrue(engine_seen, "엔진 산출에 합 분해가 하나도 없다")
+
     def test_the_engine_flags_satisfy_the_same_implication(self):
         """oracle 플래그만 보면 oracle 의 정리를 확인할 뿐이다.
 
@@ -222,7 +260,7 @@ class FlagImplicationTests(unittest.TestCase):
                 if breakdown.status != STATUS_OK or not breakdown.dimensions:
                     continue
                 name = ",".join(breakdown.dimensions)
-                if not breakdown.flags["simpson_strict"]:
+                if not breakdown.flags.get("simpson_strict"):
                     continue
                 witnesses.append("%s/%s" % (case.case_id, name))
                 self.assertTrue(
@@ -447,7 +485,7 @@ class BenchmarkTests(unittest.TestCase):
         빼먹으면 그 항목은 검사에서 조용히 사라지고, 벤치마크는 줄어든 산출을 통과시킨다.
         기대 집합은 테스트 쪽에 적혀 있으므로 oracle 과 같이 줄어들지 않는다.
         """
-        self.assertEqual(frozenset(want["expect_flags"]), EXPECTED_FLAGS, where)
+        self.assertEqual(frozenset(want["expect_flags"]), EXPECTED_FLAGS[kind], where)
         self.assertEqual(frozenset(want["expect_totals"]), EXPECTED_TOTALS[kind],
                          where)
         self.assertIn("expect_ranking", want, where)

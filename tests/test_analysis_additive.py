@@ -88,3 +88,56 @@ class ZeroBaselineTests(unittest.TestCase):
         result = run_plan(plan(), data)
         self.assertEqual(result.comparison["delta"], 14)
         self.assertIsNone(result.comparison["relative_change"])
+
+
+class AdditiveCancellationFlagTests(unittest.TestCase):
+    """합 metric 의 상쇄 판정. 전에는 이 자리가 무조건 False 를 실어 보냈다.
+
+    비율 전용 개념인 `composition_dominant`·`simpson_strict` 는 여기 **없어야**
+    한다 — 합 분해에는 rate/mix 분해 자체가 없으므로 False 로 적는 것은
+    "검사했고 아니다" 라는 거짓 신호다.
+    """
+
+    RATIO_ONLY = ("composition_dominant", "simpson_strict")
+
+    def _flags(self, data):
+        return run_plan(plan(), data).breakdowns[1].flags
+
+    def test_a_textbook_cancellation_is_flagged(self):
+        """+100 과 -100 으로 Δ=0 인 분해다. gross=200, |Δ|/gross=0."""
+        data = [obs(day, "paid", 0) for day in BASE.dates()]
+        data += [obs(day, "organic", 50) for day in BASE.dates()]
+        data += [obs(day, "paid", 50) for day in CUR.dates()]
+        data += [obs(day, "organic", 0) for day in CUR.dates()]
+        flags = self._flags(data)
+        self.assertEqual(flags["heavy_cancellation"], True)
+        self.assertEqual(flags["suppress_top_contributor"], True)
+        self.assertEqual(flags["decomposition_complete"], True)
+
+    def test_a_clean_move_is_not_flagged(self):
+        """paid 만 +20, organic 은 그대로. gross=20, |Δ|/gross=1.0."""
+        flags = self._flags(rows())
+        self.assertEqual(flags["heavy_cancellation"], False)
+        self.assertEqual(flags["suppress_top_contributor"], False)
+
+    def test_the_threshold_is_the_same_one_the_ratio_branch_uses(self):
+        """|Δ|/gross 가 0.20 바로 아래면 heavy, 바로 위면 아니다.
+
+        baseline paid 100 / organic 0, current paid 0 / organic X 로 두면
+        gross = 100 + X, |Δ| = |X - 100| 이다. X=140 이면 40/240=0.167 (<0.20),
+        X=250 이면 150/350=0.429 (>0.20).
+        """
+        def data_for(x):
+            out = [obs(day, "paid", 50) for day in BASE.dates()]
+            out += [obs(day, "organic", 0) for day in BASE.dates()]
+            out += [obs(day, "paid", 0) for day in CUR.dates()]
+            out += [obs(day, "organic", x // 2) for day in CUR.dates()]
+            return out
+
+        self.assertTrue(self._flags(data_for(140))["heavy_cancellation"])
+        self.assertFalse(self._flags(data_for(250))["heavy_cancellation"])
+
+    def test_the_ratio_only_flags_are_absent(self):
+        for flags in (self._flags(rows()),):
+            for name in self.RATIO_ONLY:
+                self.assertNotIn(name, flags)

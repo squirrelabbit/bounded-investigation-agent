@@ -713,10 +713,8 @@
             "channel"
           ],
           "expect_flags": {
-            "composition_dominant": false,
             "decomposition_complete": true,
             "heavy_cancellation": false,
-            "simpson_strict": false,
             "suppress_top_contributor": false
           },
           "expect_ranking": [
@@ -814,11 +812,9 @@
             "category"
           ],
           "expect_flags": {
-            "composition_dominant": false,
             "decomposition_complete": true,
-            "heavy_cancellation": false,
-            "simpson_strict": false,
-            "suppress_top_contributor": false
+            "heavy_cancellation": true,
+            "suppress_top_contributor": true
           },
           "expect_ranking": [
             "ct3",
@@ -864,11 +860,9 @@
             "channel"
           ],
           "expect_flags": {
-            "composition_dominant": false,
             "decomposition_complete": true,
-            "heavy_cancellation": false,
-            "simpson_strict": false,
-            "suppress_top_contributor": false
+            "heavy_cancellation": true,
+            "suppress_top_contributor": true
           },
           "expect_ranking": [
             "ch03",
@@ -1040,11 +1034,9 @@
             "device"
           ],
           "expect_flags": {
-            "composition_dominant": false,
             "decomposition_complete": true,
-            "heavy_cancellation": false,
-            "simpson_strict": false,
-            "suppress_top_contributor": false
+            "heavy_cancellation": true,
+            "suppress_top_contributor": true
           },
           "expect_ranking": [
             "dv3",
@@ -1254,10 +1246,8 @@
             "complaint_type"
           ],
           "expect_flags": {
-            "composition_dominant": false,
             "decomposition_complete": true,
             "heavy_cancellation": false,
-            "simpson_strict": false,
             "suppress_top_contributor": false
           },
           "expect_ranking": [
@@ -1304,10 +1294,8 @@
             "product"
           ],
           "expect_flags": {
-            "composition_dominant": false,
             "decomposition_complete": true,
             "heavy_cancellation": false,
-            "simpson_strict": false,
             "suppress_top_contributor": false
           },
           "expect_ranking": [
@@ -1349,10 +1337,8 @@
             "complaint_type"
           ],
           "expect_flags": {
-            "composition_dominant": false,
             "decomposition_complete": true,
             "heavy_cancellation": false,
-            "simpson_strict": false,
             "suppress_top_contributor": false
           },
           "expect_ranking": [
@@ -1527,10 +1513,8 @@
             "category"
           ],
           "expect_flags": {
-            "composition_dominant": false,
             "decomposition_complete": true,
             "heavy_cancellation": false,
-            "simpson_strict": false,
             "suppress_top_contributor": false
           },
           "expect_ranking": [
@@ -1884,11 +1868,9 @@
             "priority"
           ],
           "expect_flags": {
-            "composition_dominant": false,
             "decomposition_complete": true,
-            "heavy_cancellation": false,
-            "simpson_strict": false,
-            "suppress_top_contributor": false
+            "heavy_cancellation": true,
+            "suppress_top_contributor": true
           },
           "expect_ranking": [
             "urgent",
@@ -1962,11 +1944,9 @@
             "channel"
           ],
           "expect_flags": {
-            "composition_dominant": false,
             "decomposition_complete": true,
-            "heavy_cancellation": false,
-            "simpson_strict": false,
-            "suppress_top_contributor": false
+            "heavy_cancellation": true,
+            "suppress_top_contributor": true
           },
           "expect_ranking": [
             "ch001",
@@ -2583,11 +2563,9 @@
             "device"
           ],
           "expect_flags": {
-            "composition_dominant": false,
             "decomposition_complete": true,
-            "heavy_cancellation": false,
-            "simpson_strict": false,
-            "suppress_top_contributor": false
+            "heavy_cancellation": true,
+            "suppress_top_contributor": true
           },
           "expect_ranking": [
             "ch001|dv003",
@@ -8603,11 +8581,9 @@
             "device"
           ],
           "expect_flags": {
-            "composition_dominant": false,
             "decomposition_complete": true,
-            "heavy_cancellation": false,
-            "simpson_strict": false,
-            "suppress_top_contributor": false
+            "heavy_cancellation": true,
+            "suppress_top_contributor": true
           },
           "expect_ranking": [
             "dv003",
@@ -8718,11 +8694,9 @@
             "channel"
           ],
           "expect_flags": {
-            "composition_dominant": false,
             "decomposition_complete": true,
-            "heavy_cancellation": false,
-            "simpson_strict": false,
-            "suppress_top_contributor": false
+            "heavy_cancellation": true,
+            "suppress_top_contributor": true
           },
           "expect_ranking": [
             "ch011",
@@ -9284,11 +9258,9 @@
             "device"
           ],
           "expect_flags": {
-            "composition_dominant": false,
             "decomposition_complete": true,
-            "heavy_cancellation": false,
-            "simpson_strict": false,
-            "suppress_top_contributor": false
+            "heavy_cancellation": true,
+            "suppress_top_contributor": true
           },
           "expect_ranking": [
             "dv003",

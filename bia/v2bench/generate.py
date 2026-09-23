@@ -260,6 +260,7 @@ def additive_breakdown(current: Dict[Tuple[str, ...], Dict[str, int]],
     groups: Dict[str, Dict[str, object]] = {}
     entries: List[Tuple[Tuple[str, ...], Dict[str, Optional[Fraction]]]] = []
     gross = Fraction(0)
+    total = Fraction(0)
     for key in universe:
         delta = Fraction(current.get(key, {}).get(column, 0)
                          - baseline.get(key, {}).get(column, 0))
@@ -271,14 +272,34 @@ def additive_breakdown(current: Dict[Tuple[str, ...], Dict[str, int]],
         # additive 그룹에는 rate/mix 가 없다. 그 키로 정렬을 요구하면 _rank 가 멈춘다.
         entries.append((key, {"net_contribution": delta, "group_delta": delta}))
         gross += abs(delta)
+        total += delta
+
+    # 상쇄·억제 규칙의 독립 재진술. 엔진을 보고 맞춘 것이 아니라 같은 정의를
+    # 여기서 다시 쓴 것이다 — gross 대비 |Δ| 비율이 CANCELLATION_THRESHOLD 미만이면
+    # heavy, heavy 이거나 |Δ| 가 SHARE_EPSILON 이하이면 top contributor 를 억제한다.
+    # 합 분해에는 진입/이탈이 없어(모든 그룹이 comparable) decomposition_complete 가
+    # 항상 참이므로 억제 조건의 나머지 한 항은 여기서 공허하다.
+    #
+    # `composition_dominant` 와 `simpson_strict` 는 rate/mix 분해가 있어야 정의되므로
+    # 합 분해의 기대 flags 에 **넣지 않는다.** False 로 적으면 "검사했고 아니다" 라는
+    # 거짓 신호가 된다.
+    if 0 < gross <= GROSS_EPSILON + FLOAT_TOL:
+        raise OracleError(
+            "gross_movement=%s 가 0 과 %s 사이다. oracle 은 heavy_cancellation 을 "
+            "계산하고 엔진은 건너뛴다." % (gross, GROSS_EPSILON + FLOAT_TOL))
+    if gross > 0:
+        _reject_boundary_band(abs(total) / gross, CANCELLATION_THRESHOLD,
+                              "|delta|/gross_movement")
+    _reject_boundary_band(abs(total), SHARE_EPSILON, "|delta|")
+    heavy = gross > 0 and abs(total) / gross < CANCELLATION_THRESHOLD
+    suppress = heavy or abs(total) <= SHARE_EPSILON
+
     return {
         "_exact_totals": {"gross_movement": gross},
         "expect_totals": {"gross_movement": float(gross)},
         "expect_flags": {"decomposition_complete": True,
-                         "composition_dominant": False,
-                         "simpson_strict": False,
-                         "heavy_cancellation": False,
-                         "suppress_top_contributor": False},
+                         "heavy_cancellation": heavy,
+                         "suppress_top_contributor": suppress},
         "expect_ranking": _rank(entries, dimensions, rank_by),
         "groups": groups,
     }
