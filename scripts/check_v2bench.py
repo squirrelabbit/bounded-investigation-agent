@@ -151,12 +151,16 @@ def main():
             close(total, entry["expect_delta"], "%s %s partition" % (case_id, name))
             checks += 1
 
+        recorded_omitted = entry["expect_omitted_observed_cells"]
+        assert sorted(recorded_omitted) == entry["expect_omitted_breakdowns"], case_id
+        checks += 1
         for name in entry["expect_omitted_breakdowns"]:
             dimensions = name.split(",")
             universe = set(cells(cur_rows, dimensions, columns))
             universe |= set(cells(base_rows, dimensions, columns))
             assert len(universe) > CROSS_CELL_LIMIT, "%s %s" % (case_id, name)
-            checks += 1
+            assert len(universe) == recorded_omitted[name], "%s %s" % (case_id, name)
+            checks += 2
 
     print("checks run: %d" % checks)
     print("ALL CHECKS PASSED")

@@ -5,8 +5,10 @@ import ast
 import dataclasses
 import json
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 import unittest
 from fractions import Fraction
 
@@ -36,19 +38,59 @@ def _label(breakdown, group_key):
     return "|".join(group_key[d] for d in breakdown.dimensions)
 
 
+def _request(case):
+    return AnalysisRequest(
+        domain=case.domain, metric=case.metric, breakdowns=case.breakdowns,
+        comparison=PeriodComparison(current=Period.of(*case.current),
+                                    baseline=Period.of(*case.baseline)),
+        rank_by=case.rank_by,
+    )
+
+
+def _run_engine(case):
+    """사례를 디스크의 CSV 에서 끝까지 실행한다. 거부 사례에는 쓰지 않는다."""
+    spec = get_domain(case.domain)
+    metric = spec.metrics[case.metric]
+    plan = compile_request(_request(case))
+    rows = load_observations(
+        os.path.join(V2_ROOT, case.case_id, "metrics.csv"), spec, metric.columns)
+    return run_plan(plan, rows)
+
+
 class BenchmarkInventoryTests(unittest.TestCase):
+    # 현재 사례 수. 사례를 **의도적으로** 늘릴 때만 이 숫자를 함께 올린다.
+    # 부등식(`>= 18`)으로 두면 사례가 조용히 사라지는 것을 못 잡는다 —
+    # `generate.py` 의 `case_count` 가 `len(CASES)` 라서 비교 양변이 같은 소스에서
+    # 나오고, 사례를 지우고 재생성하면 양쪽이 같이 줄어 통과한다.
+    EXPECTED_CASE_COUNT = 26
+
     def test_cases_have_unique_ids_and_match_the_oracle(self):
         ids = [case.case_id for case in CASES]
         self.assertEqual(len(set(ids)), len(ids))
-        # 18 은 계획의 목표치다. 사례는 늘어날 수 있어도 줄어들면 안 된다.
-        self.assertGreaterEqual(len(ids), 18)
+        self.assertEqual(len(ids), self.EXPECTED_CASE_COUNT)
         self.assertEqual(sorted(ORACLE["cases"]), sorted(ids))
         self.assertEqual(ORACLE["case_count"], len(ids))
 
-    def test_every_case_has_a_hand_checked_note(self):
+    def test_every_case_has_its_own_hand_checked_note(self):
+        """`notes` 는 사례의 손 검산 기록이다. 비어있지 않다는 것만으로는 부족하다.
+
+        실제로 틀릴 수 있는 것 둘을 본다 — 검산이 아니라 자리표시자를 넣는 것,
+        그리고 새 사례를 만들 때 남의 notes 를 복사하고 숫자를 안 고치는 것.
+        """
+        seen = {}
         for case in CASES:
             with self.subTest(case=case.case_id):
-                self.assertTrue(case.notes.strip(), case.case_id)
+                note = case.notes.strip()
+                self.assertGreaterEqual(len(note), 40, case.case_id)
+                if not case.expect_refused:
+                    # 거부 사례에는 검산할 수치가 없다. 값을 내는 사례에는 있다.
+                    self.assertTrue(any(ch.isdigit() for ch in note),
+                                    "%s: 숫자가 없는 notes 는 손 검산 기록이 아니다"
+                                    % case.case_id)
+                self.assertNotIn(note, seen,
+                                 "%s 의 notes 가 %s 와 똑같다"
+                                 % (case.case_id, seen.get(note)))
+                seen[note] = case.case_id
 
 
 class OracleIndependenceTests(unittest.TestCase):
@@ -142,9 +184,39 @@ class FlagImplicationTests(unittest.TestCase):
             witnesses,
             "composition_dominant 만 참인 사례가 없어 함의가 동치처럼 보인다")
 
+    def test_the_engine_flags_satisfy_the_same_implication(self):
+        """oracle 플래그만 보면 oracle 의 정리를 확인할 뿐이다.
+
+        함의는 `decompose.py` 의 정의에서 따라 나오는 것이므로 **엔진이 낸**
+        플래그에서도 성립해야 한다. 여기서 도는 것은 실제 실행 결과다.
+        """
+        witnesses = []
+        for case in CASES:
+            if case.expect_refused:
+                continue
+            result = _run_engine(case)
+            for breakdown in result.breakdowns:
+                if breakdown.status != STATUS_OK or not breakdown.dimensions:
+                    continue
+                name = ",".join(breakdown.dimensions)
+                if not breakdown.flags["simpson_strict"]:
+                    continue
+                witnesses.append("%s/%s" % (case.case_id, name))
+                self.assertTrue(
+                    breakdown.flags["composition_dominant"],
+                    "%s/%s: 엔진이 simpson_strict 만 참으로 냈다"
+                    % (case.case_id, name))
+        self.assertTrue(witnesses,
+                        "엔진 산출에 simpson_strict 인 분해가 하나도 없다 — "
+                        "함의가 공허하다")
+
 
 class OracleFailClosedTests(unittest.TestCase):
     """oracle 이 모르는 것을 만나면 답을 내지 말고 멈춰야 한다."""
+
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp(prefix="v2bench-")
+        self.addCleanup(shutil.rmtree, self.tmpdir)
 
     def test_oracle_error_is_not_an_assertion_error(self):
         # 호출자의 `except AssertionError` 가 계약 위반을 삼키면 안 된다.
@@ -197,6 +269,52 @@ class OracleFailClosedTests(unittest.TestCase):
         self.assertEqual(generate._sign(outside, "probe"), 1)
         self.assertEqual(generate._sign(Fraction(0), "probe"), 0)
 
+    def test_conflicting_rows_in_a_non_refused_case_stop_the_oracle(self):
+        # `dedupe` 의 충돌 가드는 현재 사례로는 발동하지 않는다 — 충돌 사례(C12)가
+        # 곧 거부 사례이기 때문이다. 발동하는 입력을 만들어 확인한다.
+        case = dataclasses.replace(CASES_BY_ID["C12"], expect_refused=None)
+        with self.assertRaises(generate.OracleError) as caught:
+            generate.case_oracle(case)
+        self.assertIn("충돌", str(caught.exception))
+
+    def test_a_source_csv_with_a_wrong_header_stops_the_oracle(self):
+        path = os.path.join(self.tmpdir, "wrong.csv")
+        with open(path, "w", encoding="utf-8", newline="") as handle:
+            handle.write("day,product,count\n2026-06-01,a,1\n")
+        case = dataclasses.replace(CASES_BY_ID["C16"], source_csv=path)
+        with self.assertRaises(generate.OracleError) as caught:
+            generate.case_rows(case)
+        self.assertIn("complaint_type", str(caught.exception))
+
+    def test_a_missing_source_csv_stops_the_oracle(self):
+        case = dataclasses.replace(CASES_BY_ID["C16"],
+                                   source_csv="data/scenarios/S404/metrics.csv")
+        with self.assertRaises(generate.OracleError) as caught:
+            generate.case_rows(case)
+        self.assertIn("source_csv", str(caught.exception))
+
+    def test_a_boolean_golden_that_is_not_a_flag_stops_the_oracle(self):
+        case = dataclasses.replace(CASES_BY_ID["C02"], golden={"not_a_flag": True})
+        entry = {"breakdowns": {"channel": {"expect_flags": {}}}}
+        with self.assertRaises(generate.OracleError) as caught:
+            generate._apply_golden(case, entry, {"not_a_flag": True})
+        self.assertIn("not_a_flag", str(caught.exception))
+
+    def test_ranks_that_differ_inside_the_production_tolerance_stop_the_oracle(self):
+        # production 의 RANK 는 `|a-b| <= FLOAT_TOL` 을 동률로 보고 tie-break 을
+        # 쓴다. oracle 은 정확 비교라 값 순서를 쓴다. 그 띠 안의 차이는 두 판정을
+        # 가르므로 계산하지 않는다. 정확히 같은 값(진짜 동률)은 통과해야 한다.
+        inside = generate.FLOAT_TOL / 2
+        entries = [(("paid",), {"net_contribution": Fraction(0)}),
+                   (("organic",), {"net_contribution": inside})]
+        with self.assertRaises(generate.OracleError) as caught:
+            generate._rank(entries, ("channel",), "net_contribution")
+        self.assertIn("tolerance band", str(caught.exception))
+        tied = [(("paid",), {"net_contribution": Fraction(1, 40)}),
+                (("organic",), {"net_contribution": Fraction(1, 40)})]
+        self.assertEqual(generate._rank(tied, ("channel",), "net_contribution"),
+                         ["organic", "paid"])
+
     def test_a_numeric_golden_key_that_matches_nothing_stops_the_oracle(self):
         case = dataclasses.replace(CASES_BY_ID["C01"], golden={"bogus_total": 1})
         entry = {"breakdowns": {"channel": {"expect_totals": {}}}}
@@ -206,16 +324,6 @@ class OracleFailClosedTests(unittest.TestCase):
 
 
 class BenchmarkTests(unittest.TestCase):
-    def _request(self, case):
-        return AnalysisRequest(
-            domain=case.domain, metric=case.metric,
-            breakdowns=case.breakdowns,
-            comparison=PeriodComparison(
-                current=Period.of(*case.current),
-                baseline=Period.of(*case.baseline)),
-            rank_by=case.rank_by,
-        )
-
     def test_every_case_matches_its_oracle(self):
         for case in CASES:
             with self.subTest(case=case.case_id):
@@ -225,7 +333,7 @@ class BenchmarkTests(unittest.TestCase):
         expected = ORACLE["cases"][case.case_id]
         spec = get_domain(case.domain)
         metric = spec.metrics[case.metric]
-        request = self._request(case)
+        request = _request(case)
 
         if case.expect_refused and case.expect_refused[0] == "compile":
             with self.assertRaises(RequestError) as caught:
@@ -268,6 +376,11 @@ class BenchmarkTests(unittest.TestCase):
             if name in expected["expect_omitted_breakdowns"]:
                 self.assertEqual(breakdown.status, STATUS_OMITTED, name)
                 self.assertEqual(breakdown.reason, "cross_cell_limit_exceeded")
+                # "생략됐다" 만이 아니라 "몇 개를 보고 생략했는가" 까지 본다.
+                # 이 값이 없으면 한도를 잘못 세고도 생략만 맞으면 통과한다.
+                self.assertEqual(
+                    breakdown.observed_cells,
+                    expected["expect_omitted_observed_cells"][name], name)
                 continue
             self.assertEqual(breakdown.status, STATUS_OK, name)
             self._check_breakdown(case, name, breakdown, expected["breakdowns"][name])

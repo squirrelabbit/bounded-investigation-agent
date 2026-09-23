@@ -1,6 +1,6 @@
 {
   "cancellation_threshold": 0.2,
-  "case_count": 24,
+  "case_count": 26,
   "cases": {
     "C01": {
       "baseline": [
@@ -60,6 +60,7 @@
       "expect_current": 0.13333333333333333,
       "expect_delta": -0.016666666666666666,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": -0.1111111111111111,
       "golden": {
         "delta": -0.016666666666666666
@@ -136,6 +137,7 @@
       "expect_current": 0.16,
       "expect_delta": -0.04,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": -0.2,
       "golden": {
         "composition_dominant": true,
@@ -221,6 +223,7 @@
       "expect_current": 0.295,
       "expect_delta": -0.17166666666666666,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": -0.3678571428571429,
       "golden": {
         "composition_dominant": true,
@@ -296,6 +299,7 @@
       "expect_current": 0.12,
       "expect_delta": -0.08,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": -0.4,
       "golden": {
         "composition_dominant": false,
@@ -373,6 +377,7 @@
       "expect_current": 0.1,
       "expect_delta": -0.1,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": -0.5,
       "golden": {
         "decomposition_complete": false,
@@ -451,6 +456,7 @@
       "expect_current": 0.44,
       "expect_delta": -0.01,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": -0.022222222222222223,
       "golden": {
         "delta": -0.01,
@@ -528,6 +534,7 @@
       "expect_current": 0.50005,
       "expect_delta": 5e-05,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": 0.0001,
       "golden": {
         "delta": 5e-05
@@ -610,6 +617,7 @@
       "expect_current": 0.245,
       "expect_delta": -0.055,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": -0.18333333333333332,
       "golden": {
         "delta": -0.055,
@@ -742,6 +750,7 @@
       "expect_current": 400,
       "expect_delta": 100.0,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": 0.3333333333333333,
       "golden": {
         "delta": 100.0
@@ -1106,6 +1115,9 @@
       "expect_omitted_breakdowns": [
         "channel,device,category"
       ],
+      "expect_omitted_observed_cells": {
+        "channel,device,category": 1040
+      },
       "expect_relative_change": 3.7344088430801405e-05,
       "grain_dimensions": [
         "category",
@@ -1208,6 +1220,7 @@
       "expect_current": 0.2,
       "expect_delta": 0.05,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": 0.3333333333333333,
       "golden": {
         "delta": 0.05
@@ -1481,6 +1494,7 @@
       "expect_current": 1903,
       "expect_delta": 207.0,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": 0.12205188679245282,
       "golden": {
         "baseline": 1696.0,
@@ -1556,6 +1570,7 @@
       "expect_current": 450,
       "expect_delta": 150.0,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": 0.5,
       "golden": {
         "delta": 150.0
@@ -1631,6 +1646,7 @@
       "expect_current": 0.25,
       "expect_delta": 0.25,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": null,
       "golden": {
         "delta": 0.25
@@ -1833,6 +1849,7 @@
       "expect_current": 0.33,
       "expect_delta": 0.08,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": 0.32,
       "golden": {
         "delta": 0.08,
@@ -1910,6 +1927,7 @@
       "expect_current": 320,
       "expect_delta": 20.0,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": 0.06666666666666667,
       "golden": {
         "baseline": 300.0,
@@ -8670,6 +8688,7 @@
       "expect_current": 51500,
       "expect_delta": 3.0,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": 5.825582072742101e-05,
       "grain_dimensions": [
         "category",
@@ -9358,6 +9377,9 @@
       "expect_omitted_breakdowns": [
         "channel,device"
       ],
+      "expect_omitted_observed_cells": {
+        "channel,device": 1001
+      },
       "expect_relative_change": -0.001996007984031936,
       "grain_dimensions": [
         "category",
@@ -9438,6 +9460,7 @@
       "expect_current": 0.228,
       "expect_delta": -0.072,
       "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
       "expect_relative_change": -0.24,
       "golden": {
         "composition_dominant": true,
@@ -9457,6 +9480,172 @@
       "metric": "conversion_rate",
       "notes": "전체 90/300=0.30 → 114/500=0.228, delta=-0.072. 그룹 비율은 paid 0.50→0.60 (rate +2/75), organic 0.10→0.08 (rate -7/750), partner 0.30→0.30 (rate 0) 으로 부호가 섞여 있다. total_rate=13/750=+0.0173333 은 delta 와 부호가 반대라 composition_dominant 는 참이지만, comparable 의 rate 부호가 하나가 아니므로 simpson_strict 는 거짓이다. total_mix=-67/750, entry_exit=0. gross=76/750, |delta|/gross=54/76=0.711>0.20 이라 heavy 도 거짓.",
       "rank_by": "net_contribution"
+    },
+    "C25": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "breakdowns": {
+        "channel": {
+          "dimensions": [
+            "channel"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": true,
+            "heavy_cancellation": false,
+            "simpson_strict": false,
+            "suppress_top_contributor": false
+          },
+          "expect_ranking": [
+            "affiliate",
+            "partner"
+          ],
+          "expect_totals": {
+            "entry_exit_effect": 0.0,
+            "gross_movement": 0.05,
+            "total_mix_effect": 0.0,
+            "total_rate_effect": 0.05
+          },
+          "groups": {
+            "affiliate": {
+              "expect_comparable": true,
+              "expect_contribution_share": 0.5,
+              "expect_mix_effect": 0.0,
+              "expect_net_contribution": 0.025,
+              "expect_rate_effect": 0.025
+            },
+            "partner": {
+              "expect_comparable": true,
+              "expect_contribution_share": 0.5,
+              "expect_mix_effect": 0.0,
+              "expect_net_contribution": 0.025,
+              "expect_rate_effect": 0.025
+            }
+          },
+          "observed_cells": 2
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_baseline": 0.125,
+      "expect_current": 0.175,
+      "expect_delta": 0.05,
+      "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
+      "expect_relative_change": 0.4,
+      "golden": {
+        "delta": 0.05,
+        "entry_exit_effect": 0.0,
+        "gross_movement": 0.05
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "ratio",
+      "measure_columns": [
+        "orders",
+        "sessions"
+      ],
+      "metric": "conversion_rate",
+      "notes": "전체 25/200=0.125 → 70/400=0.175, delta=+0.05. 두 채널의 net_contribution 은 정확 산술로 **둘 다 1/40** 이다 (affiliate 50/400-20/200, partner 20/400-5/200). float 로는 affiliate 가 0.024999999999999994, partner 가 0.025 라 값 내림차순이면 partner 가 먼저 온다. 선언된 동률 규칙은 (차원명, 값) 오름차순이므로 affiliate 가 먼저여야 한다 — 기대 순서는 affiliate, partner 다. 이 사례는 `operators.rank()` 가 FLOAT_TOL 안의 차이를 동률로 보는지를 end-to-end 로 고정한다. 허용오차 없이 비교하던 옛 구현에서는 순서가 뒤집혀 실패한다. 양 기간 점유가 0.5 로 고정이라 mix=0, rate=net=1/40 씩이고 entry_exit=0, gross=0.05, |delta|/gross=1 이라 heavy 는 거짓이다. contribution_share 는 둘 다 0.5.",
+      "rank_by": "net_contribution"
+    },
+    "C26": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "breakdowns": {
+        "channel": {
+          "dimensions": [
+            "channel"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": true,
+            "heavy_cancellation": true,
+            "simpson_strict": false,
+            "suppress_top_contributor": true
+          },
+          "expect_ranking": [
+            "paid",
+            "partner",
+            "organic"
+          ],
+          "expect_totals": {
+            "entry_exit_effect": 0.0,
+            "gross_movement": 0.23666666666666666,
+            "total_mix_effect": -0.017777777777777778,
+            "total_rate_effect": 0.027777777777777776
+          },
+          "groups": {
+            "organic": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": -0.05333333333333334,
+              "expect_net_contribution": -0.05333333333333334,
+              "expect_rate_effect": 0.0
+            },
+            "paid": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": 0.06888888888888889,
+              "expect_net_contribution": 0.12333333333333334,
+              "expect_rate_effect": 0.05444444444444444
+            },
+            "partner": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": -0.03333333333333333,
+              "expect_net_contribution": -0.06,
+              "expect_rate_effect": -0.02666666666666667
+            }
+          },
+          "observed_cells": 3
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_baseline": 0.3,
+      "expect_current": 0.31,
+      "expect_delta": 0.01,
+      "expect_omitted_breakdowns": [],
+      "expect_omitted_observed_cells": {},
+      "expect_relative_change": 0.03333333333333333,
+      "golden": {
+        "delta": 0.01,
+        "entry_exit_effect": 0.0,
+        "total_mix_effect": -0.017777777777777778
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "ratio",
+      "measure_columns": [
+        "orders",
+        "sessions"
+      ],
+      "metric": "conversion_rate",
+      "notes": "전체 90/300=0.30 → 155/500=0.31, delta=+0.01. w0 는 셋 다 1/3, w1 은 3/5·1/5·1/5. paid rate=49/900 mix=31/450 net=37/300, organic rate=0 mix=-4/75 net=-4/75, partner rate=-2/75 mix=-1/30 net=-0.06. total_rate=1/36, total_mix=-4/225, entry_exit=0, 합=0.01 ✓. mix_effect 순서는 paid, partner, organic 이고 net_contribution 순서는 paid, organic, partner 로 **다르다** — rank_by 가 실제로 mix_effect 를 쓰는지 이 차이가 고정한다. gross=71/300, |delta|/gross=3/71=0.042<0.20 이라 heavy 는 참이다.",
+      "rank_by": "mix_effect"
     }
   },
   "cross_cell_limit": 1000,

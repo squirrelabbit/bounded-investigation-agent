@@ -2,7 +2,8 @@
 
 C01~C18 은 계획의 18 사례이고, C19~C24 는 수정 라운드 1 에서 닫은 커버리지
 공백(그룹 bounded 거부·비율×교차 분해·support_ops additive·교차 한도 경계·
-composition_dominant 와 simpson_strict 의 비동치)이다.
+composition_dominant 와 simpson_strict 의 비동치)이다. C25~C26 은 최종
+acceptance 라운드에서 더한 것이다(선언된 RANK 동률 규칙·`rank_by="mix_effect"`).
 
 모든 수치는 손으로 검산 가능한 작은 정수다. oracle 이 exact arithmetic 으로
 같은 값을 독립 계산할 수 있어야 하기 때문이다.
@@ -551,8 +552,62 @@ C24 = CaseSpec(
 )
 
 
+# C25 의도적인 동률 — 선언된 tie-break 이 float 표현 오차를 이긴다.
+C25 = CaseSpec(
+    case_id="C25", domain="ecommerce", metric="conversion_rate",
+    breakdowns=("channel",), rank_by="net_contribution",
+    baseline=B1, current=C1,
+    rows=(
+        _row("2026-06-01", "affiliate", "mobile", 100, 20),
+        _row("2026-06-01", "partner", "mobile", 100, 5),
+        _row("2026-07-01", "affiliate", "mobile", 200, 50),
+        _row("2026-07-01", "partner", "mobile", 200, 20),
+    ),
+    notes=("전체 25/200=0.125 → 70/400=0.175, delta=+0.05. 두 채널의 "
+           "net_contribution 은 정확 산술로 **둘 다 1/40** 이다 "
+           "(affiliate 50/400-20/200, partner 20/400-5/200). "
+           "float 로는 affiliate 가 0.024999999999999994, partner 가 0.025 라 "
+           "값 내림차순이면 partner 가 먼저 온다. 선언된 동률 규칙은 "
+           "(차원명, 값) 오름차순이므로 affiliate 가 먼저여야 한다 — "
+           "기대 순서는 affiliate, partner 다. "
+           "이 사례는 `operators.rank()` 가 FLOAT_TOL 안의 차이를 동률로 "
+           "보는지를 end-to-end 로 고정한다. 허용오차 없이 비교하던 옛 구현에서는 "
+           "순서가 뒤집혀 실패한다. "
+           "양 기간 점유가 0.5 로 고정이라 mix=0, rate=net=1/40 씩이고 "
+           "entry_exit=0, gross=0.05, |delta|/gross=1 이라 heavy 는 거짓이다. "
+           "contribution_share 는 둘 다 0.5."),
+    golden={"delta": 0.05, "entry_exit_effect": 0, "gross_movement": 0.05},
+)
+
+# C26 rank_by="mix_effect" 를 엔진까지 관통시킨다.
+C26 = CaseSpec(
+    case_id="C26", domain="ecommerce", metric="conversion_rate",
+    breakdowns=("channel",), rank_by="mix_effect",
+    baseline=B1, current=C1,
+    rows=(
+        _row("2026-06-01", "paid", "mobile", 100, 20),
+        _row("2026-06-01", "organic", "mobile", 100, 40),
+        _row("2026-06-01", "partner", "mobile", 100, 30),
+        _row("2026-07-01", "paid", "mobile", 300, 95),
+        _row("2026-07-01", "organic", "mobile", 100, 40),
+        _row("2026-07-01", "partner", "mobile", 100, 20),
+    ),
+    notes=("전체 90/300=0.30 → 155/500=0.31, delta=+0.01. "
+           "w0 는 셋 다 1/3, w1 은 3/5·1/5·1/5. "
+           "paid rate=49/900 mix=31/450 net=37/300, "
+           "organic rate=0 mix=-4/75 net=-4/75, "
+           "partner rate=-2/75 mix=-1/30 net=-0.06. "
+           "total_rate=1/36, total_mix=-4/225, entry_exit=0, 합=0.01 ✓. "
+           "mix_effect 순서는 paid, partner, organic 이고 net_contribution "
+           "순서는 paid, organic, partner 로 **다르다** — rank_by 가 실제로 "
+           "mix_effect 를 쓰는지 이 차이가 고정한다. "
+           "gross=71/300, |delta|/gross=3/71=0.042<0.20 이라 heavy 는 참이다."),
+    golden={"delta": 0.01, "total_mix_effect": "-4/225", "entry_exit_effect": 0},
+)
+
+
 CASES: Tuple[CaseSpec, ...] = (
     C01, C02, C03, C04, C05, C06, C07, C08, C09,
     C10, C11, C12, C13, C14, C15, C16, C17, C18,
-    C19, C20, C21, C22, C23, C24,
+    C19, C20, C21, C22, C23, C24, C25, C26,
 )

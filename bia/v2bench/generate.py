@@ -19,14 +19,23 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 from .cases import CASES, CaseSpec, Row
 
+# 사례 선언의 경로는 저장소 기준 상대경로다. 실행 디렉터리에 의존하면 다른 cwd 에서
+# 조용히 다른 파일을 읽거나 엉뚱한 곳에 쓴다. 여기서 한 번에 절대경로로 푼다.
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT_ROOT = "data/v2"
 
-# 아래 넷은 production 의 사전등록 상수를 **복사**한 값이다. import 하지 않는다.
+
+def resolve(path: str) -> str:
+    return path if os.path.isabs(path) else os.path.join(REPO_ROOT, path)
+
+
+# 아래 다섯은 production 의 사전등록 상수를 **복사**한 값이다. import 하지 않는다.
 # 값이 갈라지면 벤치마크가 깨지는 쪽이 옳다 — 상수는 불변이기 때문이다.
 CROSS_CELL_LIMIT = 1000
 CANCELLATION_THRESHOLD = Fraction(1, 5)        # 0.20
 SHARE_EPSILON = Fraction(1, 10000)             # 0.0001
 FLOAT_TOL = Fraction(1, 10 ** 9)               # 1e-9
+GROSS_EPSILON = Fraction(1, 10 ** 12)          # 1e-12
 UNKNOWN = "__UNKNOWN__"
 
 # production 이 rank 할 수 있는 필드. 그 밖의 값은 계산하지 않고 멈춘다.
@@ -70,9 +79,24 @@ def _metric_of(case: CaseSpec) -> Tuple[str, Tuple[str, ...]]:
 
 def _rows_from_source(path: str, dimensions: Sequence[str],
                       columns: Sequence[str]) -> List[Row]:
+    """외부 CSV 도 선언된 행과 같은 검증을 받는다.
+
+    검증 없이 `record[d]` 로 바로 읽으면 헤더가 어긋났을 때 `KeyError` 가 난다.
+    그것은 계약 위반을 알리는 신호가 아니라 그냥 추적하기 어려운 사고다.
+    """
+    if not os.path.exists(path):
+        raise OracleError("source_csv 가 없다: %s" % path)
     out: List[Row] = []
     with open(path, "r", encoding="utf-8", newline="") as handle:
-        for record in csv.DictReader(handle):
+        reader = csv.DictReader(handle)
+        header = list(reader.fieldnames or ())
+        required = set(["day"]) | set(dimensions) | set(columns)
+        missing = sorted(required - set(header))
+        if missing:
+            raise OracleError(
+                "source_csv %s 의 헤더 %s 에 필요한 열 %s 이 없다"
+                % (path, header, missing))
+        for record in reader:
             out.append(Row(
                 day=record["day"],
                 keys=tuple(sorted((d, _norm(record[d])) for d in dimensions)),
@@ -88,7 +112,7 @@ def case_rows(case: CaseSpec) -> List[Row]:
     if case.source_csv:
         if case.rows:
             raise OracleError("%s: source_csv 와 rows 를 동시에 쓸 수 없다" % case.case_id)
-        return _rows_from_source(case.source_csv, dimensions, columns)
+        return _rows_from_source(resolve(case.source_csv), dimensions, columns)
     out: List[Row] = []
     for row in case.rows:
         keys = dict(row.keys)
@@ -154,6 +178,21 @@ def _reject_tolerance_band(value: Fraction, what: str) -> None:
             % (what, value, FLOAT_TOL))
 
 
+def _reject_boundary_band(value: Fraction, threshold: Fraction, what: str) -> None:
+    """임계값 비교가 oracle 은 정확 유리수로, production 은 float 로 일어난다.
+
+    값이 임계값에서 `FLOAT_TOL` 이내이면 같은 사례에서 두 판정이 갈릴 수 있고,
+    그 불일치는 엔진 결함처럼 보인다. 그런 사례는 계산하지 말고 멈춘다.
+    경계에 **정확히** 걸린 경우도 막는다 — production 쪽 값이 float 라 어느
+    방향으로 떨어질지 데이터가 보장하지 않는다.
+    """
+    if abs(value - threshold) <= FLOAT_TOL:
+        raise OracleError(
+            "%s=%s 가 임계값 %s 에서 FLOAT_TOL(%s) 이내다. "
+            "oracle 의 정확 비교와 엔진의 float 비교가 갈릴 수 있다."
+            % (what, value, threshold, FLOAT_TOL))
+
+
 def _sign(value: Fraction, what: str = "sign input") -> int:
     _reject_tolerance_band(value, what)
     if value == 0:
@@ -172,6 +211,11 @@ def _rank(entries: Sequence[Tuple[Tuple[str, ...], Dict[str, Optional[Fraction]]
     값이 없는(None) 그룹은 production 과 같이 정렬 키 0 으로 본다.
     지원하지 않는 `rank_by` 는 계산하지 않는다 — 틀린 순서를 정답으로
     기록하느니 멈추는 쪽이 옳다.
+
+    동률 판정이 여기서는 정확 유리수 동일성이고 production 에서는
+    `|a-b| <= FLOAT_TOL` 이다. 두 값이 그 띠 안에서 **다르면** production 은
+    동률로 보고 tie-break 을 쓰는데 oracle 은 값 순서를 쓴다. 그런 사례는
+    계산하지 않는다 — 데이터가 띠를 피해야 한다.
     """
     if rank_by not in RANK_FIELDS:
         raise OracleError("지원하지 않는 rank_by: %r; 지원: %s"
@@ -185,6 +229,11 @@ def _rank(entries: Sequence[Tuple[Tuple[str, ...], Dict[str, Optional[Fraction]]
         ordered.append(((Fraction(0) if value is None else -value),
                         sorted(zip(dimensions, key)), key))
     ordered.sort(key=lambda item: (item[0], item[1]))
+    for (left, _t0, key0), (right, _t1, key1) in zip(ordered, ordered[1:]):
+        _reject_tolerance_band(
+            right - left,
+            "rank_by=%s 의 인접 두 그룹(%s, %s) 차이"
+            % (rank_by, "|".join(key0), "|".join(key1)))
     return ["|".join(key) for _value, _tie, key in ordered]
 
 
@@ -280,6 +329,19 @@ def ratio_breakdown(current, baseline, universe, numerator, denominator,
 
     _reject_tolerance_band(entry_exit, "entry_exit_effect")
     complete = entry_exit == 0
+
+    # heavy_cancellation 의 gross 하한: oracle 은 `gross > 0`, production 은
+    # `gross > GROSS_EPSILON`. gross 가 그 사이면 oracle 만 heavy 를 계산한다.
+    # GROSS_EPSILON < FLOAT_TOL 이라 float 누산 오차까지 한 번에 덮는다.
+    if 0 < gross <= GROSS_EPSILON + FLOAT_TOL:
+        raise OracleError(
+            "gross_movement=%s 가 0 과 %s 사이다. oracle 은 heavy_cancellation 을 "
+            "계산하고 엔진은 건너뛴다." % (gross, GROSS_EPSILON + FLOAT_TOL))
+    if gross > 0:
+        _reject_boundary_band(abs(delta) / gross, CANCELLATION_THRESHOLD,
+                              "|delta|/gross_movement")
+    _reject_boundary_band(abs(delta), SHARE_EPSILON, "|delta|")
+
     heavy = gross > 0 and abs(delta) / gross < CANCELLATION_THRESHOLD
     sign_total_rate = _sign(total_rate, "total_rate_effect")
     sign_delta = _sign(delta, "delta")
@@ -375,7 +437,7 @@ def case_oracle(case: CaseSpec) -> Dict[str, object]:
     computed["current"] = cur_total
 
     breakdowns: Dict[str, object] = {}
-    omitted: List[str] = []
+    omitted: Dict[str, int] = {}
     for index, dimensions in enumerate(_branch_dimensions(case)):
         name = ",".join(dimensions)
         current = _cells(cur_rows, dimensions, columns)
@@ -383,7 +445,7 @@ def case_oracle(case: CaseSpec) -> Dict[str, object]:
         universe = tuple(sorted(set(current) | set(baseline)))
         cross = len(dimensions) > 1
         if cross and len(universe) > CROSS_CELL_LIMIT:
-            omitted.append(name)
+            omitted[name] = len(universe)
             continue
         if kind == "additive":
             block = additive_breakdown(current, baseline, universe, columns[0],
@@ -404,6 +466,9 @@ def case_oracle(case: CaseSpec) -> Dict[str, object]:
 
     entry["breakdowns"] = breakdowns
     entry["expect_omitted_breakdowns"] = sorted(omitted)
+    # 생략된 분기도 관측 셀 수를 기록한다. 그래야 "생략됐다" 만이 아니라
+    # "몇 개를 보고 생략했는가" 까지 대조할 수 있다.
+    entry["expect_omitted_observed_cells"] = dict(omitted)
     if case.golden:
         entry["golden"] = _apply_golden(case, entry, computed)
     return entry
@@ -442,6 +507,16 @@ def _apply_golden(case: CaseSpec, entry: Dict[str, object],
                 raise OracleError("%s: golden %s=%r 인데 계산은 %r"
                                   % (case.case_id, key, want, got))
             recorded[key] = bool(want)
+            # 수치 골든과 같은 대칭을 지킨다 — 기록하는 것은 계산값이 아니라
+            # 손으로 고정한 값이다(방금 같다는 것을 확인했다). 어디에도 반영되지
+            # 않는 골든은 계약이 아니라 장식이다.
+            first = case.breakdowns[0]
+            flags = entry["breakdowns"].get(first, {}).get("expect_flags", {})
+            if key not in flags:
+                raise OracleError(
+                    "%s: 불리언 골든 %r 가 첫 breakdown(%s) 의 flags 에 없다. "
+                    "조용히 버리지 않는다." % (case.case_id, key, first))
+            flags[key] = bool(want)
             continue
         want_exact = _exact(want)
         if want_exact != got:
@@ -471,7 +546,7 @@ def write_case_csv(case: CaseSpec, root: str) -> str:
     path = os.path.join(directory, "metrics.csv")
     if case.source_csv:
         # v1 시나리오는 바이트 그대로 복사한다. 재생성하면 regression gate 가 약해진다.
-        shutil.copyfile(case.source_csv, path)
+        shutil.copyfile(resolve(case.source_csv), path)
         return path
     dimensions = sorted(GRAIN_DIMENSIONS[case.domain])
     _kind, columns = _metric_of(case)
@@ -488,7 +563,7 @@ def write_case_csv(case: CaseSpec, root: str) -> str:
 
 
 def main() -> None:
-    root = OUT_ROOT
+    root = resolve(OUT_ROOT)
     if os.path.isdir(root):
         shutil.rmtree(root)
     os.makedirs(root)
