@@ -192,7 +192,7 @@ python3 -m bia.datagen
 ### 동작 확인
 
 ```bash
-python3 -m unittest discover -t . -s tests -q     # 540 tests, OK
+python3 -m unittest discover -t . -s tests -q     # 549 tests, OK
 python3 scripts/check_datagen.py                  # 합성 데이터 자체 검사
 python3 eval/run_eval.py                          # 24개 시나리오 평가, 종료코드 0이면 합격
 python3 -m bia.cli demo --case normal
@@ -262,7 +262,7 @@ bounded-investigation-agent/
 ├── examples/
 │   ├── custom-data-template/  # 자기 데이터로 돌려보는 최소 예시
 │   └── README.md              # 두 파일 계약과 닫힌 값 목록
-├── tests/                # 540 tests
+├── tests/                # 549 tests
 └── SCOPE.md              # 범위·비범위·권한 경계·완료 조건
 ```
 

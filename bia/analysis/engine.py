@@ -116,7 +116,7 @@ def _additive_branch(plan, branch, current, baseline, universe) -> BreakdownResu
                  "suppress_top_contributor": (heavy_cancellation
                                               or abs(net_delta) <= SHARE_EPSILON)}
     if branch.dimensions:
-        out.ranking = rank(groups, plan.rank_by)
+        out.ranking = rank(groups, plan.rank_by, branch.dimensions)
     return out
 
 
@@ -162,5 +162,5 @@ def _ratio_branch(plan, branch, current, baseline, universe) -> BreakdownResult:
     out.flags = flags
     out.non_comparable_groups = [dict(g.key) for g in groups if not g.comparable]
     if branch.dimensions:
-        out.ranking = rank(groups, plan.rank_by)
+        out.ranking = rank(groups, plan.rank_by, branch.dimensions)
     return out

@@ -42,8 +42,10 @@ OPERATORS = {
 # 진입점이며, 연산자로 세지 않는다. 비공개 함수도 적는다 — `_` 하나로 목록을
 # 빠져나갈 수 있으면 일곱 번째는 그 이름으로 들어온다.
 NON_OPERATOR_FUNCTIONS = {
-    "bia/analysis/operators.py": frozenset(("by_dimension_order",
-                                            "_declared_tie_key")),
+    # canonical tie-break 은 `order_groups` 안의 지역 함수 하나뿐이다. 모듈 수준
+    # 보조 정렬 키(`by_dimension_order`·`_declared_tie_key`)를 둘 다 없앴다 —
+    # 두 개가 있으면 "어느 쪽이 계약인가" 가 호출자마다 갈린다.
+    "bia/analysis/operators.py": frozenset(),
     "bia/analysis/decompose.py": frozenset(("sign_with_tol", "snap_share_boundary",
                                             "_assert_invariants")),
     "bia/analysis/engine.py": frozenset(("run_plan", "_ratio_branch")),

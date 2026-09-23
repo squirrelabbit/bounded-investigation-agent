@@ -52,12 +52,23 @@ def group_universe(
     return tuple(sorted(set(current) | set(baseline)))
 
 
-def order_groups(groups, by: str, tie_break=None) -> List[object]:
+def order_groups(groups, by: str, dimensions: Sequence[str]) -> List[object]:
     """RANK 의 정렬 그 자체. 순서가 필요한 곳은 전부 여기를 지난다.
 
-    `by` 값 내림차순, 동률은 `tie_break` 오름차순이다. 기본 `tie_break` 은 선언된
-    `(차원명, 값)` 오름차순이고, 호출자가 다른 tie-break(예: 도메인이 선언한 차원
-    순서)을 요구하면 그것을 쓴다. `value is None` 은 정렬 키 0 으로 본다.
+    `by` 값 내림차순, 동률은 **canonical tie-break** 오름차순이다. canonical tie-break
+    은 하나뿐이다 — 도메인이 `DomainSpec.dimensions` 로 **선언한 순서**대로 그룹 키의
+    값을 본 튜플. 호출자가 고를 수 있는 여지를 두지 않는다. `value is None` 은 정렬
+    키 0 으로 본다.
+
+    왜 선언 순서인가. 근거는 결과가 아니라 의미다. 선언 순서는 도메인이 스스로 밝힌
+    계약이고, 차원 이름 알파벳순은 구현 부산물이다. 알파벳순을 쓰면 `product` 를
+    `sku` 로 **이름만 바꿔도** 출력 순서가 바뀐다 — 순서 계약이 식별자 철자에
+    매달리면 그것은 계약이 아니다. 단일 차원 분해에서는 둘이 같아 드러나지 않고,
+    교차 분해에서만 갈린다.
+
+    `dimensions` 가 비면(overall 분기) tie-break 키는 빈 튜플이고 모든 그룹이 같은
+    키를 갖는다. 그래도 정의는 온전하다 — 차원이 0개인 분해의 그룹은 전체 하나뿐이라
+    tie-break 이 가를 것 자체가 없다. (엔진은 이 분기에서 ranking 을 싣지도 않는다.)
 
     동률 판정은 `|a - b| <= FLOAT_TOL` 이지 float 동일성이 아니다 — 수학적으로 같은
     두 기여도가 부동소수 표현 오차 1 ulp 로 갈리면 선언한 tie-break 이 아예 발동하지
@@ -71,8 +82,10 @@ def order_groups(groups, by: str, tie_break=None) -> List[object]:
     묶음이 생긴다. 1차 정렬이 값과 tie-break 키만으로 전순서를 만들므로 묶음 경계는
     입력 순서에 의존하지 않는다.
     """
-    if tie_break is None:
-        tie_break = _declared_tie_key
+    dimensions = tuple(dimensions)
+
+    def tie_break(group):
+        return tuple(group.key[d] for d in dimensions)
 
     def value_of(group):
         value = getattr(group, by, None)
@@ -91,22 +104,7 @@ def order_groups(groups, by: str, tie_break=None) -> List[object]:
     return out
 
 
-def _declared_tie_key(group):
-    return sorted(group.key.items())
-
-
-def by_dimension_order(dimensions: Sequence[str]):
-    """차원이 선언된 순서대로 값을 보는 tie-break 키.
-
-    `key` dict 를 이름 오름차순으로 훑는 기본 tie-break 과 다르다. 도메인이 선언한
-    순서가 계약인 자리(v1 파이프라인의 셀 순서)를 위한 것이다.
-    """
-    def tie_key(group):
-        return tuple(group.key[d] for d in dimensions)
-    return tie_key
-
-
-def rank(groups, by: str) -> Dict[str, object]:
+def rank(groups, by: str, dimensions: Sequence[str]) -> Dict[str, object]:
     """RANK. 한 breakdown 안에서만 수행한다. 서로 다른 breakdown 을 섞지 않는다."""
     return {"by": by,
-            "groups": [dict(g.key) for g in order_groups(groups, by)]}
+            "groups": [dict(g.key) for g in order_groups(groups, by, dimensions)]}

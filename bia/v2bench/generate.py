@@ -206,7 +206,11 @@ def _f(value) -> Optional[float]:
 
 def _rank(entries: Sequence[Tuple[Tuple[str, ...], Dict[str, Optional[Fraction]]]],
           dimensions: Sequence[str], rank_by: str) -> List[str]:
-    """RANK 의 재진술: `rank_by` 값 내림차순, 동률은 (차원명, 값) 오름차순.
+    """RANK 의 재진술: `rank_by` 값 내림차순, 동률은 **선언된 차원 순서**의 값 오름차순.
+
+    엔진을 보고 맞춘 것이 아니라 같은 계약을 다시 진술한 것이다 — 도메인이
+    `dimensions` 로 밝힌 순서가 순서 계약이고, 차원 이름의 알파벳순은 아니다.
+    `entries` 의 키 튜플이 이미 `dimensions` 순서이므로 tie-break 키는 그 튜플 자체다.
 
     값이 없는(None) 그룹은 production 과 같이 정렬 키 0 으로 본다.
     지원하지 않는 `rank_by` 는 계산하지 않는다 — 틀린 순서를 정답으로
@@ -225,9 +229,12 @@ def _rank(entries: Sequence[Tuple[Tuple[str, ...], Dict[str, Optional[Fraction]]
         if rank_by not in values:
             raise OracleError("그룹 %s 에 rank_by=%r 에 해당하는 값이 없다"
                               % ("|".join(key), rank_by))
+        if len(key) != len(dimensions):
+            raise OracleError("그룹 키 %r 의 차원 수가 %r 와 다르다"
+                              % (key, tuple(dimensions)))
         value = values[rank_by]
         ordered.append(((Fraction(0) if value is None else -value),
-                        sorted(zip(dimensions, key)), key))
+                        tuple(key), key))
     ordered.sort(key=lambda item: (item[0], item[1]))
     for (left, _t0, key0), (right, _t1, key1) in zip(ordered, ordered[1:]):
         _reject_tolerance_band(
