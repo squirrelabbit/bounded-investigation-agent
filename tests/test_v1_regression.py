@@ -8,6 +8,8 @@ from bia.analysis.compiler import compile_request
 from bia.analysis.engine import run_plan
 from bia.analysis.frame import Observation
 from bia.analysis.request import AnalysisRequest, PeriodComparison
+from bia.analysis.result import (BreakdownResult, GroupResult,
+                                 StructuredAnalysisResult)
 from bia.domains import complaints as complaints_domain  # noqa: F401  (등록 부작용)
 from bia.integrity import decide_comparability, inspect_period
 from bia.store import load_scenario
@@ -71,3 +73,44 @@ class StructuredRegressionTests(unittest.TestCase):
             self.assertEqual(new_cell_deltas, old_cell_deltas, scenario_id)
             checked += 1
         self.assertGreaterEqual(checked, 20, "대부분의 시나리오가 비교 가능해야 한다")
+
+
+class AdapterOrderingContractTests(unittest.TestCase):
+    """어댑터의 셀 순서가 RANK 와 같은 허용오차 규칙을 쓰는지 본다.
+
+    24개 시나리오는 정수 delta 라 이 성질을 시험하지 못한다 — 손으로 쓴
+    `sorted(-net, ...)` 도 그 입력에서는 같은 답을 낸다. 규칙이 실제로 다른
+    입력(1 ulp 차이)을 만들어 확인한다.
+    """
+
+    def _result(self, nets):
+        groups = [GroupResult(key={"product": p, "complaint_type": t},
+                              net_contribution=net, group_delta=int(net))
+                  for p, t, net in nets]
+        breakdown = BreakdownResult(dimensions=("product", "complaint_type"),
+                                    cross=True, groups=groups)
+        return StructuredAnalysisResult(metric={"name": "complaint_count",
+                                                "kind": "additive"},
+                                        comparison={}, breakdowns=[breakdown])
+
+    def test_a_one_ulp_difference_still_uses_the_declared_tie_break(self):
+        nets = [("zeta", "delay", 5.0), ("alpha", "delay", 5.0 + 1e-12)]
+        self.assertEqual(top_contributor_cells(self._result(nets)),
+                         [("alpha", "delay"), ("zeta", "delay")])
+
+    def test_a_real_difference_still_orders_by_value(self):
+        nets = [("alpha", "delay", 5.0), ("zeta", "delay", 6.0)]
+        self.assertEqual(top_contributor_cells(self._result(nets)),
+                         [("zeta", "delay"), ("alpha", "delay")])
+
+    def test_the_tie_break_is_product_first_not_dimension_name_order(self):
+        """dict 키 이름 순이면 complaint_type 이 먼저다. 계약은 product 가 먼저다."""
+        nets = [("alpha", "zeta", 5.0), ("beta", "alpha", 5.0)]
+        self.assertEqual(top_contributor_cells(self._result(nets)),
+                         [("alpha", "zeta"), ("beta", "alpha")])
+
+    def test_non_positive_cells_are_dropped(self):
+        nets = [("alpha", "delay", 0.0), ("beta", "delay", -1.0),
+                ("gamma", "delay", 2.0)]
+        self.assertEqual(top_contributor_cells(self._result(nets)),
+                         [("gamma", "delay")])
