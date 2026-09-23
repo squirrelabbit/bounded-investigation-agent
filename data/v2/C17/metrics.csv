@@ -1,0 +1,6 @@
+day,category,channel,device,revenue_krw
+2026-06-01,books,paid,mobile,100
+2026-06-01,food,paid,mobile,200
+2026-07-01,books,paid,mobile,150
+2026-07-01,food,paid,mobile,220
+2026-07-01,toys,paid,mobile,80

@@ -1,0 +1,5 @@
+day,category,channel,device,orders,sessions
+2026-06-01,all,paid,mobile,10,100
+2026-06-01,all,organic,mobile,30,100
+2026-07-01,all,paid,mobile,33,300
+2026-07-01,all,organic,mobile,31,100

@@ -89,6 +89,7 @@ $ python3 -m bia.cli demo --case no-evidence
 - [폴더 구조](#폴더-구조)
 - [사용법](#사용법)
 - [평가](#평가)
+- [v2 — 도메인에 묶이지 않는 분석 계층](#v2--도메인에-묶이지-않는-분석-계층)
 - [구현된 것과 아직 아닌 것](#구현된-것과-아직-아닌-것)
 - [알려진 한계](#알려진-한계)
 - [라이선스](#라이선스)
@@ -191,10 +192,13 @@ python3 -m bia.datagen
 ### 동작 확인
 
 ```bash
-python3 -m unittest discover -t . -s tests -q     # 409 tests, OK
+python3 -m unittest discover -t . -s tests -q     # 540 tests, OK
 python3 scripts/check_datagen.py                  # 합성 데이터 자체 검사
 python3 eval/run_eval.py                          # 24개 시나리오 평가, 종료코드 0이면 합격
 python3 -m bia.cli demo --case normal
+
+python3 -m bia.v2bench.generate                   # v2 벤치마크 데이터·oracle 생성
+python3 scripts/check_v2bench.py                  # 디스크에서 다시 세어 oracle 대조
 ```
 
 ### 문제 해결
@@ -227,20 +231,38 @@ bounded-investigation-agent/
 │   ├── store.py          # 데이터 로딩, oracle 접근 차단
 │   ├── scenarios.py      # 24개 시나리오 스펙
 │   ├── datagen.py        # 합성 데이터·oracle 생성기
-│   └── cli.py            # 명령줄 진입점
+│   ├── cli.py            # 명령줄 진입점
+│   ├── analysis/         # v2 typed 실행 계층 — 도메인 이름을 모른다
+│   │   ├── spec.py       #   DomainSpec, MetricSpec (도메인이 선언하는 계약)
+│   │   ├── request.py    #   AnalysisRequest, PeriodComparison (런타임 요청)
+│   │   ├── compiler.py   #   요청 × 선언 → ExecutionPlan (모순은 여기서 거부)
+│   │   ├── operators.py  #   AGGREGATE·COMPARE·BREAKDOWN·RANK (CONTRIBUTION·RATE 는 decompose.py)
+│   │   ├── decompose.py  #   비율 metric 의 rate/mix/entry-exit 분해와 출력 정책
+│   │   ├── engine.py     #   plan 실행
+│   │   └── result.py     #   typed 산출물 (답변이 아니다)
+│   ├── domains/          # 세 도메인의 **선언**. 동작 코드 없음
+│   │   ├── complaints.py
+│   │   ├── ecommerce.py
+│   │   └── support_ops.py
+│   └── v2bench/          # 벤치마크 사례와 독립 oracle 생성기
+│       ├── cases.py      #   26 사례 (손 검산 결과를 notes 에 남긴다)
+│       └── generate.py   #   Fraction 으로 다시 계산하는 oracle. 엔진을 import 하지 않는다
 ├── data/
 │   ├── scenarios/S01..S24/  # metrics.csv, tickets.jsonl, scenario.json
-│   └── oracle/oracle.json   # 정답. 평가기만 읽는다
+│   ├── oracle/oracle.json   # 정답. 평가기만 읽는다
+│   └── v2/C01..C26/         # v2 벤치마크 데이터 + oracle.json
 ├── eval/
 │   ├── CRITERIA.md       # 합격 기준 (평가 실행 전 고정)
 │   ├── run_eval.py       # 채점기
 │   └── results/          # 실행 결과
 ├── scripts/
-│   └── check_datagen.py  # 합성 데이터 자체 검사
+│   ├── _checks.py        # 검사 스크립트 공용 실패 표면 (-O 에서도 살아 있는 가드)
+│   ├── check_datagen.py  # 합성 데이터 자체 검사
+│   └── check_v2bench.py  # v2 벤치마크를 디스크에서 다시 계산해 대조
 ├── examples/
 │   ├── custom-data-template/  # 자기 데이터로 돌려보는 최소 예시
 │   └── README.md              # 두 파일 계약과 닫힌 값 목록
-├── tests/                # 409 tests
+├── tests/                # 540 tests
 └── SCOPE.md              # 범위·비범위·권한 경계·완료 조건
 ```
 
@@ -488,6 +510,72 @@ v1.0에서 greedy는 yield를 0.37에서 0.66으로 올리는 대가로 잘못�
 - `passed: true` 는 **안전·평가 관문을 통과했다는 뜻이지 greedy 상대 승리가 아니다.**
 - 채점기는 모델이 답한 결과 파일을 덮어쓰지 않는다. 재실행하려면 `--label` 이 필요하다.
 
+## v2 — 도메인에 묶이지 않는 분석 계층
+
+v0·v1 의 계산 계층은 "제품 × 불만 유형의 건수" 하나에 맞춰 짜여 있었다. 도메인이 코드에 녹아 있으면 새 질문마다 계산 코드를 다시 쓰게 되고, 그때마다 검증도 처음부터 다시 해야 한다.
+
+v2 는 그 자리에 **타입 있는 실행 계층**을 둔다. 도메인은 `DomainSpec`·`MetricSpec` 으로 **선언**만 하고, 실행은 도메인 이름을 전혀 모른다 — `bia/analysis/` 안에 도메인 이름 문자열이 없다는 것을 AST 검사가 테스트로 강제한다.
+
+### 무엇이 일반화됐나
+
+| | v0/v1 | v2 |
+|---|---|---|
+| 도메인 | 코드에 고정 | `DomainSpec` 데이터 (grain·차원·metric) |
+| metric | 건수 하나 | additive(합) · ratio(비율) 두 종류 |
+| 분해 | 그룹별 증감 | 비율은 rate / mix / entry-exit 세 항으로 분해 |
+| 연산자 | — | AGGREGATE · COMPARE · BREAKDOWN · CONTRIBUTION · RATE · RANK — **닫힌 6개** |
+
+여섯 연산자와 각각의 구현 위치는 아래와 같다. 이 목록은 문서가 아니라 `tests/test_operator_closure.py` 가 정본으로 들고 있다 — 분석 핵심 세 모듈에 함수를 하나 더하면 그 테스트가 "이것이 일곱 번째 연산자인가" 를 먼저 묻는다.
+
+| 연산자 | 구현 위치 |
+|---|---|
+| AGGREGATE | `bia/analysis/operators.py` · `aggregate` |
+| COMPARE | `bia/analysis/operators.py` · `compare` |
+| BREAKDOWN | `bia/analysis/operators.py` · `group_universe`, `bia/analysis/engine.py` · `_run_branch` |
+| CONTRIBUTION | `bia/analysis/decompose.py` · `decompose_ratio`, `bia/analysis/engine.py` · `_additive_branch` |
+| RATE | `bia/analysis/decompose.py` · `decompose_ratio` (rate / mix 분해) |
+| RANK | `bia/analysis/operators.py` · `order_groups`, `rank` |
+
+선언과 요청이 모순되면 실행이 아니라 **컴파일에서** 거부한다(예: 합계 metric 에 `rank_by="rate_effect"` 를 요구하면 `RequestError`). 분모 없는 분자, grain 충돌 중복 행, 선언된 상한을 넘는 분자는 숫자를 내지 않고 `AnalysisRefused` 로 멈춘다.
+
+### 세 도메인
+
+| 도메인 | grain | metric |
+|---|---|---|
+| `complaints` | day × product × complaint_type | `complaint_count` (합) |
+| `ecommerce` | day × channel × device × category | `revenue`·`orders` (합), `conversion_rate` (비율) |
+| `support_ops` | day × queue × priority | `tickets_received` (합), `sla_resolution_rate` (비율) |
+
+### 26 사례 벤치마크와 독립 oracle
+
+`data/v2/` 에 26 사례의 CSV 와 기대값이 들어 있다. 핵심은 사례 수가 아니라 **기대값이 어디서 오는가**다.
+
+- oracle 생성기(`bia/v2bench/generate.py`)는 `bia.analysis` 도 `bia.metrics` 도 **import 하지 않는다.** 같은 코드를 부르면 엔진의 버그를 그대로 복제해 벤치마크가 아무것도 증명하지 못한다. 도메인 계약과 분해 수식을 다시 진술하고 `Fraction` 으로 정확히 계산한다.
+- 이 독립성은 사람 기억이 아니라 테스트가 지킨다 — 모듈의 **AST** 에서 금지 import 를 찾고, 별도 프로세스에서 생성기를 import 한 뒤 `sys.modules` 에 피검 모듈이 없음을 확인한다(간접 import 까지 잡는다).
+- 검사기(`scripts/check_v2bench.py`)는 생성기 함수도 재사용하지 않는다. 디스크의 CSV 를 직접 읽어 세 번째로 다시 센다. 재생성이 바이트 동일한지도 함께 본다.
+- **세 번째 재계산의 범위는 좁다.** 검사기가 다시 세는 것은 `baseline`·`current`·`delta`·그룹별 `net_contribution`·분할 합(그룹 합 = 전체 delta)·`observed_cells` 다. `rate_effect`·`mix_effect`·`contribution_share`·flags·ranking 은 **다시 세지 않는다** — 그것들은 oracle 과 엔진이라는 두 독립 계산의 대조로 지켜진다. 검사기가 출력하는 `checks run` 수가 분해까지 덮는다는 뜻이 아니다.
+- 검사기의 가드는 `assert` 가 아니라 명시적 raise 다. `assert` 는 `python3 -O` 에서 통째로 사라지므로, 증거 산출물이 최적화 플래그 하나로 통과할 수 있다. `-O` 서브프로세스를 실제로 띄워 위반 입력에 비-0 종료를 확인하는 테스트가 이 성질을 고정한다.
+- 사례 수는 테스트에 **정확한 숫자로** 박혀 있다. 부등식으로 두면 사례가 조용히 사라져도 통과한다.
+
+벤치마크는 실제로 production 결함을 **둘** 찾았다.
+
+- `contribution_share` 의 0·1 경계가 표현 오차로 뒤집혔다. 수학적으로 정확히 100% 인 기여율이 float 에서 1 ulp 만큼 `> 1` 이 되면 엔진만 그 share 를 버리고, 정확 산술인 oracle 은 남겼다. 선언한 규칙이 표현 오차로 뒤집힌 것이다. 이 결함은 **oracle 이 정확 산술(`Fraction`)이고 엔진이 float 이기 때문에** 드러났다 — 같은 float 코드를 두 번 부르는 벤치마크였다면 양쪽이 똑같이 틀려 아무것도 보이지 않았을 것이다. 벤치마크 설계가 값을 한 지점이 여기다. 지금은 두 경계를 `FLOAT_TOL` 로 스냅하고, 같은 규칙을 oracle 도 함께 진술한다.
+- `RANK` 가 부동소수 값을 허용오차 없이 비교해, 수학적으로 동률인 두 그룹이 1 ulp 차이로 갈리면서 **선언된 tie-break 이 아예 발동하지 않았다.** 지금은 `FLOAT_TOL` 안의 차이를 동률로 보고 선언된 순서 규칙이 지배한다(C25 가 이 계약을 end-to-end 로 고정한다).
+
+### v1 은 동결돼 있다
+
+v1 은 `v1.0.0` 태그로 고정돼 있고 v2 작업의 **regression 은 0** 이다. v0 의 `eval/results`, v1 의 `eval/v1/results`(머신 의존 지연 수치 제외), `data/scenarios`·`data/challenges`·`data/oracle` 가 전부 무변경임을 재실행으로 확인한다. v1 채점기가 내는 `V-2_floor FAIL` 도 `v1.0.0` 태그와 동일하다 — 좁은 기준선이 사전 등록된 0.40 yield floor 를 넘지 못한다는 **기록된 결과**이지 결함이 아니고, 그 숫자는 결과를 본 뒤에 옮기지 않는다.
+
+### 이 벤치마크가 주장하지 않는 것
+
+- **"엔진이 본 적 없는 새 형태"를 시험한 것이 아니다.** 시험한 것은 *등록된 선언적 도메인 → 디스크 CSV → 엔진을 못 보는 oracle* 로 이어지는 end-to-end 경로다.
+- **일반화 증거의 무게는 한 도메인에 실려 있다.** 26 사례 중 **23 이 `ecommerce`, 1 이 `complaints`, 2 가 `support_ops`** 다. `complaints` 는 합 metric 만 선언하므로, **비율 분해를 `ecommerce` 밖에서 밟는 사례는 C18(`support_ops` · `sla_resolution_rate`) 하나**다. 이 브랜치의 중심인 rate / mix / entry-exit 분해와 억제 정책은 사실상 한 도메인 + 한 사례로 입증돼 있다. `support_ops` 는 grain 구조도 `complaints` 와 사실상 같다.
+- **overall(차원 없는) 분기는 벤치마크가 독립 대조하지 않는다.** 그 분기에서 oracle 과 맞추는 것은 comparison 의 `baseline`·`current`·`delta`·`relative_change` 뿐이고, 그 분기의 groups·totals·flags 와 `decompose_ratio` 경로는 단위 테스트가 덮는다.
+- **실데이터 검증은 없다.** 사례는 전부 손으로 검산 가능한 작은 정수이고, 표현 다양성·라벨 노이즈·결측 패턴 같은 실제 데이터의 성질은 들어 있지 않다.
+- **분석 계층은 v0/v1 파이프라인에 연결돼 있지 않다.** `bia/domains/*` 는 어디서도 자동 import 되지 않고, 벤치마크와 테스트가 명시적으로 등록한다. CLI·adapter 가 새 도메인을 쓰려면 등록 시점을 따로 정해야 한다.
+
+---
+
 ## 구현된 것과 아직 아닌 것
 
 | | 상태 |
@@ -504,6 +592,9 @@ v1.0에서 greedy는 yield를 0.37에서 0.66으로 올리는 대가로 잘못�
 | **실제 모델 호출** | **2회 실행, 각 10회 호출 (2026-09-22)** |
 | **모델 비용·지연 수치** | **2회차에서 측정됨** (1회차는 telemetry 미기록으로 사후 측정 불가) |
 | 실행 telemetry·유료 산출물 덮어쓰기 차단 | 구현됨 |
+| v2 typed 실행 계층 (선언적 도메인, 합·비율 metric, 닫힌 6 연산자) | 구현됨 |
+| v2 도메인 선언 3종, 26 사례 벤치마크와 독립 oracle | 구현됨 |
+| v2 분석 계층을 CLI·파이프라인에 연결 | 아직 아님 |
 | 자유 자연어 질문 파서 | 범위 밖 |
 
 모델은 붙였고 2회 측정했다. **좁은 기준선보다는 개선됐고, 강한 코드 기준선은 이기지 못했다.** 그래서 이 저장소는 "모델을 쓸 실익이 관측됐다"고 주장하지 않는다.
@@ -544,6 +635,8 @@ v1.0에서 greedy는 yield를 0.37에서 0.66으로 올리는 대가로 잘못�
 - **`unknown_ticket_id` 검사는 오늘 발동하지 않는다.** 조회 대상과 저장소 목록이 같은 리스트라 구조상 도달 불가능하다. 문의 저장소가 분리되는 날을 위한 방어일 뿐이다.
 - **조회 상한이 유용한 근거를 잘라낼 수 있다.** 조회는 검증 **이전에** 200건에서 자른다. 넓은 필터의 앞쪽이 증가하지 않은 그룹의 문의로 채워져 있으면, 뒤쪽의 유용한 문의가 검증에 닿지 못한다. 답변은 이 절단을 미확인 항목으로 밝히지만, 근거를 잃는 것 자체는 막지 못한다. 현재 8개 사례의 최대 pool은 상한 아래라 발동하지 않는다.
 - **coverage 분모가 채택 기준과 다르다.** coverage는 `채택 / 필터에 걸린 전체 문의`인데, v1.1부터 채택은 증가한 그룹으로 제한된다. 두 모집단이 달라, 넓은 필터는 충분 판정에 도달하기 어려워지고 조사 1회를 더 쓰게 될 수 있다. 측정된 8개 사례에서는 조회 총합이 변하지 않았다.
+- **v2 분석 계층은 아직 파이프라인에 붙어 있지 않다.** 엔진·도메인 선언·벤치마크는 있지만 CLI 와 adapter 는 v0/v1 경로 그대로다. 일반화 증거도 주로 `ecommerce` 한 도메인에 걸려 있고 실데이터 검증은 없다.
+- **RANK 의 동률 폭은 절대 허용오차다.** `rank()` 는 두 기여도 차이가 `FLOAT_TOL`(1e-9) 이내면 동률로 보고 선언된 tie-break 을 쓴다. 기여도 자체가 1e-9 규모인 도메인이 생기면 모든 그룹이 한 묶음으로 동률이 되어 값 순서가 사라진다. 현재 세 도메인의 기여도는 1e-2~1e-1 규모라 해당하지 않는다. 상대 허용오차로 바꾸는 것은 `FLOAT_TOL` 이 사전 등록된 상수의 의미(절대 오차 하나로 0 판정·동률·경계 스냅을 함께 정의한다)를 바꾸는 일이므로 하지 않는다 — 그런 도메인이 생기면 상수를 다시 등록하는 것이 옳은 절차다.
 - **동시성·규모를 다루지 않는다.** 단일 프로세스, 단일 실행, 인메모리.
 
 ---

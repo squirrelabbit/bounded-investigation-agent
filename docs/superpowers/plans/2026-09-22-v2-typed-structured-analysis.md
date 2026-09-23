@@ -1801,28 +1801,122 @@ Expected: 처음에는 일부 FAIL 가능. `decompose_ratio` 의 정책 분기�
 
 - [ ] **Step 7: engine.py 에 ratio 분기를 연결한다**
 
-`run_plan` 의 `if plan.metric.kind != KIND_ADDITIVE: raise ...` 를 제거하고 분기한다:
+`run_plan` 의 `if plan.metric.kind != KIND_ADDITIVE: raise AnalysisRefused(...)` 두 줄을 지우고
+그 자리에 아래를 넣는다. 나머지 `run_plan` 본문은 그대로다.
 
 ```python
     if plan.metric.kind == KIND_ADDITIVE:
         column = plan.metric.value
         comparison = compare(overall_current[column], overall_baseline[column])
     else:
-        n, d = plan.metric.numerator, plan.metric.denominator
-        if overall_current[d] == 0 or overall_baseline[d] == 0:
+        numerator = plan.metric.numerator
+        denominator = plan.metric.denominator
+        if overall_current[denominator] == 0 or overall_baseline[denominator] == 0:
             raise AnalysisRefused(
                 "aggregate",
-                "the overall denominator %r is zero in one of the periods" % d,
+                "the overall denominator %r is zero in one of the periods "
+                "(current=%d, baseline=%d); a rate is undefined there"
+                % (denominator, overall_current[denominator], overall_baseline[denominator]),
             )
-        current_rate = overall_current[n] / float(overall_current[d])
-        baseline_rate = overall_baseline[n] / float(overall_baseline[d])
+        current_rate = overall_current[numerator] / float(overall_current[denominator])
+        baseline_rate = overall_baseline[numerator] / float(overall_baseline[denominator])
         delta = current_rate - baseline_rate
-        comparison = {"current": current_rate, "baseline": baseline_rate,
-                      "delta": delta,
-                      "relative_change": (delta / baseline_rate) if baseline_rate else None}
+        comparison = {
+            "current": current_rate,
+            "baseline": baseline_rate,
+            "delta": delta,
+            "relative_change": (delta / baseline_rate) if baseline_rate else None,
+        }
 ```
 
-`_run_branch` 에도 ratio 분기를 더해 `decompose_ratio` 를 부르고, `numerator_bounded_by_denominator` 가 참이면 `N_g > D_g` 를 `AnalysisRefused("integrity", ...)` 로 거부한다. `N_g > 0` 인데 `D_g == 0` 인 경우도 같은 방식으로 거부한다.
+`_run_branch` 는 현재 additive 전용이다. 시그니처는 `(plan, rows, branch)` 로 그대로 두고,
+`universe` 를 구한 뒤 교차 상한 검사까지는 공통으로 쓰고 그 다음부터 kind 로 갈라라.
+지금 있는 additive 본문(`column = plan.metric.value` 부터 `return out` 까지)을
+아래로 교체한다:
+
+```python
+    if plan.metric.kind == KIND_ADDITIVE:
+        return _additive_branch(plan, branch, current, baseline, universe)
+    return _ratio_branch(plan, branch, current, baseline, universe)
+
+
+def _additive_branch(plan, branch, current, baseline, universe) -> BreakdownResult:
+    column = plan.metric.value
+    groups: List[GroupResult] = []
+    for key in universe:
+        cur = current.get(key, {column: 0})[column]
+        base = baseline.get(key, {column: 0})[column]
+        delta = cur - base
+        groups.append(GroupResult(
+            key=dict(zip(branch.dimensions, key)),
+            net_contribution=float(delta), group_delta=delta, comparable=True,
+        ))
+
+    out = BreakdownResult(dimensions=branch.dimensions, cross=branch.cross, groups=groups)
+    out.totals = {"gross_movement": sum(abs(g.net_contribution) for g in groups)}
+    out.flags = {"decomposition_complete": True, "composition_dominant": False,
+                 "simpson_strict": False, "heavy_cancellation": False,
+                 "suppress_top_contributor": False}
+    if branch.dimensions:
+        out.ranking = rank(groups, plan.rank_by)
+    return out
+
+
+def _ratio_branch(plan, branch, current, baseline, universe) -> BreakdownResult:
+    numerator = plan.metric.numerator
+    denominator = plan.metric.denominator
+    empty = {numerator: 0, denominator: 0}
+
+    for key in universe:
+        for period_name, bucket in (("current", current), ("baseline", baseline)):
+            cell = bucket.get(key, empty)
+            n_value, d_value = cell[numerator], cell[denominator]
+            if d_value == 0 and n_value > 0:
+                raise AnalysisRefused(
+                    "integrity",
+                    "group %s has %s=%d with %s=0 in the %s period; a numerator "
+                    "without a denominator is impossible, and interpolating it "
+                    "would invent a rate"
+                    % (dict(zip(branch.dimensions, key)), numerator, n_value,
+                       denominator, period_name),
+                )
+            if plan.metric.numerator_bounded_by_denominator and n_value > d_value:
+                raise AnalysisRefused(
+                    "integrity",
+                    "group %s has %s=%d greater than %s=%d in the %s period, but "
+                    "this metric declares the numerator is bounded by the denominator"
+                    % (dict(zip(branch.dimensions, key)), numerator, n_value,
+                       denominator, d_value, period_name),
+                )
+
+    total_current = {numerator: sum(v[numerator] for v in current.values()),
+                     denominator: sum(v[denominator] for v in current.values())}
+    total_baseline = {numerator: sum(v[numerator] for v in baseline.values()),
+                      denominator: sum(v[denominator] for v in baseline.values())}
+
+    groups, totals, flags = decompose_ratio(
+        current, baseline, universe, numerator, denominator,
+        total_current, total_baseline, branch.dimensions or ("__overall__",),
+    )
+
+    out = BreakdownResult(dimensions=branch.dimensions, cross=branch.cross, groups=groups)
+    out.totals = totals
+    out.flags = flags
+    out.non_comparable_groups = [dict(g.key) for g in groups if not g.comparable]
+    if branch.dimensions:
+        out.ranking = rank(groups, plan.rank_by)
+    return out
+```
+
+import 에 `from .decompose import decompose_ratio` 를 더한다.
+
+**주의 셋.**
+`_ratio_branch` 의 무결성 검사는 `decompose_ratio` 를 부르기 **전에** 돈다 — 불가능한 데이터로
+분해를 시작하면 불변식이 엉뚱한 곳에서 터진다.
+overall 분기(`branch.dimensions` 가 빈 튜플)도 `_ratio_branch` 를 타는데, 그때 `universe` 는
+`((),)` 한 개뿐이라 그룹이 하나인 분해가 되고 `entry_exit_effect` 는 0 이 된다. 그래도
+불변식 세 개는 성립해야 한다.
+`rank` 는 `branch.dimensions` 가 있을 때만 붙인다 — overall 에는 순위가 없다.
 
 - [ ] **Step 8: 전체 스위트와 Gate 1 불변을 다시 확인한다**
 
