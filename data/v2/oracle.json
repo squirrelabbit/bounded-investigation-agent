@@ -1,0 +1,1654 @@
+{
+  "cancellation_threshold": 0.2,
+  "case_count": 18,
+  "cases": {
+    "C01": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "breakdowns": {
+        "channel": {
+          "dimensions": [
+            "channel"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": true,
+            "heavy_cancellation": true,
+            "simpson_strict": false,
+            "suppress_top_contributor": true
+          },
+          "expect_ranking": [
+            "paid",
+            "organic"
+          ],
+          "expect_totals": {
+            "entry_exit_effect": 0.0,
+            "gross_movement": 0.11666666666666667,
+            "total_mix_effect": -0.004166666666666667,
+            "total_rate_effect": -0.0125
+          },
+          "groups": {
+            "organic": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": -0.025,
+              "expect_net_contribution": -0.06666666666666667,
+              "expect_rate_effect": -0.041666666666666664
+            },
+            "paid": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": 0.020833333333333332,
+              "expect_net_contribution": 0.05,
+              "expect_rate_effect": 0.029166666666666667
+            }
+          },
+          "observed_cells": 2
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_baseline": 0.15,
+      "expect_current": 0.13333333333333333,
+      "expect_delta": -0.016666666666666666,
+      "expect_omitted_breakdowns": [],
+      "expect_relative_change": -0.1111111111111111,
+      "golden": {
+        "delta": -0.016666666666666666
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "ratio",
+      "measure_columns": [
+        "orders",
+        "sessions"
+      ],
+      "metric": "conversion_rate",
+      "notes": "paid 10/100→30/200, organic 20/100→10/100. ΣN/ΣD: 30/200=0.15 → 40/300=2/15, delta=-1/60=-0.0166667. mean(r): 0.15 → 0.125, delta=-0.025. 둘은 다르고 엔진은 ΣN/ΣD 를 쓴다. rate=-0.0125, mix=-1/240=-0.00416667, entry_exit=0. gross=7/60, |delta|/gross=1/7=0.1429<0.20 이라 heavy_cancellation 참.",
+      "rank_by": "net_contribution"
+    },
+    "C02": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "breakdowns": {
+        "channel": {
+          "dimensions": [
+            "channel"
+          ],
+          "expect_flags": {
+            "composition_dominant": true,
+            "decomposition_complete": true,
+            "heavy_cancellation": false,
+            "simpson_strict": true,
+            "suppress_top_contributor": true
+          },
+          "expect_ranking": [
+            "paid",
+            "organic"
+          ],
+          "expect_totals": {
+            "entry_exit_effect": 0.0,
+            "gross_movement": 0.105,
+            "total_mix_effect": -0.05,
+            "total_rate_effect": 0.01
+          },
+          "groups": {
+            "organic": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": -0.07625,
+              "expect_net_contribution": -0.0725,
+              "expect_rate_effect": 0.00375
+            },
+            "paid": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": 0.02625,
+              "expect_net_contribution": 0.0325,
+              "expect_rate_effect": 0.00625
+            }
+          },
+          "observed_cells": 2
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_baseline": 0.2,
+      "expect_current": 0.16,
+      "expect_delta": -0.04,
+      "expect_omitted_breakdowns": [],
+      "expect_relative_change": -0.2,
+      "golden": {
+        "composition_dominant": true,
+        "delta": -0.04
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "ratio",
+      "measure_columns": [
+        "orders",
+        "sessions"
+      ],
+      "metric": "conversion_rate",
+      "notes": "baseline 40/200=0.20, current 64/400=0.16. 그룹 비율은 둘 다 상승 (0.10→0.11, 0.30→0.31). rate=+0.01, mix=-0.05, entry_exit=0.",
+      "rank_by": "net_contribution"
+    },
+    "C03": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "breakdowns": {
+        "channel": {
+          "dimensions": [
+            "channel"
+          ],
+          "expect_flags": {
+            "composition_dominant": true,
+            "decomposition_complete": true,
+            "heavy_cancellation": false,
+            "simpson_strict": true,
+            "suppress_top_contributor": true
+          },
+          "expect_ranking": [
+            "affiliate",
+            "organic",
+            "paid"
+          ],
+          "expect_totals": {
+            "entry_exit_effect": 0.0,
+            "gross_movement": 0.25166666666666665,
+            "total_mix_effect": -0.18416666666666667,
+            "total_rate_effect": 0.0125
+          },
+          "groups": {
+            "affiliate": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": 0.035,
+              "expect_net_contribution": 0.04,
+              "expect_rate_effect": 0.005
+            },
+            "organic": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": -0.08416666666666667,
+              "expect_net_contribution": -0.08166666666666667,
+              "expect_rate_effect": 0.0025
+            },
+            "paid": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": -0.135,
+              "expect_net_contribution": -0.13,
+              "expect_rate_effect": 0.005
+            }
+          },
+          "observed_cells": 3
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_baseline": 0.4666666666666667,
+      "expect_current": 0.295,
+      "expect_delta": -0.17166666666666666,
+      "expect_omitted_breakdowns": [],
+      "expect_relative_change": -0.3678571428571429,
+      "golden": {
+        "composition_dominant": true,
+        "simpson_strict": true
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "ratio",
+      "measure_columns": [
+        "orders",
+        "sessions"
+      ],
+      "metric": "conversion_rate",
+      "notes": "Δr: 0.80→0.82, 0.50→0.51, 0.10→0.11 — 셋 다 양. 전체 140/300=7/15=0.466667 → 177/600=0.295, delta=-0.171667. comparable 전부 같은 부호이고 전체는 반대라 simpson_strict 참, total_rate 부호도 delta 와 달라 composition_dominant 도 참이다.",
+      "rank_by": "net_contribution"
+    },
+    "C04": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "breakdowns": {
+        "channel": {
+          "dimensions": [
+            "channel"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": false,
+            "heavy_cancellation": false,
+            "simpson_strict": false,
+            "suppress_top_contributor": true
+          },
+          "expect_ranking": [
+            "affiliate",
+            "paid"
+          ],
+          "expect_totals": {
+            "entry_exit_effect": 0.02,
+            "gross_movement": 0.12,
+            "total_mix_effect": -0.1,
+            "total_rate_effect": 0.0
+          },
+          "groups": {
+            "affiliate": {
+              "expect_comparable": false,
+              "expect_contribution_share": null,
+              "expect_net_contribution": 0.02
+            },
+            "paid": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": -0.1,
+              "expect_net_contribution": -0.1,
+              "expect_rate_effect": 0.0
+            }
+          },
+          "observed_cells": 2
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_baseline": 0.2,
+      "expect_current": 0.12,
+      "expect_delta": -0.08,
+      "expect_omitted_breakdowns": [],
+      "expect_relative_change": -0.4,
+      "golden": {
+        "composition_dominant": false,
+        "decomposition_complete": false,
+        "delta": -0.08,
+        "entry_exit_effect": 0.02
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "ratio",
+      "measure_columns": [
+        "orders",
+        "sessions"
+      ],
+      "metric": "conversion_rate",
+      "notes": "affiliate 는 baseline 에 없다. 전체 20/100=0.20 → 24/200=0.12, delta=-0.08. paid: rate=0, mix=-0.10, net=-0.10. affiliate: 비교 불가, net=4/200=+0.02 가 통째로 entry_exit. -0.10+0.02=-0.08 로 세 항 합은 맞지만 entry_exit≠0 이므로 decomposition_complete 는 거짓이고, 그 때문에 composition_dominant 도 거짓이다.",
+      "rank_by": "net_contribution"
+    },
+    "C05": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "breakdowns": {
+        "channel": {
+          "dimensions": [
+            "channel"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": false,
+            "heavy_cancellation": false,
+            "simpson_strict": false,
+            "suppress_top_contributor": true
+          },
+          "expect_ranking": [
+            "paid",
+            "partner"
+          ],
+          "expect_totals": {
+            "entry_exit_effect": -0.1,
+            "gross_movement": 0.1,
+            "total_mix_effect": 0.075,
+            "total_rate_effect": -0.075
+          },
+          "groups": {
+            "paid": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": 0.075,
+              "expect_net_contribution": 0.0,
+              "expect_rate_effect": -0.075
+            },
+            "partner": {
+              "expect_comparable": false,
+              "expect_contribution_share": null,
+              "expect_net_contribution": -0.1
+            }
+          },
+          "observed_cells": 2
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_baseline": 0.2,
+      "expect_current": 0.1,
+      "expect_delta": -0.1,
+      "expect_omitted_breakdowns": [],
+      "expect_relative_change": -0.5,
+      "golden": {
+        "decomposition_complete": false,
+        "delta": -0.1,
+        "entry_exit_effect": -0.1
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "ratio",
+      "measure_columns": [
+        "orders",
+        "sessions"
+      ],
+      "metric": "conversion_rate",
+      "notes": "partner 는 current 에 행이 없다 (D1=0). 전체 40/200=0.20 → 10/100=0.10, delta=-0.10. paid: rate=0.75*(-0.10)=-0.075, mix=0.15*0.5=+0.075, net=0. partner: net=0-20/200=-0.10 이 전부 entry_exit. decomposition_complete 거짓.",
+      "rank_by": "net_contribution"
+    },
+    "C06": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "breakdowns": {
+        "channel": {
+          "dimensions": [
+            "channel"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": true,
+            "heavy_cancellation": true,
+            "simpson_strict": false,
+            "suppress_top_contributor": true
+          },
+          "expect_ranking": [
+            "organic",
+            "paid"
+          ],
+          "expect_totals": {
+            "entry_exit_effect": 0.0,
+            "gross_movement": 0.59,
+            "total_mix_effect": 0.0,
+            "total_rate_effect": -0.01
+          },
+          "groups": {
+            "organic": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": 0.0,
+              "expect_net_contribution": 0.29,
+              "expect_rate_effect": 0.29
+            },
+            "paid": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": 0.0,
+              "expect_net_contribution": -0.3,
+              "expect_rate_effect": -0.3
+            }
+          },
+          "observed_cells": 2
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_baseline": 0.45,
+      "expect_current": 0.44,
+      "expect_delta": -0.01,
+      "expect_omitted_breakdowns": [],
+      "expect_relative_change": -0.022222222222222223,
+      "golden": {
+        "delta": -0.01,
+        "heavy_cancellation": true
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "ratio",
+      "measure_columns": [
+        "orders",
+        "sessions"
+      ],
+      "metric": "conversion_rate",
+      "notes": "분모는 양 기간 100 으로 고정이라 mix=0 이고 net=Δ분자/100 이다. paid net=-0.30, organic net=+0.29. 전체 45/100=0.45 → 44/100=0.44, delta=-0.01. gross=0.59, |delta|/gross=0.016949<0.20 → heavy_cancellation 참. 임계값 0.20 에서 충분히 멀다.",
+      "rank_by": "net_contribution"
+    },
+    "C07": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "breakdowns": {
+        "channel": {
+          "dimensions": [
+            "channel"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": true,
+            "heavy_cancellation": true,
+            "simpson_strict": false,
+            "suppress_top_contributor": true
+          },
+          "expect_ranking": [
+            "organic",
+            "paid"
+          ],
+          "expect_totals": {
+            "entry_exit_effect": 0.0,
+            "gross_movement": 0.60005,
+            "total_mix_effect": 0.0,
+            "total_rate_effect": 5e-05
+          },
+          "groups": {
+            "organic": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": 0.0,
+              "expect_net_contribution": 0.30005,
+              "expect_rate_effect": 0.30005
+            },
+            "paid": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": 0.0,
+              "expect_net_contribution": -0.3,
+              "expect_rate_effect": -0.3
+            }
+          },
+          "observed_cells": 2
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_baseline": 0.5,
+      "expect_current": 0.50005,
+      "expect_delta": 5e-05,
+      "expect_omitted_breakdowns": [],
+      "expect_relative_change": 0.0001,
+      "golden": {
+        "delta": 5e-05
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "ratio",
+      "measure_columns": [
+        "orders",
+        "sessions"
+      ],
+      "metric": "conversion_rate",
+      "notes": "분모 고정 20000. 10000/20000=0.5 → 10001/20000=0.50005, delta=1/20000=0.00005 로 SHARE_EPSILON=0.0001 보다 작다. gross=|-0.30|+|0.30005|=0.60005 로 크다. contribution_share 는 전부 억제된다.",
+      "rank_by": "net_contribution"
+    },
+    "C08": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "breakdowns": {
+        "channel": {
+          "dimensions": [
+            "channel"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": false,
+            "heavy_cancellation": false,
+            "simpson_strict": false,
+            "suppress_top_contributor": true
+          },
+          "expect_ranking": [
+            "affiliate",
+            "paid",
+            "organic"
+          ],
+          "expect_totals": {
+            "entry_exit_effect": 0.025,
+            "gross_movement": 0.155,
+            "total_mix_effect": -0.0975,
+            "total_rate_effect": 0.0175
+          },
+          "groups": {
+            "affiliate": {
+              "expect_comparable": false,
+              "expect_contribution_share": null,
+              "expect_net_contribution": 0.025
+            },
+            "organic": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": -0.0975,
+              "expect_net_contribution": -0.105,
+              "expect_rate_effect": -0.0075
+            },
+            "paid": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": 0.0,
+              "expect_net_contribution": 0.025,
+              "expect_rate_effect": 0.025
+            }
+          },
+          "observed_cells": 3
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_baseline": 0.3,
+      "expect_current": 0.245,
+      "expect_delta": -0.055,
+      "expect_omitted_breakdowns": [],
+      "expect_relative_change": -0.18333333333333332,
+      "golden": {
+        "delta": -0.055,
+        "entry_exit_effect": 0.025
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "ratio",
+      "measure_columns": [
+        "orders",
+        "sessions"
+      ],
+      "metric": "conversion_rate",
+      "notes": "전체 60/200=0.30 → 98/400=0.245, delta=-0.055. paid rate=+0.025 mix=0, organic rate=-0.0075 mix=-0.0975, affiliate net=10/400=+0.025 (entry_exit). total_rate=+0.0175, total_mix=-0.0975, entry_exit=+0.025 — 셋 다 0 이 아니다.",
+      "rank_by": "net_contribution"
+    },
+    "C09": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_refused": {
+        "reason_substring": "denominator",
+        "stage": "integrity"
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "ratio",
+      "measure_columns": [
+        "orders",
+        "sessions"
+      ],
+      "metric": "conversion_rate",
+      "notes": "organic 덕에 전체 분모는 양쪽 다 살아 있어 aggregate 단계는 통과하고, channel 분해에서 paid 가 걸린다. integrity 가 거부해야 한다. 보간하지 않는다.",
+      "rank_by": "net_contribution"
+    },
+    "C10": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_refused": {
+        "reason_substring": "denominator",
+        "stage": "aggregate"
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "ratio",
+      "measure_columns": [
+        "orders",
+        "sessions"
+      ],
+      "metric": "conversion_rate",
+      "notes": "current 의 전체 세션이 0 이다. 비율 자체가 정의되지 않아 aggregate 에서 거부한다.",
+      "rank_by": "net_contribution"
+    },
+    "C11": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "breakdowns": {
+        "channel": {
+          "dimensions": [
+            "channel"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": true,
+            "heavy_cancellation": false,
+            "simpson_strict": false,
+            "suppress_top_contributor": false
+          },
+          "expect_ranking": [
+            "__UNKNOWN__",
+            "paid"
+          ],
+          "expect_totals": {
+            "gross_movement": 100.0
+          },
+          "groups": {
+            "__UNKNOWN__": {
+              "expect_comparable": true,
+              "expect_group_delta": 50,
+              "expect_net_contribution": 50.0
+            },
+            "paid": {
+              "expect_comparable": true,
+              "expect_group_delta": 50,
+              "expect_net_contribution": 50.0
+            }
+          },
+          "observed_cells": 2
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_baseline": 300,
+      "expect_current": 400,
+      "expect_delta": 100.0,
+      "expect_omitted_breakdowns": [],
+      "expect_relative_change": 0.3333333333333333,
+      "golden": {
+        "delta": 100.0
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "additive",
+      "measure_columns": [
+        "revenue_krw"
+      ],
+      "metric": "revenue",
+      "notes": "빈 channel 은 버려지지 않고 __UNKNOWN__ 그룹이 된다. 300 → 400, delta=+100. __UNKNOWN__ +50, paid +50 으로 합이 전체와 같다.",
+      "rank_by": "net_contribution"
+    },
+    "C12": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_refused": {
+        "reason_substring": "conflicting duplicate rows",
+        "stage": "integrity"
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "additive",
+      "measure_columns": [
+        "revenue_krw"
+      ],
+      "metric": "revenue",
+      "notes": "같은 (day, channel, device, category) 인데 매출이 다르다. 어느 쪽이 참인지 데이터가 말해주지 않으므로 숫자를 내지 않는다.",
+      "rank_by": "net_contribution"
+    },
+    "C13": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel",
+        "device",
+        "category"
+      ],
+      "breakdowns": {
+        "category": {
+          "dimensions": [
+            "category"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": true,
+            "heavy_cancellation": false,
+            "simpson_strict": false,
+            "suppress_top_contributor": false
+          },
+          "expect_ranking": [
+            "ct3",
+            "ct0",
+            "ct2",
+            "ct1",
+            "ct4"
+          ],
+          "expect_totals": {
+            "gross_movement": 16.0
+          },
+          "groups": {
+            "ct0": {
+              "expect_comparable": true,
+              "expect_group_delta": 2,
+              "expect_net_contribution": 2.0
+            },
+            "ct1": {
+              "expect_comparable": true,
+              "expect_group_delta": -2,
+              "expect_net_contribution": -2.0
+            },
+            "ct2": {
+              "expect_comparable": true,
+              "expect_group_delta": 2,
+              "expect_net_contribution": 2.0
+            },
+            "ct3": {
+              "expect_comparable": true,
+              "expect_group_delta": 5,
+              "expect_net_contribution": 5.0
+            },
+            "ct4": {
+              "expect_comparable": true,
+              "expect_group_delta": -5,
+              "expect_net_contribution": -5.0
+            }
+          },
+          "observed_cells": 5
+        },
+        "channel": {
+          "dimensions": [
+            "channel"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": true,
+            "heavy_cancellation": false,
+            "simpson_strict": false,
+            "suppress_top_contributor": false
+          },
+          "expect_ranking": [
+            "ch03",
+            "ch10",
+            "ch17",
+            "ch24",
+            "ch00",
+            "ch01",
+            "ch02",
+            "ch04",
+            "ch05",
+            "ch06",
+            "ch07",
+            "ch08",
+            "ch09",
+            "ch11",
+            "ch12",
+            "ch13",
+            "ch14",
+            "ch15",
+            "ch16",
+            "ch18",
+            "ch19",
+            "ch20",
+            "ch21",
+            "ch22",
+            "ch23",
+            "ch25"
+          ],
+          "expect_totals": {
+            "gross_movement": 46.0
+          },
+          "groups": {
+            "ch00": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch01": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch02": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch03": {
+              "expect_comparable": true,
+              "expect_group_delta": 6,
+              "expect_net_contribution": 6.0
+            },
+            "ch04": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch05": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch06": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch07": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch08": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch09": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch10": {
+              "expect_comparable": true,
+              "expect_group_delta": 6,
+              "expect_net_contribution": 6.0
+            },
+            "ch11": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch12": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch13": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch14": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch15": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch16": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch17": {
+              "expect_comparable": true,
+              "expect_group_delta": 6,
+              "expect_net_contribution": 6.0
+            },
+            "ch18": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch19": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch20": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch21": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch22": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch23": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "ch24": {
+              "expect_comparable": true,
+              "expect_group_delta": 6,
+              "expect_net_contribution": 6.0
+            },
+            "ch25": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            }
+          },
+          "observed_cells": 26
+        },
+        "device": {
+          "dimensions": [
+            "device"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": true,
+            "heavy_cancellation": false,
+            "simpson_strict": false,
+            "suppress_top_contributor": false
+          },
+          "expect_ranking": [
+            "dv3",
+            "dv1",
+            "dv7",
+            "dv5",
+            "dv6",
+            "dv0",
+            "dv2",
+            "dv4"
+          ],
+          "expect_totals": {
+            "gross_movement": 21420.0
+          },
+          "groups": {
+            "dv0": {
+              "expect_comparable": true,
+              "expect_group_delta": -2674,
+              "expect_net_contribution": -2674.0
+            },
+            "dv1": {
+              "expect_comparable": true,
+              "expect_group_delta": 2678,
+              "expect_net_contribution": 2678.0
+            },
+            "dv2": {
+              "expect_comparable": true,
+              "expect_group_delta": -2682,
+              "expect_net_contribution": -2682.0
+            },
+            "dv3": {
+              "expect_comparable": true,
+              "expect_group_delta": 2686,
+              "expect_net_contribution": 2686.0
+            },
+            "dv4": {
+              "expect_comparable": true,
+              "expect_group_delta": -2683,
+              "expect_net_contribution": -2683.0
+            },
+            "dv5": {
+              "expect_comparable": true,
+              "expect_group_delta": 2673,
+              "expect_net_contribution": 2673.0
+            },
+            "dv6": {
+              "expect_comparable": true,
+              "expect_group_delta": -2670,
+              "expect_net_contribution": -2670.0
+            },
+            "dv7": {
+              "expect_comparable": true,
+              "expect_group_delta": 2674,
+              "expect_net_contribution": 2674.0
+            }
+          },
+          "observed_cells": 8
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_baseline": 53556,
+      "expect_current": 53558,
+      "expect_delta": 2.0,
+      "expect_omitted_breakdowns": [
+        "channel,device,category"
+      ],
+      "expect_relative_change": 3.7344088430801405e-05,
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "additive",
+      "measure_columns": [
+        "revenue_krw"
+      ],
+      "metric": "revenue",
+      "notes": "교차 셀 1040 개. 단일 차원 분기(26·8·5 그룹)는 정상이고 교차 분기만 omitted 로 빠진다. 값을 반올림하거나 상위 N 개로 자르지 않는다.",
+      "rank_by": "net_contribution"
+    },
+    "C14": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_refused": {
+        "reason_substring": "rate_effect",
+        "stage": "compile"
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "additive",
+      "measure_columns": [
+        "revenue_krw"
+      ],
+      "metric": "revenue",
+      "notes": "additive metric 에는 rate_effect 가 없다. 실행이 아니라 컴파일에서 거부한다.",
+      "rank_by": "rate_effect"
+    },
+    "C15": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-03"
+      ],
+      "breakdown_dimensions": [
+        "channel"
+      ],
+      "breakdowns": {
+        "channel": {
+          "dimensions": [
+            "channel"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": true,
+            "heavy_cancellation": false,
+            "simpson_strict": false,
+            "suppress_top_contributor": false
+          },
+          "expect_ranking": [
+            "paid",
+            "organic"
+          ],
+          "expect_totals": {
+            "entry_exit_effect": 0.0,
+            "gross_movement": 0.05,
+            "total_mix_effect": 0.0,
+            "total_rate_effect": 0.05
+          },
+          "groups": {
+            "organic": {
+              "expect_comparable": true,
+              "expect_contribution_share": null,
+              "expect_mix_effect": 0.0,
+              "expect_net_contribution": 0.0,
+              "expect_rate_effect": 0.0
+            },
+            "paid": {
+              "expect_comparable": true,
+              "expect_contribution_share": 1.0,
+              "expect_mix_effect": 0.0,
+              "expect_net_contribution": 0.05,
+              "expect_rate_effect": 0.05
+            }
+          },
+          "observed_cells": 2
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-03"
+      ],
+      "domain": "ecommerce",
+      "expect_baseline": 0.15,
+      "expect_current": 0.2,
+      "expect_delta": 0.05,
+      "expect_omitted_breakdowns": [],
+      "expect_relative_change": 0.3333333333333333,
+      "golden": {
+        "delta": 0.05
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "ratio",
+      "measure_columns": [
+        "orders",
+        "sessions"
+      ],
+      "metric": "conversion_rate",
+      "notes": "창 안만 세면 90/600=0.15 → 120/600=0.20, delta=+0.05. 창 밖 행이 한 줄이라도 섞이면 분자든 분모든 크게 틀어진다. paid rate=+0.05 mix=0, organic rate=mix=0.",
+      "rank_by": "net_contribution"
+    },
+    "C16": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-30"
+      ],
+      "breakdown_dimensions": [
+        "product",
+        "complaint_type"
+      ],
+      "breakdowns": {
+        "complaint_type": {
+          "dimensions": [
+            "complaint_type"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": true,
+            "heavy_cancellation": false,
+            "simpson_strict": false,
+            "suppress_top_contributor": false
+          },
+          "expect_ranking": [
+            "delivery_delay",
+            "app_crash",
+            "damaged_item",
+            "support_wait",
+            "billing_error"
+          ],
+          "expect_totals": {
+            "gross_movement": 207.0
+          },
+          "groups": {
+            "app_crash": {
+              "expect_comparable": true,
+              "expect_group_delta": 19,
+              "expect_net_contribution": 19.0
+            },
+            "billing_error": {
+              "expect_comparable": true,
+              "expect_group_delta": 11,
+              "expect_net_contribution": 11.0
+            },
+            "damaged_item": {
+              "expect_comparable": true,
+              "expect_group_delta": 17,
+              "expect_net_contribution": 17.0
+            },
+            "delivery_delay": {
+              "expect_comparable": true,
+              "expect_group_delta": 146,
+              "expect_net_contribution": 146.0
+            },
+            "support_wait": {
+              "expect_comparable": true,
+              "expect_group_delta": 14,
+              "expect_net_contribution": 14.0
+            }
+          },
+          "observed_cells": 5
+        },
+        "product": {
+          "dimensions": [
+            "product"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": true,
+            "heavy_cancellation": false,
+            "simpson_strict": false,
+            "suppress_top_contributor": false
+          },
+          "expect_ranking": [
+            "P-Beta",
+            "P-Alpha",
+            "P-Gamma",
+            "P-Delta"
+          ],
+          "expect_totals": {
+            "gross_movement": 213.0
+          },
+          "groups": {
+            "P-Alpha": {
+              "expect_comparable": true,
+              "expect_group_delta": 32,
+              "expect_net_contribution": 32.0
+            },
+            "P-Beta": {
+              "expect_comparable": true,
+              "expect_group_delta": 164,
+              "expect_net_contribution": 164.0
+            },
+            "P-Delta": {
+              "expect_comparable": true,
+              "expect_group_delta": -3,
+              "expect_net_contribution": -3.0
+            },
+            "P-Gamma": {
+              "expect_comparable": true,
+              "expect_group_delta": 14,
+              "expect_net_contribution": 14.0
+            }
+          },
+          "observed_cells": 4
+        },
+        "product,complaint_type": {
+          "dimensions": [
+            "product",
+            "complaint_type"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": true,
+            "heavy_cancellation": false,
+            "simpson_strict": false,
+            "suppress_top_contributor": false
+          },
+          "expect_ranking": [
+            "P-Beta|delivery_delay",
+            "P-Alpha|app_crash",
+            "P-Alpha|damaged_item",
+            "P-Gamma|billing_error",
+            "P-Alpha|support_wait",
+            "P-Beta|damaged_item",
+            "P-Gamma|app_crash",
+            "P-Beta|app_crash",
+            "P-Beta|support_wait",
+            "P-Delta|support_wait",
+            "P-Beta|billing_error",
+            "P-Delta|billing_error",
+            "P-Gamma|support_wait",
+            "P-Delta|delivery_delay",
+            "P-Gamma|delivery_delay",
+            "P-Delta|damaged_item",
+            "P-Alpha|billing_error",
+            "P-Gamma|damaged_item",
+            "P-Delta|app_crash",
+            "P-Alpha|delivery_delay"
+          ],
+          "expect_totals": {
+            "gross_movement": 251.0
+          },
+          "groups": {
+            "P-Alpha|app_crash": {
+              "expect_comparable": true,
+              "expect_group_delta": 18,
+              "expect_net_contribution": 18.0
+            },
+            "P-Alpha|billing_error": {
+              "expect_comparable": true,
+              "expect_group_delta": -4,
+              "expect_net_contribution": -4.0
+            },
+            "P-Alpha|damaged_item": {
+              "expect_comparable": true,
+              "expect_group_delta": 17,
+              "expect_net_contribution": 17.0
+            },
+            "P-Alpha|delivery_delay": {
+              "expect_comparable": true,
+              "expect_group_delta": -8,
+              "expect_net_contribution": -8.0
+            },
+            "P-Alpha|support_wait": {
+              "expect_comparable": true,
+              "expect_group_delta": 9,
+              "expect_net_contribution": 9.0
+            },
+            "P-Beta|app_crash": {
+              "expect_comparable": true,
+              "expect_group_delta": 2,
+              "expect_net_contribution": 2.0
+            },
+            "P-Beta|billing_error": {
+              "expect_comparable": true,
+              "expect_group_delta": 1,
+              "expect_net_contribution": 1.0
+            },
+            "P-Beta|damaged_item": {
+              "expect_comparable": true,
+              "expect_group_delta": 5,
+              "expect_net_contribution": 5.0
+            },
+            "P-Beta|delivery_delay": {
+              "expect_comparable": true,
+              "expect_group_delta": 154,
+              "expect_net_contribution": 154.0
+            },
+            "P-Beta|support_wait": {
+              "expect_comparable": true,
+              "expect_group_delta": 2,
+              "expect_net_contribution": 2.0
+            },
+            "P-Delta|app_crash": {
+              "expect_comparable": true,
+              "expect_group_delta": -5,
+              "expect_net_contribution": -5.0
+            },
+            "P-Delta|billing_error": {
+              "expect_comparable": true,
+              "expect_group_delta": 1,
+              "expect_net_contribution": 1.0
+            },
+            "P-Delta|damaged_item": {
+              "expect_comparable": true,
+              "expect_group_delta": -1,
+              "expect_net_contribution": -1.0
+            },
+            "P-Delta|delivery_delay": {
+              "expect_comparable": true,
+              "expect_group_delta": 0,
+              "expect_net_contribution": 0.0
+            },
+            "P-Delta|support_wait": {
+              "expect_comparable": true,
+              "expect_group_delta": 2,
+              "expect_net_contribution": 2.0
+            },
+            "P-Gamma|app_crash": {
+              "expect_comparable": true,
+              "expect_group_delta": 4,
+              "expect_net_contribution": 4.0
+            },
+            "P-Gamma|billing_error": {
+              "expect_comparable": true,
+              "expect_group_delta": 13,
+              "expect_net_contribution": 13.0
+            },
+            "P-Gamma|damaged_item": {
+              "expect_comparable": true,
+              "expect_group_delta": -4,
+              "expect_net_contribution": -4.0
+            },
+            "P-Gamma|delivery_delay": {
+              "expect_comparable": true,
+              "expect_group_delta": 0,
+              "expect_net_contribution": 0.0
+            },
+            "P-Gamma|support_wait": {
+              "expect_comparable": true,
+              "expect_group_delta": 1,
+              "expect_net_contribution": 1.0
+            }
+          },
+          "observed_cells": 20
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-30"
+      ],
+      "domain": "complaints",
+      "expect_baseline": 1696,
+      "expect_current": 1903,
+      "expect_delta": 207.0,
+      "expect_omitted_breakdowns": [],
+      "expect_relative_change": 0.12205188679245282,
+      "golden": {
+        "baseline": 1696.0,
+        "current": 1903.0,
+        "delta": 207.0
+      },
+      "grain_dimensions": [
+        "complaint_type",
+        "product"
+      ],
+      "kind": "additive",
+      "measure_columns": [
+        "count"
+      ],
+      "metric": "complaint_count",
+      "notes": "S01 의 metrics.csv 를 바이트 그대로 복사해 typed 실행 경로로 통과시킨다. golden 은 v1 사전등록 oracle(data/oracle/oracle.json 의 S01)의 값이며 여기서는 CSV 에서 정수로 다시 세어 맞춘다.",
+      "rank_by": "net_contribution"
+    },
+    "C17": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "category"
+      ],
+      "breakdowns": {
+        "category": {
+          "dimensions": [
+            "category"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": true,
+            "heavy_cancellation": false,
+            "simpson_strict": false,
+            "suppress_top_contributor": false
+          },
+          "expect_ranking": [
+            "toys",
+            "books",
+            "food"
+          ],
+          "expect_totals": {
+            "gross_movement": 150.0
+          },
+          "groups": {
+            "books": {
+              "expect_comparable": true,
+              "expect_group_delta": 50,
+              "expect_net_contribution": 50.0
+            },
+            "food": {
+              "expect_comparable": true,
+              "expect_group_delta": 20,
+              "expect_net_contribution": 20.0
+            },
+            "toys": {
+              "expect_comparable": true,
+              "expect_group_delta": 80,
+              "expect_net_contribution": 80.0
+            }
+          },
+          "observed_cells": 3
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "ecommerce",
+      "expect_baseline": 300,
+      "expect_current": 450,
+      "expect_delta": 150.0,
+      "expect_omitted_breakdowns": [],
+      "expect_relative_change": 0.5,
+      "golden": {
+        "delta": 150.0
+      },
+      "grain_dimensions": [
+        "category",
+        "channel",
+        "device"
+      ],
+      "kind": "additive",
+      "measure_columns": [
+        "revenue_krw"
+      ],
+      "metric": "revenue",
+      "notes": "300 → 450, delta=+150. books +50, food +20, toys +80. additive 에서는 baseline 에 없던 그룹도 0 으로 비교되므로 분해가 닫힌다.",
+      "rank_by": "net_contribution"
+    },
+    "C18": {
+      "baseline": [
+        "2026-06-01",
+        "2026-06-01"
+      ],
+      "breakdown_dimensions": [
+        "queue"
+      ],
+      "breakdowns": {
+        "queue": {
+          "dimensions": [
+            "queue"
+          ],
+          "expect_flags": {
+            "composition_dominant": false,
+            "decomposition_complete": true,
+            "heavy_cancellation": false,
+            "simpson_strict": false,
+            "suppress_top_contributor": false
+          },
+          "expect_ranking": [
+            "billing",
+            "tech"
+          ],
+          "expect_totals": {
+            "entry_exit_effect": 0.0,
+            "gross_movement": 0.25,
+            "total_mix_effect": 0.0,
+            "total_rate_effect": 0.25
+          },
+          "groups": {
+            "billing": {
+              "expect_comparable": true,
+              "expect_contribution_share": 0.8,
+              "expect_mix_effect": 0.0,
+              "expect_net_contribution": 0.2,
+              "expect_rate_effect": 0.2
+            },
+            "tech": {
+              "expect_comparable": true,
+              "expect_contribution_share": 0.2,
+              "expect_mix_effect": 0.0,
+              "expect_net_contribution": 0.05,
+              "expect_rate_effect": 0.05
+            }
+          },
+          "observed_cells": 2
+        }
+      },
+      "current": [
+        "2026-07-01",
+        "2026-07-01"
+      ],
+      "domain": "support_ops",
+      "expect_baseline": 0.0,
+      "expect_current": 0.25,
+      "expect_delta": 0.25,
+      "expect_omitted_breakdowns": [],
+      "expect_relative_change": null,
+      "golden": {
+        "delta": 0.25
+      },
+      "grain_dimensions": [
+        "priority",
+        "queue"
+      ],
+      "kind": "ratio",
+      "measure_columns": [
+        "resolved_within_sla",
+        "received"
+      ],
+      "metric": "sla_resolution_rate",
+      "notes": "baseline 0/200=0, current 50/200=0.25, delta=+0.25. baseline 비율이 0 이라 relative_change 는 계산되지 않고 None 이다 — 0 이 아니다. billing rate=+0.20, tech rate=+0.05, mix 는 분모가 고정이라 0.",
+      "rank_by": "net_contribution"
+    }
+  },
+  "cross_cell_limit": 1000,
+  "share_epsilon": 0.0001
+}
