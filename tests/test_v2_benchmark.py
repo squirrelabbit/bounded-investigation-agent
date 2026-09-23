@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 import ast
+import dataclasses
 import json
 import os
 import subprocess
 import sys
 import unittest
+from fractions import Fraction
 
 from bia.analysis.compiler import compile_request
 from bia.analysis.engine import run_plan
@@ -17,7 +19,10 @@ from bia.analysis.request import AnalysisRequest, PeriodComparison
 from bia.analysis.result import STATUS_OK, STATUS_OMITTED
 from bia.domains import complaints, ecommerce, support_ops  # noqa: F401
 from bia.types import Period
+from bia.v2bench import generate
 from bia.v2bench.cases import CASES
+
+CASES_BY_ID = dict((case.case_id, case) for case in CASES)
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 V2_ROOT = os.path.join(REPO_ROOT, "data", "v2")
@@ -86,6 +91,68 @@ class OracleIndependenceTests(unittest.TestCase):
         )
         out = subprocess.check_output([sys.executable, "-c", script], cwd=REPO_ROOT)
         self.assertEqual(out.decode("utf-8").strip(), "")
+
+
+class OracleFailClosedTests(unittest.TestCase):
+    """oracle 이 모르는 것을 만나면 답을 내지 말고 멈춰야 한다."""
+
+    def test_oracle_error_is_not_an_assertion_error(self):
+        # 호출자의 `except AssertionError` 가 계약 위반을 삼키면 안 된다.
+        self.assertFalse(issubclass(generate.OracleError, AssertionError))
+
+    def test_unsupported_rank_by_stops_the_oracle(self):
+        case = dataclasses.replace(CASES_BY_ID["C01"], rank_by="popularity")
+        with self.assertRaises(generate.OracleError) as caught:
+            generate.case_oracle(case)
+        self.assertIn("rank_by", str(caught.exception))
+
+    def test_rank_by_a_field_the_groups_do_not_have_stops_the_oracle(self):
+        entries = [(("paid",), {"net_contribution": Fraction(1),
+                                "group_delta": Fraction(1)})]
+        with self.assertRaises(generate.OracleError):
+            generate._rank(entries, ("channel",), "rate_effect")
+
+    def test_each_supported_rank_by_orders_by_that_field(self):
+        entries = [
+            (("paid",), {"net_contribution": Fraction(1),
+                         "rate_effect": Fraction(-5), "mix_effect": Fraction(9)}),
+            (("organic",), {"net_contribution": Fraction(-2),
+                            "rate_effect": Fraction(7), "mix_effect": Fraction(-9)}),
+        ]
+        self.assertEqual(generate._rank(entries, ("channel",), "net_contribution"),
+                         ["paid", "organic"])
+        self.assertEqual(generate._rank(entries, ("channel",), "rate_effect"),
+                         ["organic", "paid"])
+        self.assertEqual(generate._rank(entries, ("channel",), "mix_effect"),
+                         ["paid", "organic"])
+
+    def test_a_missing_rate_effect_ranks_as_zero_like_production(self):
+        entries = [
+            (("paid",), {"net_contribution": Fraction(1),
+                         "rate_effect": Fraction(-5), "mix_effect": Fraction(1)}),
+            (("organic",), {"net_contribution": Fraction(-2),
+                            "rate_effect": None, "mix_effect": None}),
+        ]
+        self.assertEqual(generate._rank(entries, ("channel",), "rate_effect"),
+                         ["organic", "paid"])
+
+    def test_a_value_inside_the_production_tolerance_band_stops_the_oracle(self):
+        inside = Fraction(1, 10 ** 10)
+        for value in (inside, -inside, generate.FLOAT_TOL):
+            with self.subTest(value=value):
+                with self.assertRaises(generate.OracleError):
+                    generate._sign(value, "probe")
+        # band 밖은 그대로 부호를 낸다.
+        outside = generate.FLOAT_TOL * 2
+        self.assertEqual(generate._sign(outside, "probe"), 1)
+        self.assertEqual(generate._sign(Fraction(0), "probe"), 0)
+
+    def test_a_numeric_golden_key_that_matches_nothing_stops_the_oracle(self):
+        case = dataclasses.replace(CASES_BY_ID["C01"], golden={"bogus_total": 1})
+        entry = {"breakdowns": {"channel": {"expect_totals": {}}}}
+        with self.assertRaises(generate.OracleError) as caught:
+            generate._apply_golden(case, entry, {"bogus_total": Fraction(1)})
+        self.assertIn("bogus_total", str(caught.exception))
 
 
 class BenchmarkTests(unittest.TestCase):

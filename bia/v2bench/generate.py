@@ -26,7 +26,11 @@ OUT_ROOT = "data/v2"
 CROSS_CELL_LIMIT = 1000
 CANCELLATION_THRESHOLD = Fraction(1, 5)        # 0.20
 SHARE_EPSILON = Fraction(1, 10000)             # 0.0001
+FLOAT_TOL = Fraction(1, 10 ** 9)               # 1e-9
 UNKNOWN = "__UNKNOWN__"
+
+# production 이 rank 할 수 있는 필드. 그 밖의 값은 계산하지 않고 멈춘다.
+RANK_FIELDS = ("net_contribution", "group_delta", "rate_effect", "mix_effect")
 
 # 도메인 계약의 독립 재진술. bia.domains 를 읽지 않는다.
 GRAIN_DIMENSIONS = {
@@ -44,8 +48,12 @@ METRICS = {
 }
 
 
-class OracleError(AssertionError):
-    """사례 선언과 계산이 어긋났다. 조용히 넘어가지 않는다."""
+class OracleError(Exception):
+    """사례 선언과 계산이 어긋났다. 조용히 넘어가지 않는다.
+
+    `AssertionError` 를 상속하지 않는다. 호출자의 `except AssertionError` 가
+    계약 위반을 삼켜 벤치마크가 조용히 통과하는 것을 막는다.
+    """
 
 
 def _norm(value: str) -> str:
@@ -133,7 +141,21 @@ def _cells(rows: Sequence[Row], dimensions: Sequence[str],
     return out
 
 
-def _sign(value: Fraction) -> int:
+def _reject_tolerance_band(value: Fraction, what: str) -> None:
+    """oracle 은 정확 0 을, production 은 `|x| <= 1e-9` 를 0 으로 본다.
+
+    사례 값이 그 틈에 들어오면 둘의 판정이 갈리고, 그 불일치는 엔진 결함처럼
+    보인다. 그런 사례는 계산하지 말고 멈춘다 — 데이터가 band 를 피해야 한다.
+    """
+    if 0 < abs(value) <= FLOAT_TOL:
+        raise OracleError(
+            "%s=%s 가 production 의 tolerance band (0 < |x| <= %s) 안에 있다. "
+            "oracle 은 0 이 아니라고, 엔진은 0 이라고 판정한다."
+            % (what, value, FLOAT_TOL))
+
+
+def _sign(value: Fraction, what: str = "sign input") -> int:
+    _reject_tolerance_band(value, what)
     if value == 0:
         return 0
     return 1 if value > 0 else -1
@@ -143,17 +165,33 @@ def _f(value) -> Optional[float]:
     return None if value is None else float(value)
 
 
-def _rank(entries: Sequence[Tuple[Tuple[str, ...], Fraction]],
-          dimensions: Sequence[str]) -> List[str]:
-    """RANK 의 재진술: 값 내림차순, 동률은 (차원명, 값) 오름차순."""
-    ordered = sorted(entries, key=lambda item: (-item[1], sorted(zip(dimensions, item[0]))))
-    return ["|".join(key) for key, _value in ordered]
+def _rank(entries: Sequence[Tuple[Tuple[str, ...], Dict[str, Optional[Fraction]]]],
+          dimensions: Sequence[str], rank_by: str) -> List[str]:
+    """RANK 의 재진술: `rank_by` 값 내림차순, 동률은 (차원명, 값) 오름차순.
+
+    값이 없는(None) 그룹은 production 과 같이 정렬 키 0 으로 본다.
+    지원하지 않는 `rank_by` 는 계산하지 않는다 — 틀린 순서를 정답으로
+    기록하느니 멈추는 쪽이 옳다.
+    """
+    if rank_by not in RANK_FIELDS:
+        raise OracleError("지원하지 않는 rank_by: %r; 지원: %s"
+                          % (rank_by, list(RANK_FIELDS)))
+    ordered = []
+    for key, values in entries:
+        if rank_by not in values:
+            raise OracleError("그룹 %s 에 rank_by=%r 에 해당하는 값이 없다"
+                              % ("|".join(key), rank_by))
+        value = values[rank_by]
+        ordered.append(((Fraction(0) if value is None else -value),
+                        sorted(zip(dimensions, key)), key))
+    ordered.sort(key=lambda item: (item[0], item[1]))
+    return ["|".join(key) for _value, _tie, key in ordered]
 
 
 def additive_breakdown(current, baseline, universe, column,
-                       dimensions) -> Dict[str, object]:
+                       dimensions, rank_by) -> Dict[str, object]:
     groups: Dict[str, Dict[str, object]] = {}
-    entries: List[Tuple[Tuple[str, ...], Fraction]] = []
+    entries: List[Tuple[Tuple[str, ...], Dict[str, Optional[Fraction]]]] = []
     gross = Fraction(0)
     for key in universe:
         delta = Fraction(current.get(key, {}).get(column, 0)
@@ -163,7 +201,8 @@ def additive_breakdown(current, baseline, universe, column,
             "expect_group_delta": int(delta),
             "expect_comparable": True,
         }
-        entries.append((key, delta))
+        # additive 그룹에는 rate/mix 가 없다. 그 키로 정렬을 요구하면 _rank 가 멈춘다.
+        entries.append((key, {"net_contribution": delta, "group_delta": delta}))
         gross += abs(delta)
     return {
         "_exact_totals": {"gross_movement": gross},
@@ -173,13 +212,13 @@ def additive_breakdown(current, baseline, universe, column,
                          "simpson_strict": False,
                          "heavy_cancellation": False,
                          "suppress_top_contributor": False},
-        "expect_ranking": _rank(entries, dimensions),
+        "expect_ranking": _rank(entries, dimensions, rank_by),
         "groups": groups,
     }
 
 
 def ratio_breakdown(current, baseline, universe, numerator, denominator,
-                    dimensions) -> Dict[str, object]:
+                    dimensions, rank_by) -> Dict[str, object]:
     """spec 의 분해 수식을 Fraction 으로 다시 진술한다."""
     d0 = Fraction(sum(c[denominator] for c in baseline.values()))
     d1 = Fraction(sum(c[denominator] for c in current.values()))
@@ -191,7 +230,7 @@ def ratio_breakdown(current, baseline, universe, numerator, denominator,
 
     raw: Dict[str, Dict[str, object]] = {}
     nets: Dict[str, Fraction] = {}
-    entries: List[Tuple[Tuple[str, ...], Fraction]] = []
+    entries: List[Tuple[Tuple[str, ...], Dict[str, Optional[Fraction]]]] = []
     total_rate = Fraction(0)
     total_mix = Fraction(0)
     entry_exit = Fraction(0)
@@ -219,14 +258,19 @@ def ratio_breakdown(current, baseline, universe, numerator, denominator,
             entry["expect_mix_effect"] = float(mix)
             total_rate += rate
             total_mix += mix
-            comparable_rate_signs.add(_sign(rate))
+            comparable_rate_signs.add(_sign(rate, "%s rate_effect" % label))
             comparable_count += 1
+            rankable = {"net_contribution": net,
+                        "rate_effect": rate, "mix_effect": mix}
         else:
             entry["expect_comparable"] = False
             entry_exit += net
+            # production 은 비교 불가 그룹의 rate/mix 를 None 으로 두고 정렬 키 0 으로 쓴다.
+            rankable = {"net_contribution": net,
+                        "rate_effect": None, "mix_effect": None}
         raw[label] = entry
         nets[label] = net
-        entries.append((key, net))
+        entries.append((key, rankable))
         gross += abs(net)
 
     if total_rate + total_mix + entry_exit != delta:
@@ -234,15 +278,18 @@ def ratio_breakdown(current, baseline, universe, numerator, denominator,
     if sum(nets.values()) != delta:
         raise OracleError("additivity broken")
 
+    _reject_tolerance_band(entry_exit, "entry_exit_effect")
     complete = entry_exit == 0
     heavy = gross > 0 and abs(delta) / gross < CANCELLATION_THRESHOLD
-    dominant = (complete and _sign(total_rate) != 0 and _sign(delta) != 0
-                and _sign(total_rate) != _sign(delta))
+    sign_total_rate = _sign(total_rate, "total_rate_effect")
+    sign_delta = _sign(delta, "delta")
+    dominant = (complete and sign_total_rate != 0 and sign_delta != 0
+                and sign_total_rate != sign_delta)
     simpson = (complete and comparable_count >= 2
                and len(comparable_rate_signs) == 1
                and 0 not in comparable_rate_signs
-               and comparable_rate_signs != set([_sign(delta)])
-               and _sign(delta) != 0)
+               and comparable_rate_signs != set([sign_delta])
+               and sign_delta != 0)
     suppress = dominant or not complete or heavy or abs(delta) <= SHARE_EPSILON
 
     for label, entry in raw.items():
@@ -268,7 +315,7 @@ def ratio_breakdown(current, baseline, universe, numerator, denominator,
                          "simpson_strict": simpson,
                          "heavy_cancellation": heavy,
                          "suppress_top_contributor": suppress},
-        "expect_ranking": _rank(entries, dimensions),
+        "expect_ranking": _rank(entries, dimensions, rank_by),
         "groups": raw,
     }
 
@@ -339,10 +386,12 @@ def case_oracle(case: CaseSpec) -> Dict[str, object]:
             omitted.append(name)
             continue
         if kind == "additive":
-            block = additive_breakdown(current, baseline, universe, columns[0], dimensions)
+            block = additive_breakdown(current, baseline, universe, columns[0],
+                                       dimensions, case.rank_by)
         else:
             block = ratio_breakdown(current, baseline, universe,
-                                    columns[0], columns[1], dimensions)
+                                    columns[0], columns[1], dimensions,
+                                    case.rank_by)
         block["dimensions"] = list(dimensions)
         block["observed_cells"] = len(universe)
         exact_totals = block.pop("_exact_totals")
@@ -407,8 +456,12 @@ def _apply_golden(case: CaseSpec, entry: Dict[str, object],
         else:
             first = case.breakdowns[0]
             totals = entry["breakdowns"].get(first, {}).get("expect_totals", {})
-            if key in totals:
-                totals[key] = float(want_exact)
+            if key not in totals:
+                raise OracleError(
+                    "%s: golden 키 %r 는 필드도 아니고 첫 breakdown(%s) 의 "
+                    "totals 에도 없다. 조용히 버리지 않는다."
+                    % (case.case_id, key, first))
+            totals[key] = float(want_exact)
     return recorded
 
 

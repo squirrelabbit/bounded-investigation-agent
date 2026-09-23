@@ -105,10 +105,16 @@ def main():
         base_rows = window(rows, entry["baseline"])
         cur_rows = window(rows, entry["current"])
 
+        # net_of 는 분기 안에서 필요한 값을 전부 닫아 잡는다. 분기 밖에서 d0/d1 을
+        # 다시 참조하면 분기 순서가 바뀔 때 NameError 가 아니라 조용히 틀린다.
         if entry["kind"] == "additive":
             column = columns[0]
             base = Fraction(sum(m[column] for _d, _k, m in base_rows))
             cur = Fraction(sum(m[column] for _d, _k, m in cur_rows))
+
+            def net_of(key, current, baseline, column=column):
+                return Fraction(current.get(key, {}).get(column, 0)
+                                - baseline.get(key, {}).get(column, 0))
         else:
             numerator, denominator = columns
             d0 = Fraction(sum(m[denominator] for _d, _k, m in base_rows))
@@ -116,6 +122,11 @@ def main():
             assert d0 and d1, case_id
             base = Fraction(sum(m[numerator] for _d, _k, m in base_rows)) / d0
             cur = Fraction(sum(m[numerator] for _d, _k, m in cur_rows)) / d1
+
+            def net_of(key, current, baseline,
+                       numerator=numerator, d0=d0, d1=d1):
+                return (Fraction(current.get(key, {}).get(numerator, 0)) / d1
+                        - Fraction(baseline.get(key, {}).get(numerator, 0)) / d0)
         close(base, entry["expect_baseline"], "%s baseline" % case_id)
         close(cur, entry["expect_current"], "%s current" % case_id)
         close(cur - base, entry["expect_delta"], "%s delta" % case_id)
@@ -132,14 +143,7 @@ def main():
 
             total = Fraction(0)
             for key in universe:
-                if entry["kind"] == "additive":
-                    column = columns[0]
-                    net = Fraction(current.get(key, {}).get(column, 0)
-                                   - baseline.get(key, {}).get(column, 0))
-                else:
-                    numerator, denominator = columns
-                    net = (Fraction(current.get(key, {}).get(numerator, 0)) / d1
-                           - Fraction(baseline.get(key, {}).get(numerator, 0)) / d0)
+                net = net_of(key, current, baseline)
                 close(net, breakdown["groups"][key]["expect_net_contribution"],
                       "%s %s %s net" % (case_id, name, key))
                 checks += 1
