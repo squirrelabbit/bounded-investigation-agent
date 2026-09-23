@@ -52,10 +52,12 @@ class NearZeroTests(unittest.TestCase):
     def test_a_near_zero_net_suppresses_everything(self):
         current = {("A",): {"n": 5000, "d": 100000}, ("B",): {"n": 5001, "d": 100000}}
         baseline = {("A",): {"n": 5001, "d": 100000}, ("B",): {"n": 5000, "d": 100000}}
-        _groups, _totals, flags = run(current, baseline,
+        groups, _totals, flags = run(current, baseline,
                                       {"n": 10001, "d": 200000},
                                       {"n": 10001, "d": 200000})
         self.assertTrue(flags["suppress_top_contributor"])
+        for group in groups:
+            self.assertIsNone(group.contribution_share)
 
 
 class CancellationThresholdBoundaryTests(unittest.TestCase):
@@ -79,6 +81,21 @@ class CancellationThresholdBoundaryTests(unittest.TestCase):
                                       {"n": 242, "d": 1000}, {"n": 200, "d": 1000})
         self.assertFalse(flags["heavy_cancellation"])
 
+    def test_ratio_exactly_at_threshold_is_not_heavy_cancellation(self):
+        """A: +0.096, B: -0.064 -> gross=0.16, delta_r=0.032, ratio=0.032/0.16.
+        이 정수 조합은 부동소수 나눗셈 결과가 정확히 0.20 리터럴과 같은 double 로
+        반올림된다(직접 검증됨). heavy_cancellation 비교는 '<' 이므로 정확히
+        임계값과 같으면 heavy_cancellation 이 아니어야 한다 (>= 판정 고정)."""
+        current = {("A",): {"n": 196, "d": 500}, ("B",): {"n": 36, "d": 500}}
+        baseline = {("A",): {"n": 100, "d": 500}, ("B",): {"n": 100, "d": 500}}
+        _groups, totals, flags = run(current, baseline,
+                                     {"n": 232, "d": 1000}, {"n": 200, "d": 1000})
+        delta_r = (totals["total_rate_effect"] + totals["total_mix_effect"]
+                   + totals["entry_exit_effect"])
+        ratio = abs(delta_r) / totals["gross_movement"]
+        self.assertEqual(ratio, CANCELLATION_THRESHOLD)
+        self.assertFalse(flags["heavy_cancellation"])
+
 
 class ShareEpsilonBoundaryTests(unittest.TestCase):
     """SHARE_EPSILON = 0.0001 의 양쪽. 그룹을 하나만 둬 gross == |delta_r| 이 되게
@@ -88,10 +105,12 @@ class ShareEpsilonBoundaryTests(unittest.TestCase):
     def test_delta_just_below_epsilon_suppresses(self):
         current = {("A",): {"n": 5000900, "d": 10000000}}
         baseline = {("A",): {"n": 5000000, "d": 10000000}}
-        _groups, _totals, flags = run(current, baseline,
+        groups, _totals, flags = run(current, baseline,
                                       {"n": 5000900, "d": 10000000},
                                       {"n": 5000000, "d": 10000000})
         self.assertTrue(flags["suppress_top_contributor"])
+        for group in groups:
+            self.assertIsNone(group.contribution_share)
 
     def test_delta_just_above_epsilon_does_not_suppress(self):
         current = {("A",): {"n": 5001100, "d": 10000000}}

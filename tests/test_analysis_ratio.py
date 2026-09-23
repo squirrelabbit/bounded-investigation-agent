@@ -116,6 +116,57 @@ class EntryExitTests(unittest.TestCase):
         )
         self.assertFalse(flags["composition_dominant"])
 
+    def test_simpson_strict_is_false_when_a_group_enters(self):
+        """decomposition_complete 가 False 인 상황에서는 simpson_strict 도
+        False 여야 한다 (진입/이탈 지배 사례를 simpson 역전으로 부르면 안 된다)."""
+        _groups, _totals, flags = decompose_ratio(
+            self.current, self.baseline, self.universe, "n", "d",
+            self.total_current, self.total_baseline,
+        )
+        self.assertFalse(flags["simpson_strict"])
+
+
+class SimpsonStrictTests(unittest.TestCase):
+    """진짜 Simpson 역전: 두 그룹 모두 rate_effect 부호가 같은데(둘 다 개선),
+    overall delta_r 은 반대 부호(악화)로 나온다. 진입/이탈 그룹이 없어
+    decomposition_complete 는 True 여야 한다.
+
+    A: baseline 90/100 (r=0.9) -> current 19/20 (r=0.95)
+    B: baseline 1/10 (r=0.1) -> current 18/120 (r=0.15)
+    overall: 91/110 ~= 0.827 -> 37/140 ~= 0.264, delta_r < 0
+    두 그룹 모두 비율이 올랐으므로 rate_effect 는 둘 다 양수 -> 역전.
+    """
+
+    def setUp(self):
+        self.current = {("A",): {"n": 19, "d": 20}, ("B",): {"n": 18, "d": 120}}
+        self.baseline = {("A",): {"n": 90, "d": 100}, ("B",): {"n": 1, "d": 10}}
+        self.universe = (("A",), ("B",))
+        self.total_current = {"n": 37, "d": 140}
+        self.total_baseline = {"n": 91, "d": 110}
+
+    def test_delta_r_is_negative_by_hand_calculation(self):
+        expected = float(Fraction(37, 140) - Fraction(91, 110))
+        self.assertLess(expected, 0)
+        groups, _totals, _flags = decompose_ratio(
+            self.current, self.baseline, self.universe, "n", "d",
+            self.total_current, self.total_baseline,
+        )
+        summed = sum(g.net_contribution for g in groups)
+        self.assertAlmostEqual(summed, expected, places=12)
+
+    def test_both_groups_improve_while_overall_worsens_is_flagged_strict(self):
+        groups, _totals, flags = decompose_ratio(
+            self.current, self.baseline, self.universe, "n", "d",
+            self.total_current, self.total_baseline,
+        )
+        by_key = {g.key["dim"]: g for g in groups}
+        self.assertTrue(by_key["A"].rate_effect > 0)
+        self.assertTrue(by_key["B"].rate_effect > 0)
+        delta_r = sum(g.net_contribution for g in groups)
+        self.assertLess(delta_r, 0)
+        self.assertTrue(flags["decomposition_complete"])
+        self.assertTrue(flags["simpson_strict"])
+
 
 class FloatTolBoundaryTests(unittest.TestCase):
     """FLOAT_TOL(1e-9) 경계 자체도 양쪽을 확인해 둔다."""
