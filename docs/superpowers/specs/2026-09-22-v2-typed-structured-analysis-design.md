@@ -424,7 +424,7 @@ metric contract:  0 ≤ resolved_within_sla ≤ received
 
 ---
 
-## 9. 벤치마크 — 18 사례 (데이터 생성 전에 고정)
+## 9. 벤치마크 — 18 사례 (데이터 생성 전에 고정) · **개정 1: 26 사례**
 
 | # | 묶음 | 사례 |
 |---|---|---|
@@ -447,7 +447,26 @@ metric contract:  0 ≤ resolved_within_sla ≤ received
 | 17 | 회귀 | ecommerce `revenue` 단순 증가 **+ 신규 category 등장** (additive 그룹 진입) |
 | 18 | 파생 | `baseline metric = 0`, 분모는 정상 → `delta` 계산, `relative_change` 없음 |
 
-18개를 넘기지 않는다. 도메인 4개째를 만들지 않는다. 새 metric kind 를 넣지 않는다.
+~~18개를 넘기지 않는다.~~ 도메인 4개째를 만들지 않는다. 새 metric kind 를 넣지 않는다.
+
+> **개정 1 (2026-09-23) — 사례 상한을 18 → 26 으로 늘린다.**
+>
+> 이 문장은 세 가지를 막고 있었다. **뒤의 둘은 지켜졌다** — 도메인은 3개(`complaints`,
+> `ecommerce`, `support_ops`), metric kind 는 2개(`additive`, `ratio`)로 그대로다.
+> 넘은 것은 사례 수 하나다.
+>
+> 늘린 이유: Task 5 리뷰가 **의도한 동작인데 사례가 없는 자리** 를 찾아냈다 —
+> `numerator_bounded_by_denominator` 거부가 한 번도 발동하지 않음(선언만 실려 있고 물리지 않음),
+> 비율 × 교차 분해(엔진에서 가장 복잡한 경로)가 비어 있음, `CROSS_CELL_LIMIT` 경계 미고정,
+> `support_ops` 가 1사례뿐. C19~C26 여덟 개가 그 자리들을 메운다.
+>
+> 이 상한은 **범위 확대를 막는 장치**였지 측정 임계값이 아니다. 같은 도메인·같은 kind 안에서
+> 사례가 느는 것은 그 장치가 막으려던 해(도메인·kind 가 늘어나며 검증이 얕아지는 것)를
+> 일으키지 않는다. 줄이거나 기준을 결과에 맞춰 바꾸는 것은 여전히 금지다.
+>
+> 개수는 이제 `tests/test_v2_benchmark.py` 의 `EXPECTED_CASE_COUNT = 26` 이 정확히 고정한다.
+> 부등식(`>= 18`)은 쓰지 않는다 — `case_count` 가 `len(CASES)` 에서 나오므로 비교 양변이
+> 같이 줄어 사례가 조용히 사라지는 것을 못 잡는다.
 
 ---
 
@@ -493,7 +512,7 @@ metric contract:  0 ≤ resolved_within_sla ≤ received
 
 1. **v1 semantic regression 0** — v0 24개 시나리오의 채점 결과(Q-1~Q-7, S-1~S-4)와 v1 8개 사례의 `heuristic`·`greedy` 결과가 의미적으로 동일. **JEV 는 재실행하지 않는다** (historical).
 2. 세 도메인이 같은 엔진 사용. **`analysis/` 안에 도메인 이름 검사 코드 0** — AST 로 테스트한다.
-3. 18개 사례 전부 oracle 일치.
+3. 26개 사례 전부 oracle 일치 (개정 1 참조 — 원안 18 + 커버리지 공백 8).
 4. **모든 분석 성공 사례에서 적용 가능한 불변식이 성립하고, 거부 사례는 지정된 단계와 사유로 실패한다.** (거부 사례에는 애초에 `StructuredAnalysisResult` 가 없어야 한다.)
 
 **기록만 하는 것** — 도메인별 실행 시간, 사례 수, 교차 셀 수.
