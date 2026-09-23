@@ -20,6 +20,9 @@ import sys
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, REPO_ROOT)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from _checks import CheckFailed, require  # noqa: E402
 
 from bia.datagen import (  # noqa: E402
     BASELINE_PERIOD,
@@ -68,8 +71,10 @@ def load_rows(scenario_id):
     path = os.path.join(DATA, "scenarios", scenario_id, "metrics.csv")
     with open(path, encoding="utf-8") as handle:
         lines = handle.read().split("\n")
-    assert lines[0] == "day,product,complaint_type,count"
-    assert lines[-1] == ""
+    require(lines[0] == "day,product,complaint_type,count",
+            "%s: metrics.csv 의 헤더가 다르다: %r" % (scenario_id, lines[0]))
+    require(lines[-1] == "",
+            "%s: metrics.csv 가 개행으로 끝나지 않는다" % scenario_id)
     rows = []
     for line in lines[1:-1]:
         day, product, complaint_type, count = line.split(",")
@@ -97,7 +102,8 @@ def load_tickets(scenario_id):
     path = os.path.join(DATA, "scenarios", scenario_id, "tickets.jsonl")
     with open(path, encoding="utf-8") as handle:
         body = handle.read()
-    assert body.endswith("\n")
+    require(body.endswith("\n"),
+            "%s: tickets.jsonl 이 개행으로 끝나지 않는다" % scenario_id)
     return [json.loads(line) for line in body.split("\n")[:-1]]
 
 
@@ -465,4 +471,8 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except CheckFailed as failure:
+        sys.stderr.write("CHECK FAILED: %s\n" % failure)
+        sys.exit(1)

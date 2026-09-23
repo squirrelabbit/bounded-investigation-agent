@@ -14,6 +14,10 @@ import subprocess
 import sys
 from fractions import Fraction
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from _checks import CheckFailed, require  # noqa: E402
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOL = Fraction(1, 10 ** 9)
 UNKNOWN = "__UNKNOWN__"
@@ -64,8 +68,8 @@ def cells(rows, dimensions, columns):
 
 def close(got, want, label):
     if abs(got - Fraction(str(want))) > TOL:
-        raise AssertionError("%s: recomputed %s but the oracle says %s"
-                             % (label, got, want))
+        raise CheckFailed("%s: recomputed %s but the oracle says %s"
+                          % (label, got, want))
 
 
 def main():
@@ -73,33 +77,33 @@ def main():
     before = snapshot()
     subprocess.check_call([sys.executable, "-m", "bia.v2bench.generate"], cwd=ROOT)
     after = snapshot()
-    assert before == after, "재생성이 바이트 동일하지 않다"
+    require(before == after, "재생성이 바이트 동일하지 않다")
     checks += 1
 
     with open(os.path.join(ROOT, "data", "v2", "oracle.json"), encoding="utf-8") as handle:
         oracle = json.load(handle)
-    assert oracle["case_count"] == len(oracle["cases"]), "사례 수가 맞지 않는다"
+    require(oracle["case_count"] == len(oracle["cases"]), "사례 수가 맞지 않는다")
     checks += 1
 
     on_disk = sorted(name for name in os.listdir(os.path.join(ROOT, "data", "v2"))
                      if os.path.isdir(os.path.join(ROOT, "data", "v2", name)))
-    assert on_disk == sorted(oracle["cases"]), "디렉터리와 oracle 사례가 다르다"
+    require(on_disk == sorted(oracle["cases"]), "디렉터리와 oracle 사례가 다르다")
     checks += 1
 
     for case_id, entry in sorted(oracle["cases"].items()):
         path = os.path.join(ROOT, "data", "v2", case_id, "metrics.csv")
-        assert os.path.exists(path), case_id
+        require(os.path.exists(path), "%s: metrics.csv 가 없다" % case_id)
         checks += 1
         if entry.get("expect_refused"):
             continue
 
         columns = entry["measure_columns"]
         rows = read_rows(path, entry["grain_dimensions"], columns)
-        assert rows, case_id
+        require(rows, "%s: metrics.csv 에 행이 없다" % case_id)
         grain_keys = set()
         for day, keys, _measures in rows:
             grain_keys.add((day,) + tuple(keys[d] for d in entry["grain_dimensions"]))
-        assert len(grain_keys) == len(rows), "%s: grain 중복 행" % case_id
+        require(len(grain_keys) == len(rows), "%s: grain 중복 행" % case_id)
         checks += 1
 
         base_rows = window(rows, entry["baseline"])
@@ -119,7 +123,7 @@ def main():
             numerator, denominator = columns
             d0 = Fraction(sum(m[denominator] for _d, _k, m in base_rows))
             d1 = Fraction(sum(m[denominator] for _d, _k, m in cur_rows))
-            assert d0 and d1, case_id
+            require(d0 and d1, "%s: 전체 분모가 0 이다" % case_id)
             base = Fraction(sum(m[numerator] for _d, _k, m in base_rows)) / d0
             cur = Fraction(sum(m[numerator] for _d, _k, m in cur_rows)) / d1
 
@@ -137,8 +141,8 @@ def main():
             current = cells(cur_rows, dimensions, columns)
             baseline = cells(base_rows, dimensions, columns)
             universe = sorted(set(current) | set(baseline))
-            assert len(universe) == breakdown["observed_cells"], "%s %s" % (case_id, name)
-            assert sorted(breakdown["groups"]) == universe, "%s %s" % (case_id, name)
+            require(len(universe) == breakdown["observed_cells"], "%s %s" % (case_id, name))
+            require(sorted(breakdown["groups"]) == universe, "%s %s" % (case_id, name))
             checks += 2
 
             total = Fraction(0)
@@ -152,14 +156,15 @@ def main():
             checks += 1
 
         recorded_omitted = entry["expect_omitted_observed_cells"]
-        assert sorted(recorded_omitted) == entry["expect_omitted_breakdowns"], case_id
+        require(sorted(recorded_omitted) == entry["expect_omitted_breakdowns"],
+                "%s: 생략 분기 목록이 관측 셀 기록과 다르다" % case_id)
         checks += 1
         for name in entry["expect_omitted_breakdowns"]:
             dimensions = name.split(",")
             universe = set(cells(cur_rows, dimensions, columns))
             universe |= set(cells(base_rows, dimensions, columns))
-            assert len(universe) > CROSS_CELL_LIMIT, "%s %s" % (case_id, name)
-            assert len(universe) == recorded_omitted[name], "%s %s" % (case_id, name)
+            require(len(universe) > CROSS_CELL_LIMIT, "%s %s" % (case_id, name))
+            require(len(universe) == recorded_omitted[name], "%s %s" % (case_id, name))
             checks += 2
 
     print("checks run: %d" % checks)
@@ -167,4 +172,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except CheckFailed as failure:
+        sys.stderr.write("CHECK FAILED: %s\n" % failure)
+        sys.exit(1)
