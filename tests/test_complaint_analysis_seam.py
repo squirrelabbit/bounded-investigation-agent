@@ -35,6 +35,7 @@ EXPECTED_MEMBERS = {
     "cells",
     "increased",
     "top",
+    "suppress_top_contributor",
     "as_dict",
 }
 
@@ -364,7 +365,7 @@ def scan(files: Dict[str, str]) -> Dict[str, Report]:
 
 
 class ContractDefinitionTests(unittest.TestCase):
-    def test_contract_members_are_the_ten_agreed_names(self):
+    def test_contract_members_are_the_eleven_agreed_names(self):
         self.assertEqual(set(CONTRACT_MEMBERS), EXPECTED_MEMBERS)
 
     def test_protocol_declares_exactly_the_contract_members(self):
@@ -399,6 +400,10 @@ class ConsumptionClosureTests(unittest.TestCase):
             answer.reads,
         )
         self.assertIn("increased", answer.attrs("state"))
+        # The renderer (via its alias) and the guard (straight from state) each
+        # read the suppression flag themselves; neither relays the other's.
+        self.assertIn("suppress_top_contributor", answer.attrs("alias:state"))
+        self.assertIn("suppress_top_contributor", answer.attrs("state"))
         evidence = reports["bia/evidence.py"]
         self.assertEqual({"delta", "as_dict"}, evidence.attrs("self"))
         self.assertIn("cells", evidence.attrs("state"))
@@ -459,7 +464,7 @@ class ConsumptionClosureFiresTests(unittest.TestCase):
         self.assertNotEqual(source, mutated)
         files["bia/answer.py"] = mutated
         self.assertIn(
-            "bia/answer.py:219 reads .pct_changed via alias:state",
+            "bia/answer.py:270 reads .pct_changed via alias:state",
             "\n".join(_violations(scan(files))),
         )
 

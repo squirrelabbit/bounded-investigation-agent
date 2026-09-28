@@ -4,7 +4,7 @@
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 
 from ..analysis.operators import CROSS_CELL_LIMIT, order_groups
@@ -99,6 +99,9 @@ class ComplaintAnalysisView:
     by_product: List[GroupDelta]
     by_complaint_type: List[GroupDelta]
     cells: List[CellDelta]
+    # 단일 차원 분해별 v2 `suppress_top_contributor`. 교차 분해의 플래그가 아니다 —
+    # 답변이 렌더링하는 것은 단일 차원 분해다. `as_dict()` 에 싣지 않는다(legacy/JEV 계약).
+    suppressed: Dict[str, bool] = field(default_factory=dict)
 
     @property
     def increased(self) -> bool:
@@ -107,6 +110,10 @@ class ComplaintAnalysisView:
     def top(self, dimension: str) -> List[GroupDelta]:
         groups = self.by_product if dimension == DIM_PRODUCT else self.by_complaint_type
         return top_contributors(groups)
+
+    def suppress_top_contributor(self, dimension: str) -> bool:
+        # 모르는 차원은 KeyError 다. 빠진 판정을 "억제 안 함" 으로 읽으면 정책이 조용히 꺼진다.
+        return self.suppressed[dimension]
 
     def as_dict(self) -> Dict[str, object]:
         return {
@@ -163,6 +170,14 @@ def _single_breakdown(result: StructuredAnalysisResult, dimension: str) -> Break
     raise ValueError("the result has no %s breakdown" % dimension)
 
 
+def _suppress_flag(breakdown: BreakdownResult) -> bool:
+    value = breakdown.flags.get("suppress_top_contributor")
+    if type(value) is not bool:
+        raise ValueError("the %s breakdown carries no boolean suppress_top_contributor flag: %r"
+                         % ("x".join(breakdown.dimensions), value))
+    return value
+
+
 def _group_deltas(breakdown: BreakdownResult, dimension: str) -> List[GroupDelta]:
     ordered = order_groups(breakdown.groups, RANK_GROUP_DELTA, breakdown.dimensions)
     values = [(g.key[dimension],) + _group_values(g) for g in ordered]
@@ -202,7 +217,10 @@ def complaint_view(result: StructuredAnalysisResult) -> ComplaintAnalysisView:
     by_product = _group_deltas(_single_breakdown(result, DIM_PRODUCT), DIM_PRODUCT)
     by_type = _group_deltas(_single_breakdown(result, DIM_COMPLAINT_TYPE), DIM_COMPLAINT_TYPE)
 
+    suppressed = {dimension: _suppress_flag(_single_breakdown(result, dimension))
+                  for dimension in (DIM_PRODUCT, DIM_COMPLAINT_TYPE)}
+
     pct = (round(100.0 * (current_total - baseline_total) / float(baseline_total), 2)
            if baseline_total else None)
     return ComplaintAnalysisView(current_total, baseline_total, delta, pct,
-                                 by_product, by_type, cells)
+                                 by_product, by_type, cells, suppressed)

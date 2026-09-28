@@ -5,16 +5,21 @@ Two machine-checkable guards live here:
 1. every number in the rendered text must have been registered from a computed
    value (no number may appear by way of a prose template), and
 2. no causal vocabulary may appear anywhere in the answer.
+
+A third guard backs the v2 output policy: for a dimension whose breakdown the
+analysis marks `suppress_top_contributor`, the location sentence may not carry a
+share of increase.
 """
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set
+from typing import Dict, FrozenSet, Iterable, List, Optional, Set
 
 from .evidence import EvidenceState
 from .integrity import MODE_ALIGNED_WINDOW, MODE_BLOCKED
 from .lexicon import label_ko
+from .types import DIM_COMPLAINT_TYPE, DIM_PRODUCT
 
 MAX_EXCERPTS = 5
 
@@ -50,6 +55,28 @@ _QUOTE_SPAN = re.compile(QUOTE_OPEN + "(.*?)" + QUOTE_CLOSE, re.S)
 
 _NUMBER_RE = re.compile(r"\d+(?:\.\d+)?")
 
+DIMENSION_LABELS = ((DIM_PRODUCT, "제품"), (DIM_COMPLAINT_TYPE, "불만 유형"))
+
+SHARE_MARKER = "늘어난 그룹 합계의"
+LOCATION_SUFFIX = "별로 증가분이 발생한 위치"
+
+
+def location_prefix(label: str) -> str:
+    return label + LOCATION_SUFFIX
+
+
+def suppressed_share_lines(text: str, labels: Iterable[str]) -> List[str]:
+    """Lines of `text` that are a suppressed dimension's location sentence and
+    still carry a share of increase. Matched anywhere in the line, not only at
+    its start, so unstripped customer text that repeats the sentence is caught
+    too — excluding quotes is `claim_text()`'s job, not this matcher's."""
+    prefixes = [location_prefix(label) for label in labels]
+    return [
+        line
+        for line in text.splitlines()
+        if SHARE_MARKER in line and any(prefix in line for prefix in prefixes)
+    ]
+
 
 def numeric_tokens(text: str) -> Set[str]:
     return set(_NUMBER_RE.findall(text))
@@ -66,6 +93,10 @@ class UnsupportedNumberError(RuntimeError):
 
 class CausalClaimError(RuntimeError):
     """Causal vocabulary reached the answer."""
+
+
+class SuppressedShareError(RuntimeError):
+    """A share of increase reached the answer for a dimension the analysis suppressed."""
 
 
 @dataclass
@@ -114,7 +145,10 @@ class AnswerDocument:
     def render(self) -> str:
         return self._raw_render().replace(QUOTE_OPEN, "").replace(QUOTE_CLOSE, "")
 
-    def check(self) -> None:
+    def check(self, suppressed_labels: FrozenSet[str] = frozenset()) -> None:
+        """`suppressed_labels` comes from the analysis result, never from what the
+        renderer recorded: a renderer that forgot to suppress would otherwise
+        switch this guard off in the same stroke."""
         text = self.claim_text()
         stray = numeric_tokens(text) - self.allowed_numbers
         if stray:
@@ -122,6 +156,12 @@ class AnswerDocument:
         found = causal_terms_in(text)
         if found:
             raise CausalClaimError("causal vocabulary in answer: %s" % found)
+        leaked = suppressed_share_lines(text, suppressed_labels)
+        if leaked:
+            raise SuppressedShareError(
+                "share of increase shown for suppressed dimension(s) %s"
+                % sorted(suppressed_labels)
+            )
 
     def as_dict(self) -> Dict[str, object]:
         return {
@@ -147,8 +187,19 @@ def build_answer(state: EvidenceState) -> AnswerDocument:
     _write_metric_facts(doc, state)
     _write_evidence(doc, state)
     _write_unknowns(doc, state)
-    doc.check()
+    doc.check(_suppressed_labels(state))
     return doc
+
+
+def _suppressed_labels(state: EvidenceState) -> FrozenSet[str]:
+    """Read straight from the analysis, independently of `_write_metric_facts`."""
+    if state.metrics is None:
+        return frozenset()
+    return frozenset(
+        label
+        for dimension, label in DIMENSION_LABELS
+        if state.metrics.suppress_top_contributor(dimension)
+    )
 
 
 def _write_integrity_facts(doc: AnswerDocument, state: EvidenceState) -> None:
@@ -223,35 +274,46 @@ def _write_metric_facts(doc: AnswerDocument, state: EvidenceState) -> None:
         doc.confirmed.append("이 비교 구간에서 불만 건수는 증가하지 않았다")
         return
 
-    dimensions = (
-        ("제품", state.top_products, metrics.by_product),
-        ("불만 유형", state.top_complaint_types, metrics.by_complaint_type),
-    )
-    for dimension, groups, all_groups in dimensions:
+    groups_of = {
+        DIM_PRODUCT: (state.top_products, metrics.by_product),
+        DIM_COMPLAINT_TYPE: (state.top_complaint_types, metrics.by_complaint_type),
+    }
+    for key, dimension in DIMENSION_LABELS:
+        groups, all_groups = groups_of[key]
         if not groups:
             continue
+        suppress = metrics.suppress_top_contributor(key)
         rising_total = sum(g.delta for g in all_groups if g.delta > 0)
         rendered = ", ".join(
-            "%s %s건 (늘어난 그룹 합계의 %s%%)"
-            % (
-                doc.num(_display(group.value)),
-                doc.num("%+d" % group.delta),
-                doc.num("%.0f" % (100 * group.share_of_increase)),
-            )
+            "%s %s건" % (doc.num(_display(group.value)), doc.num("%+d" % group.delta))
+            + ("" if suppress else " " + _format_share(doc, group))
             for group in groups
         )
-        doc.confirmed.append("%s별로 증가분이 발생한 위치: %s" % (dimension, rendered))
+        doc.confirmed.append("%s: %s" % (location_prefix(dimension), rendered))
+        if suppress:
+            doc.confirmed.append(
+                "%s별 증가·감소가 크게 상쇄되어, 늘어난 그룹 합계 대비 기여율은 표시하지 않는다"
+                % dimension
+            )
         if rising_total != metrics.delta:
             doc.confirmed.append(
                 "%s별로 늘어난 그룹의 합은 %s건이고 순증가는 %s건이다. "
-                "차이는 같은 구간에 줄어든 그룹이 상쇄한 몫이므로, 위 비율은 순증가가 아니라 "
-                "늘어난 그룹 합계를 기준으로 읽어야 한다"
+                "차이는 같은 구간에 줄어든 그룹이 상쇄한 몫%s"
                 % (
                     dimension,
                     doc.num("%+d" % rising_total),
                     doc.num("%+d" % metrics.delta),
+                    "이다" if suppress else (
+                        "이므로, 위 비율은 순증가가 아니라 늘어난 그룹 합계를 기준으로 읽어야 한다"
+                    ),
                 )
             )
+
+
+def _format_share(doc: AnswerDocument, group) -> str:
+    """The only place a share of increase is formatted. A suppressed dimension
+    never reaches it — the tests spy on it to prove that, before any string check."""
+    return "(%s %s%%)" % (SHARE_MARKER, doc.num("%.0f" % (100 * group.share_of_increase)))
 
 
 def _display(value: str) -> str:

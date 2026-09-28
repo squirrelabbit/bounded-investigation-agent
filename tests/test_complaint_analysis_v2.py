@@ -89,6 +89,25 @@ def _member_payload(view, member):
     return value
 
 
+def _expected_suppression(legacy, dimension):
+    """`suppress_top_contributor` has no v1 counterpart, so it is checked against a
+    re-derivation from the legacy group deltas with the pre-registered constants,
+    not against the engine's own flag."""
+    groups = legacy.by_product if dimension == DIM_PRODUCT else legacy.by_complaint_type
+    net = sum(g.delta for g in groups)
+    gross = sum(abs(g.delta) for g in groups)
+    heavy = gross > decompose.GROSS_EPSILON and abs(net) / gross < decompose.CANCELLATION_THRESHOLD
+    return heavy or abs(net) <= decompose.SHARE_EPSILON
+
+
+def _legacy_with_policy(rows, current_window, baseline_window):
+    """v1 arithmetic plus the independent re-derivation of the v2 output policy.
+    v1 never had the policy; without it the answer cannot be rendered at all."""
+    legacy = v1_metrics.compute(rows, current_window, baseline_window)
+    legacy.suppress_top_contributor = lambda d: _expected_suppression(legacy, d)
+    return legacy
+
+
 def _element_classes(view, member):
     if member == "top":
         return [type(g) for d in (DIM_PRODUCT, DIM_COMPLAINT_TYPE) for g in view.top(d)]
@@ -229,7 +248,7 @@ class EngineCallTests(unittest.TestCase):
 
 
 class ViewReproducesLegacyTests(unittest.TestCase):
-    """Acceptance 3, 4, 5: all ten members, bytes and types, over 32 cases."""
+    """Acceptance 3, 4, 5: all eleven members, bytes and types, over 32 cases."""
 
     def _assert_same(self, old, new, label):
         compared = set()
@@ -237,6 +256,14 @@ class ViewReproducesLegacyTests(unittest.TestCase):
             if member == "increased":
                 self.assertIs(type(new.increased), bool, label)
                 self.assertIs(new.increased, old.increased, label)
+                compared.add(member)
+                continue
+            if member == "suppress_top_contributor":
+                for dimension in (DIM_PRODUCT, DIM_COMPLAINT_TYPE):
+                    got = new.suppress_top_contributor(dimension)
+                    self.assertIs(type(got), bool, label)
+                    self.assertIs(got, _expected_suppression(old, dimension),
+                                  "%s %s" % (label, dimension))
                 compared.add(member)
                 continue
             old_payload = _member_payload(old, member)
@@ -281,7 +308,7 @@ class ViewReproducesLegacyTests(unittest.TestCase):
                 intent, rows, tickets, _meta = _load(group, case_id)
                 new = investigate(intent, rows, tickets, factory())
                 with mock.patch.object(controller_mod, "analyze_complaints",
-                                       v1_metrics.compute):
+                                       _legacy_with_policy):
                     old = investigate(intent, rows, tickets, factory())
                 label = "%s/%s" % (case_id, factory.__name__)
                 self.assertEqual(dump(new.as_dict()), dump(old.as_dict()), label)

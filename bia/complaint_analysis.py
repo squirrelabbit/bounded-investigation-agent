@@ -40,6 +40,7 @@ CONTRACT_MEMBERS = frozenset(
         "cells",
         "increased",
         "top",
+        "suppress_top_contributor",
         "as_dict",
     }
 )
@@ -58,6 +59,12 @@ class ComplaintAnalysis(Protocol):
     def increased(self) -> bool: ...
 
     def top(self, dimension: ComplaintDimension) -> List[GroupDelta]: ...
+
+    def suppress_top_contributor(self, dimension: ComplaintDimension) -> bool:
+        """v2 `suppress_top_contributor` of that dimension's single-dimension breakdown.
+        Read by the answer to decide whether the share of increase is shown. Not in
+        `as_dict()`, which is the legacy/JEV serialization."""
+        ...
 
     def as_dict(self) -> Dict[str, object]: ...
 
