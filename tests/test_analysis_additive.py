@@ -8,6 +8,7 @@ from bia.analysis.engine import run_plan
 from bia.analysis.frame import Observation
 from bia.analysis.registry import register
 from bia.analysis.request import AnalysisRequest, PeriodComparison
+from bia.analysis.result import GroupResult
 from bia.analysis.spec import DomainSpec, MetricSpec
 from bia.types import Period
 
@@ -79,6 +80,38 @@ class AdditiveArithmeticTests(unittest.TestCase):
         breakdown = self.result.breakdowns[1]
         self.assertEqual(breakdown.ranking["by"], "net_contribution")
         self.assertEqual(breakdown.ranking["groups"][0], {"channel": "paid"})
+
+
+class AdditiveGroupValueTests(unittest.TestCase):
+    """합 분해 그룹은 기간별 합계를 버리지 않는다. 비율 분해에는 이 필드가 없다."""
+
+    def test_group_values_are_the_period_sums(self):
+        """baseline paid 20 / organic 10, current paid 40 / organic 10 을 손으로 계산해 둔다."""
+        groups = dict((g.key["channel"], g) for g in run_plan(plan(), rows()).breakdowns[1].groups)
+        self.assertEqual((groups["paid"].current_value, groups["paid"].baseline_value), (40, 20))
+        self.assertEqual((groups["organic"].current_value, groups["organic"].baseline_value),
+                         (10, 10))
+        for group in groups.values():
+            self.assertIs(type(group.current_value), int)
+            self.assertIs(type(group.baseline_value), int)
+            self.assertEqual(group.current_value - group.baseline_value, group.group_delta)
+            out = group.as_dict()
+            self.assertEqual(out["current_value"], group.current_value)
+            self.assertEqual(out["baseline_value"], group.baseline_value)
+
+    def test_a_group_absent_from_one_period_has_value_zero_there(self):
+        data = [obs(day, "paid", 3) for day in BASE.dates()]
+        data += [obs(day, "organic", 4) for day in CUR.dates()]
+        groups = dict((g.key["channel"], g) for g in run_plan(plan(), data).breakdowns[1].groups)
+        self.assertEqual((groups["paid"].current_value, groups["paid"].baseline_value), (0, 6))
+        self.assertEqual((groups["organic"].current_value, groups["organic"].baseline_value),
+                         (8, 0))
+        self.assertIn("current_value", groups["paid"].as_dict())
+
+    def test_as_dict_omits_the_fields_when_unset(self):
+        out = GroupResult(key={"channel": "paid"}, net_contribution=1.0).as_dict()
+        self.assertNotIn("current_value", out)
+        self.assertNotIn("baseline_value", out)
 
 
 class ZeroBaselineTests(unittest.TestCase):

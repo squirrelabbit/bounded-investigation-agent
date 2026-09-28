@@ -269,12 +269,18 @@ def additive_breakdown(current: Dict[Tuple[str, ...], Dict[str, int]],
     gross = Fraction(0)
     total = Fraction(0)
     for key in universe:
-        delta = Fraction(current.get(key, {}).get(column, 0)
-                         - baseline.get(key, {}).get(column, 0))
+        # 한쪽 기간에 없는 그룹은 그 기간의 합계가 0 이다(유효 기간 안의 부재).
+        cur_value = current.get(key, {}).get(column, 0)
+        base_value = baseline.get(key, {}).get(column, 0)
+        delta = Fraction(cur_value - base_value)
         groups["|".join(key)] = {
             "expect_net_contribution": float(delta),
             "expect_group_delta": int(delta),
             "expect_comparable": True,
+            # 합 분해 전용. 비율 그룹에는 싣지 않는다 — 그 "값" 이 rate·분자·분모 중
+            # 무엇인지 모호하다.
+            "expect_current_value": int(cur_value),
+            "expect_baseline_value": int(base_value),
         }
         # additive 그룹에는 rate/mix 가 없다. 그 키로 정렬을 요구하면 _rank 가 멈춘다.
         entries.append((key, {"net_contribution": delta, "group_delta": delta}))

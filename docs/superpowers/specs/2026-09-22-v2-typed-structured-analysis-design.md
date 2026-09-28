@@ -384,7 +384,9 @@ non-comparable 그룹은 수학적으로 share 계산이 가능하지만 노출�
 }
 ```
 
-additive 면 `rate_effect`/`mix_effect` 가 없고 `group_delta`·`net_contribution` 만 있다.
+additive 면 `rate_effect`/`mix_effect` 가 없고 `group_delta`·`net_contribution` 과 그룹의 기간별 합계
+`current_value`·`baseline_value` 가 있다(`current_value - baseline_value == group_delta`). 비율 그룹에는
+`current_value`·`baseline_value` 가 없다 — rate·분자·분모 중 무엇인지 모호하다.
 
 ---
 

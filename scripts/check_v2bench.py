@@ -148,10 +148,30 @@ def main():
             total = Fraction(0)
             for key in universe:
                 net = net_of(key, current, baseline)
-                close(net, breakdown["groups"][key]["expect_net_contribution"],
+                group = breakdown["groups"][key]
+                close(net, group["expect_net_contribution"],
                       "%s %s %s net" % (case_id, name, key))
                 checks += 1
                 total += net
+                if entry["kind"] == "additive":
+                    for field, bucket in (("expect_current_value", current),
+                                          ("expect_baseline_value", baseline)):
+                        recount = bucket.get(key, {}).get(columns[0], 0)
+                        require(group[field] == recount,
+                                "%s %s %s %s: recomputed %s but the oracle says %s"
+                                % (case_id, name, key, field, recount, group[field]))
+                        checks += 1
+                    require(group["expect_current_value"] - group["expect_baseline_value"]
+                            == net,
+                            "%s %s %s: current_value - baseline_value != net"
+                            % (case_id, name, key))
+                    checks += 1
+                else:
+                    for field in ("expect_current_value", "expect_baseline_value"):
+                        require(field not in group,
+                                "%s %s %s: ratio group carries %s"
+                                % (case_id, name, key, field))
+                        checks += 1
             close(total, entry["expect_delta"], "%s %s partition" % (case_id, name))
             checks += 1
 

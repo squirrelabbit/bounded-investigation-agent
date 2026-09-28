@@ -90,10 +90,18 @@ def _additive_branch(plan, branch, current, baseline, universe) -> BreakdownResu
         cur = current.get(key, {column: 0})[column]
         base = baseline.get(key, {column: 0})[column]
         delta = cur - base
-        groups.append(GroupResult(
+        group = GroupResult(
             key=dict(zip(branch.dimensions, key)),
             net_contribution=float(delta), group_delta=delta, comparable=True,
-        ))
+            current_value=cur, baseline_value=base,
+        )
+        # 어기면 결과를 내지 않는다. `assert` 가 아니라 raise 라서 `-O` 에서도 산다.
+        if (group.current_value - group.baseline_value != group.group_delta
+                or float(group.group_delta) != group.net_contribution):
+            raise AssertionError("additive group broken for %r: %r - %r vs %r / %r"
+                                 % (group.key, group.current_value, group.baseline_value,
+                                    group.group_delta, group.net_contribution))
+        groups.append(group)
 
     net_delta = sum(g.net_contribution for g in groups)
     gross = sum(abs(g.net_contribution) for g in groups)

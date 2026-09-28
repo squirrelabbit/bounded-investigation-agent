@@ -17,6 +17,11 @@ class GroupResult:
     rate_effect: Optional[float] = None
     mix_effect: Optional[float] = None
     contribution_share: Optional[float] = None
+    # 합 분해 전용, 비율에는 없음. 그 그룹의 해당 기간 metric 합계다. 비율 분해에서
+    # "그룹의 값" 은 rate·분자·분모 중 무엇인지 모호하므로 싣지 않는다 — 벤치마크의
+    # `EXPECTED_GROUP_FIELDS` 가 (kind, comparable) 별 정확한 집합 일치로 강제한다.
+    current_value: Optional[int] = None
+    baseline_value: Optional[int] = None
 
     def as_dict(self) -> Dict[str, object]:
         out: Dict[str, object] = {"key": dict(self.key),
@@ -24,6 +29,10 @@ class GroupResult:
                                   "comparable": self.comparable}
         if self.group_delta is not None:
             out["group_delta"] = self.group_delta
+        if self.current_value is not None:
+            out["current_value"] = self.current_value
+        if self.baseline_value is not None:
+            out["baseline_value"] = self.baseline_value
         if self.rate_effect is not None:
             out["rate_effect"] = self.rate_effect
         if self.mix_effect is not None:

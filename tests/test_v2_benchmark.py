@@ -54,9 +54,13 @@ EXPECTED_TOTALS = {
                         "entry_exit_effect", "gross_movement")),
 }
 # 비교 불가 그룹에는 rate/mix 가 없다(production 이 None 으로 두는 자리다).
+# 그룹 값(`current_value`·`baseline_value`)은 합 분해에만 있다. 비율에서 "그룹의 값" 은
+# rate·분자·분모 중 무엇인지 모호하다 — 비율 집합에 들어오면 이 정확 일치가 깨진다.
+GROUP_VALUE_FIELDS = ("current_value", "baseline_value")
 EXPECTED_GROUP_FIELDS = {
     ("additive", True): frozenset(("expect_net_contribution", "expect_comparable",
-                                   "expect_group_delta")),
+                                   "expect_group_delta", "expect_current_value",
+                                   "expect_baseline_value")),
     ("ratio", True): frozenset(("expect_net_contribution", "expect_comparable",
                                 "expect_rate_effect", "expect_mix_effect",
                                 "expect_contribution_share")),
@@ -407,10 +411,19 @@ class ShareBoundaryAgreementTests(unittest.TestCase):
 
 
 class BenchmarkTests(unittest.TestCase):
+    DOMAINS = ("complaints", "ecommerce", "support_ops")
+
+    def setUp(self):
+        # 합 분해 그룹 값을 oracle 과 실제로 대조한 횟수, 도메인별.
+        self.group_values_checked = dict((d, 0) for d in self.DOMAINS)
+
     def test_every_case_matches_its_oracle(self):
         for case in CASES:
             with self.subTest(case=case.case_id):
                 self._run_case(case)
+        # 루프가 빈 채로 통과하지 않게 — 세 도메인 모두에서 새 필드를 대조했어야 한다.
+        for domain in self.DOMAINS:
+            self.assertGreater(self.group_values_checked[domain], 0, domain)
 
     def _run_case(self, case):
         expected = ORACLE["cases"][case.case_id]
@@ -521,6 +534,25 @@ class BenchmarkTests(unittest.TestCase):
             if "expect_group_delta" in entry:
                 self.assertEqual(group.group_delta, entry["expect_group_delta"],
                                  "%s %s group_delta" % (where, label))
+            if "expect_current_value" in entry:
+                for field in GROUP_VALUE_FIELDS:
+                    got = getattr(group, field)
+                    self.assertIs(type(got), int, "%s %s %s" % (where, label, field))
+                    self.assertEqual(got, entry["expect_" + field],
+                                     "%s %s %s" % (where, label, field))
+                    self.assertEqual(group.as_dict()[field], got,
+                                     "%s %s %s" % (where, label, field))
+                self.assertEqual(group.current_value - group.baseline_value,
+                                 group.group_delta, "%s %s" % (where, label))
+                self.assertEqual(float(group.group_delta), group.net_contribution,
+                                 "%s %s" % (where, label))
+                self.group_values_checked[case.domain] += 1
+            else:
+                for field in GROUP_VALUE_FIELDS:
+                    self.assertIsNone(getattr(group, field),
+                                      "%s %s %s" % (where, label, field))
+                    self.assertNotIn(field, group.as_dict(),
+                                     "%s %s %s" % (where, label, field))
             for field in ("rate_effect", "mix_effect", "contribution_share"):
                 if "expect_" + field not in entry:
                     continue
