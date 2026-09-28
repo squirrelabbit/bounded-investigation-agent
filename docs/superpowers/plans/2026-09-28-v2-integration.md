@@ -4,6 +4,13 @@
 **목표:** 제품 경로(`cli → controller → evidence → answer`)의 정형 계산을 v1 `bia/metrics.py` 에서
 v2 공용 엔진으로 바꾼다. **기능을 늘리지 않는다.** 바꾼 뒤에도 v1 제품 동작은 그대로여야 한다.
 
+## 출발 상태 (정확히)
+
+"v2 는 제품 경로에 없다" 는 **엔진에 대해서만** 참이다. `bia/integrity.py:13` 이 `bia.analysis.frame` 의
+`Observation`·`observation_key` 를 쓴다(`232554d`, grain 기준 중복 검사). 그래서 `bia.cli` 를 import 하면
+`bia.analysis`, `.errors`, `.frame`, `.spec` 이 로드되고, **compiler·engine·operators·decompose 는 로드되지 않는다.**
+Commit C 는 그 넷이 제품 경로에 처음 로드되는 커밋이다. "v2 import 0" 류의 조건은 이 구분으로 적어야 한다.
+
 ## 원칙
 
 - 커밋 넷을 섞지 않는다. 문제가 생겼을 때 원인이 경계 추가인지 엔진 교체인지 바로 갈라야 한다.

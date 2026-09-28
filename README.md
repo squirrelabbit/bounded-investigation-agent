@@ -572,7 +572,7 @@ v1 은 `v1.0.0` 태그로 고정돼 있고 v2 작업의 **regression 은 0** 이
 - **일반화 증거의 무게는 한 도메인에 실려 있다.** 26 사례 중 **23 이 `ecommerce`, 1 이 `complaints`, 2 가 `support_ops`** 다. `complaints` 는 합 metric 만 선언하므로, **비율 분해를 `ecommerce` 밖에서 밟는 사례는 C18(`support_ops` · `sla_resolution_rate`) 하나**다. 이 브랜치의 중심인 rate / mix / entry-exit 분해와 억제 정책은 사실상 한 도메인 + 한 사례로 입증돼 있다. `support_ops` 는 grain 구조도 `complaints` 와 사실상 같다.
 - **overall(차원 없는) 분기는 벤치마크가 독립 대조하지 않는다.** 그 분기에서 oracle 과 맞추는 것은 comparison 의 `baseline`·`current`·`delta`·`relative_change` 뿐이고, 그 분기의 groups·totals·flags 와 `decompose_ratio` 경로는 단위 테스트가 덮는다.
 - **실데이터 검증은 없다.** 사례는 전부 손으로 검산 가능한 작은 정수이고, 표현 다양성·라벨 노이즈·결측 패턴 같은 실제 데이터의 성질은 들어 있지 않다.
-- **분석 계층은 v0/v1 파이프라인에 연결돼 있지 않다.** `bia/domains/*` 는 어디서도 자동 import 되지 않고, 벤치마크와 테스트가 명시적으로 등록한다. CLI·adapter 가 새 도메인을 쓰려면 등록 시점을 따로 정해야 한다.
+- **분석 엔진은 v0/v1 파이프라인에 연결돼 있지 않다.** 파이프라인의 계산은 여전히 `bia/metrics.py` 다. 파이프라인이 v2 에서 가져다 쓰는 것은 관측 프레임(`bia/analysis/frame.py` 의 `Observation`·`observation_key`)뿐이고, 무결성 검사가 물리적 grain 기준으로 중복을 판정할 때 쓴다 — `bia.cli` 를 import 하면 `bia.analysis` 중 `frame`·`spec`·`errors` 만 로드되고 compiler·engine·operators·decompose 는 로드되지 않는다. `bia/domains/*` 는 어디서도 자동 import 되지 않고, 벤치마크와 테스트가 명시적으로 등록한다. CLI·adapter 가 새 도메인을 쓰려면 등록 시점을 따로 정해야 한다.
 
 ---
 
