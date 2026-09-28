@@ -9,9 +9,9 @@ import copy
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence
 
+from .complaint_analysis import ComplaintAnalysis
 from .integrity import Comparability, PeriodIntegrity
 from .lexicon import label_ko
-from .metrics import MetricResult
 from .types import (
     DIM_COMPLAINT_TYPE,
     DIM_PRODUCT,
@@ -102,7 +102,7 @@ class EvidenceState:
     current_integrity: PeriodIntegrity
     baseline_integrity: PeriodIntegrity
     comparability: Comparability
-    metrics: Optional[MetricResult]
+    metrics: Optional[ComplaintAnalysis]
     top_products: List[GroupDelta] = field(default_factory=list)
     top_complaint_types: List[GroupDelta] = field(default_factory=list)
     investigated_candidates: List[str] = field(default_factory=list)

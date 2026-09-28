@@ -10,8 +10,8 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Sequence
 
 from . import integrity as integrity_mod
-from . import metrics as metrics_mod
 from .answer import AnswerDocument, build_answer
+from .complaint_analysis import analyze_complaints
 from .decision import DecisionProvider
 from .evidence import (
     MAX_DECISION_CALLS,
@@ -100,7 +100,7 @@ def investigate(
     clean_rows = current_rows + baseline_rows
     assert comparability.current_window is not None
     assert comparability.baseline_window is not None
-    state.metrics = metrics_mod.compute(
+    state.metrics = analyze_complaints(
         clean_rows, comparability.current_window, comparability.baseline_window
     )
     state.top_products = state.metrics.top(DIM_PRODUCT)
