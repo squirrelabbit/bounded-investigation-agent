@@ -24,7 +24,8 @@ Commit C 는 그 넷이 제품 경로에 처음 로드되는 커밋이다. "v2 i
 |---|---|---|
 | A | tie-break 결정성 — canonical = 선언된 차원 순서 | 없음 (`3897262`) |
 | B | seam 도입: `ComplaintAnalysis` 계약 + `analyze_complaints()`. **구현은 여전히 v1** | 없음 |
-| C | seam 뒤 구현을 v2 엔진 + complaints 어댑터로 교체 | 없음이어야 함 (여기서 처음 이행이 일어남) |
+| C0 | 계약을 먼저 닫는다: 합 분해 `GroupResult` 에 `current_value`·`baseline_value` 보존 + 독립 oracle 확장, complaints 교차 한도 호환 계약 고정. **제품 실행은 여전히 v1** | 없음 |
+| C | `analyze_complaints()` 구현만 v1 → v2 로 교체. 어댑터가 v2 결과로 호환 뷰를 만든다 | 지원 corpus·벤치마크에서는 없음. 교차 셀 1000 초과 외부 입력에만 새 실패 계약 |
 | D | v2 출력 정책(`suppress_top_contributor` 등)을 최종 답변 문장까지 연결 | 의도된 변화 |
 
 ## seam 계약 (Commit B 에서 확정)
@@ -37,6 +38,26 @@ Commit C 는 그 넷이 제품 경로에 처음 로드되는 커밋이다. "v2 i
 이 저장소에는 타입 검사기가 없으므로 Protocol 만으로는 아무것도 강제되지 않는다. 두 AST 테스트로 닫는다:
 ① `bia.metrics` 를 import 하는 제품 모듈은 `bia/complaint_analysis.py` 하나뿐 ② `EvidenceState.metrics`
 가 흘러가는 경로에서 읽는 속성은 위 목록의 부분집합.
+
+## Commit C0 계약
+
+**`current_value`·`baseline_value`** — 합 분해 그룹의 그 metric 값(해당 기간 합계). 엔진이 이미 계산하고
+버리던 값을 보존한다. **비율 분해에는 싣지 않는다** — 비율에서 "그룹의 값" 은 rate·분자·분모 중 무엇인지
+모호하다. 벤치마크의 `EXPECTED_GROUP_FIELDS` 가 (kind, comparable) 별 정확한 집합 일치를 요구하므로
+이 경계는 기계적으로 강제된다. 어댑터가 관측치를 다시 합산하는 방식은 쓰지 않는다 — 그 순간 "계산은 v2
+엔진이 한다" 가 그룹 값에 대해 거짓이 된다.
+
+**oracle 확장 허용 범위** — `data/v2/oracle.json` 의 기존 key/value 는 모두 불변. 합 분해 그룹의
+`expect_current_value`·`expect_baseline_value` 추가만 허용한다. 새 필드는 엔진을 보지 않는 독립 계산으로
+검증하고, 세 도메인 모두에서 검증한다.
+
+**교차 한도 호환 계약** — 엔진은 교차 셀이 `CROSS_CELL_LIMIT`(1000)을 넘으면 정상적으로
+`status=omitted, reason=cross_cell_limit_exceeded` 를 낸다. 이것은 엔진 실패가 아니므로 `AnalysisRefused` 로
+위장하지 않는다. 문제는 complaints 호환 뷰가 `cells` 를 필수로 요구한다는 것이므로 어댑터 경계에서
+`ComplaintAnalysisCompatibilityError(reason=required_joint_breakdown_omitted, cause=cross_cell_limit_exceeded,
+observed_cells, limit)` 로 구분한다 — "공용 분석은 성공했지만 complaints 호환 뷰를 만들 수 없다". 조용히
+빈 `cells` 를 돌려주지 않고, `metrics.compute` 로 fallback 하지 않는다. **v1 대비 의도한 호환 변화다**
+(v1 은 셀 상한이 없다). 그래서 C 를 "모든 입력에 대한 완전한 동작 보존 교체" 라고 부르지 않는다.
 
 ## Commit C 필수 acceptance (지금 고정해 둔다)
 
