@@ -139,7 +139,7 @@ flowchart TD
 
 ## 설계 원칙
 
-**1. 모델은 계산하지 않는다.** 증감·기여도·비율은 전부 `bia/metrics.py`의 산술이다. 모델이 숫자를 만들 경로가 없다.
+**1. 모델은 계산하지 않는다.** 증감·기여도·비율은 전부 v2 공용 엔진(`bia/analysis/`)의 결정론적 산술이고, `bia/complaint_analysis.py` 가 그 결과를 v1 호환 뷰로 넘긴다. 모델이 숫자를 만들 경로가 없다.
 
 **2. 모델은 검색 조건을 쓰지 않는다.** 후보의 의미·필터·실행 권한은 서버가 정한다. 모델이 돌려줄 수 있는 값은 후보 ID 하나 또는 `DEFER` 뿐이다. 그 외의 값(후보 밖 ID, 빈 문자열, SQL 문자열, 문자열이 아닌 값)은 **DEFER로 강등되고 위반으로 기록**된다.
 
@@ -220,7 +220,8 @@ bounded-investigation-agent/
 ├── bia/
 │   ├── types.py          # Period, AnalysisIntent, EvidenceFilter, EvidenceCandidate
 │   ├── integrity.py      # 기간 완결성·결측·중복, 비교 가능 구간 결정
-│   ├── metrics.py        # 결정론적 증감·그룹 기여도
+│   ├── complaint_analysis.py # 제품 경로의 계산 경계 — v2 엔진 실행 후 v1 호환 뷰 반환
+│   ├── metrics.py        # v1 산술. 제품 경로에서 로드하지 않는 회귀 기준(legacy)
 │   ├── evidence.py       # EvidenceState, 서버의 닫힌 후보 생성
 │   ├── decision.py       # DecisionProvider 경계, heuristic·scripted selector
 │   ├── retrieval.py      # 서버 필터로만 실행되는 문의 조회
@@ -240,6 +241,8 @@ bounded-investigation-agent/
 │   │   ├── decompose.py  #   비율 metric 의 rate/mix/entry-exit 분해와 출력 정책
 │   │   ├── engine.py     #   plan 실행
 │   │   └── result.py     #   typed 산출물 (답변이 아니다)
+│   ├── adapters/
+│   │   └── complaints.py #   v2 결과 → v1 호환 뷰(ComplaintAnalysis), 교차 한도 호환 오류
 │   ├── domains/          # 세 도메인의 **선언**. 동작 코드 없음
 │   │   ├── complaints.py
 │   │   ├── ecommerce.py
@@ -572,7 +575,7 @@ v1 은 `v1.0.0` 태그로 고정돼 있고 v2 작업의 **regression 은 0** 이
 - **일반화 증거의 무게는 한 도메인에 실려 있다.** 26 사례 중 **23 이 `ecommerce`, 1 이 `complaints`, 2 가 `support_ops`** 다. `complaints` 는 합 metric 만 선언하므로, **비율 분해를 `ecommerce` 밖에서 밟는 사례는 C18(`support_ops` · `sla_resolution_rate`) 하나**다. 이 브랜치의 중심인 rate / mix / entry-exit 분해와 억제 정책은 사실상 한 도메인 + 한 사례로 입증돼 있다. `support_ops` 는 grain 구조도 `complaints` 와 사실상 같다.
 - **overall(차원 없는) 분기는 벤치마크가 독립 대조하지 않는다.** 그 분기에서 oracle 과 맞추는 것은 comparison 의 `baseline`·`current`·`delta`·`relative_change` 뿐이고, 그 분기의 groups·totals·flags 와 `decompose_ratio` 경로는 단위 테스트가 덮는다.
 - **실데이터 검증은 없다.** 사례는 전부 손으로 검산 가능한 작은 정수이고, 표현 다양성·라벨 노이즈·결측 패턴 같은 실제 데이터의 성질은 들어 있지 않다.
-- **분석 엔진은 v0/v1 파이프라인에 연결돼 있지 않다.** 파이프라인의 계산은 여전히 `bia/metrics.py` 다. 파이프라인이 v2 에서 가져다 쓰는 것은 관측 프레임(`bia/analysis/frame.py` 의 `Observation`·`observation_key`)뿐이고, 무결성 검사가 물리적 grain 기준으로 중복을 판정할 때 쓴다 — `bia.cli` 를 import 하면 `bia.analysis` 중 `frame`·`spec`·`errors` 만 로드되고 compiler·engine·operators·decompose 는 로드되지 않는다. `bia/domains/*` 는 어디서도 자동 import 되지 않고, 벤치마크와 테스트가 명시적으로 등록한다. CLI·adapter 가 새 도메인을 쓰려면 등록 시점을 따로 정해야 한다.
+- **제품 경로가 쓰는 도메인은 `complaints` 하나다.** 파이프라인의 계산은 `analyze_complaints()` 를 거쳐 v2 엔진이 하고, 그 등록은 `bia/complaint_analysis.py` 가 `bia/domains/complaints.py` 를 import 할 때 일어난다. `ecommerce`·`support_ops` 는 제품 경로에서 로드되지 않고 벤치마크와 테스트가 명시적으로 등록한다. 엔진의 출력 정책(`suppress_top_contributor` 등)은 아직 최종 답변 문장에 연결돼 있지 않다.
 
 ---
 
@@ -594,7 +597,8 @@ v1 은 `v1.0.0` 태그로 고정돼 있고 v2 작업의 **regression 은 0** 이
 | 실행 telemetry·유료 산출물 덮어쓰기 차단 | 구현됨 |
 | v2 typed 실행 계층 (선언적 도메인, 합·비율 metric, 닫힌 6 연산자) | 구현됨 |
 | v2 도메인 선언 3종, 26 사례 벤치마크와 독립 oracle | 구현됨 |
-| v2 분석 계층을 CLI·파이프라인에 연결 | 아직 아님 |
+| v2 엔진을 제품 경로의 계산으로 사용 (`complaints`, v1 호환 뷰) | 구현됨 |
+| v2 출력 정책을 최종 답변 문장에 연결 | 아직 아님 |
 | 자유 자연어 질문 파서 | 범위 밖 |
 
 모델은 붙였고 2회 측정했다. **좁은 기준선보다는 개선됐고, 강한 코드 기준선은 이기지 못했다.** 그래서 이 저장소는 "모델을 쓸 실익이 관측됐다"고 주장하지 않는다.
@@ -635,7 +639,8 @@ v1 은 `v1.0.0` 태그로 고정돼 있고 v2 작업의 **regression 은 0** 이
 - **`unknown_ticket_id` 검사는 오늘 발동하지 않는다.** 조회 대상과 저장소 목록이 같은 리스트라 구조상 도달 불가능하다. 문의 저장소가 분리되는 날을 위한 방어일 뿐이다.
 - **조회 상한이 유용한 근거를 잘라낼 수 있다.** 조회는 검증 **이전에** 200건에서 자른다. 넓은 필터의 앞쪽이 증가하지 않은 그룹의 문의로 채워져 있으면, 뒤쪽의 유용한 문의가 검증에 닿지 못한다. 답변은 이 절단을 미확인 항목으로 밝히지만, 근거를 잃는 것 자체는 막지 못한다. 현재 8개 사례의 최대 pool은 상한 아래라 발동하지 않는다.
 - **coverage 분모가 채택 기준과 다르다.** coverage는 `채택 / 필터에 걸린 전체 문의`인데, v1.1부터 채택은 증가한 그룹으로 제한된다. 두 모집단이 달라, 넓은 필터는 충분 판정에 도달하기 어려워지고 조사 1회를 더 쓰게 될 수 있다. 측정된 8개 사례에서는 조회 총합이 변하지 않았다.
-- **v2 분석 계층은 아직 파이프라인에 붙어 있지 않다.** 엔진·도메인 선언·벤치마크는 있지만 CLI 와 adapter 는 v0/v1 경로 그대로다. 일반화 증거도 주로 `ecommerce` 한 도메인에 걸려 있고 실데이터 검증은 없다.
+- **제품 경로의 v2 는 계산까지만이다.** 수치는 v2 엔진이 내고 v1 호환 뷰로 옮겨지지만, 억제 플래그 같은 출력 정책은 아직 답변 문장에 반영되지 않는다. 일반화 증거도 주로 `ecommerce` 한 도메인에 걸려 있고 실데이터 검증은 없다.
+- **교차 셀이 1000 을 넘는 입력은 명시적 오류로 끝난다.** 제품×불만 유형 교차 분해는 `CROSS_CELL_LIMIT`(1000) 까지만 만든다. v1 산술에는 이 상한이 없었지만, 호환 뷰는 교차 셀 목록이 반드시 있어야 하므로 상한을 넘는 `--data-dir` 입력은 빈 목록이나 v1 계산으로 대신하지 않고 reason·observed_cells·limit 을 밝힌 오류로 끝난다. 상한은 사전 등록된 상수라 입력에 맞춰 바꾸지 않는다. 번들 사례의 교차 셀은 최대 20 개라 해당하지 않는다.
 - **RANK 의 동률 폭은 절대 허용오차다.** `rank()` 는 두 기여도 차이가 `FLOAT_TOL`(1e-9) 이내면 동률로 보고 선언된 tie-break 을 쓴다. 기여도 자체가 1e-9 규모인 도메인이 생기면 모든 그룹이 한 묶음으로 동률이 되어 값 순서가 사라진다. 현재 세 도메인의 기여도는 1e-2~1e-1 규모라 해당하지 않는다. 상대 허용오차로 바꾸는 것은 `FLOAT_TOL` 이 사전 등록된 상수의 의미(절대 오차 하나로 0 판정·동률·경계 스냅을 함께 정의한다)를 바꾸는 일이므로 하지 않는다 — 그런 도메인이 생기면 상수를 다시 등록하는 것이 옳은 절차다.
 - **동시성·규모를 다루지 않는다.** 단일 프로세스, 단일 실행, 인메모리.
 

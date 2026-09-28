@@ -4,13 +4,23 @@
 """
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
 
 from ..analysis.operators import CROSS_CELL_LIMIT, order_groups
-from ..analysis.result import (STATUS_OK, BreakdownResult,
+from ..analysis.request import RANK_GROUP_DELTA
+from ..analysis.result import (STATUS_OK, BreakdownResult, GroupResult,
                                StructuredAnalysisResult)
+from ..analysis.spec import KIND_ADDITIVE
+from ..types import (DIM_COMPLAINT_TYPE, DIM_PRODUCT, METRIC_COMPLAINT_COUNT,
+                     CellDelta, GroupDelta)
 
 JOINT_DIMENSIONS = ("product", "complaint_type")
+
+# v1 `bia.metrics` 의 선택 규칙을 다시 진술한다. import 하면 legacy 모듈이 제품 경로에
+# 남는다. 두 값이 legacy 와 같은지는 테스트가 legacy 를 import 해 확인한다.
+TOP_SHARE_TARGET = 0.8
+TOP_MAX = 3
 
 REASON_JOINT_OMITTED = "required_joint_breakdown_omitted"
 REASON_JOINT_MISSING = "required_joint_breakdown_missing"
@@ -72,3 +82,127 @@ def top_contributor_cells(result: StructuredAnalysisResult) -> List[Tuple[str, s
     ordered = order_groups(breakdown.groups, "net_contribution", breakdown.dimensions)
     return [(g.key["product"], g.key["complaint_type"])
             for g in ordered if g.net_contribution > 0]
+
+
+@dataclass
+class ComplaintAnalysisView:
+    """`ComplaintAnalysis` 계약을 v2 결과로 채운 v1 호환 뷰.
+
+    `as_dict()` 는 키 삽입 순서까지 v1 `MetricResult.as_dict()` 와 같다 — 정렬 없이
+    덤프되는 결과 파일이 바이트 비교 대상이다.
+    """
+
+    current_total: int
+    baseline_total: int
+    delta: int
+    pct_change: Optional[float]
+    by_product: List[GroupDelta]
+    by_complaint_type: List[GroupDelta]
+    cells: List[CellDelta]
+
+    @property
+    def increased(self) -> bool:
+        return self.delta > 0
+
+    def top(self, dimension: str) -> List[GroupDelta]:
+        groups = self.by_product if dimension == DIM_PRODUCT else self.by_complaint_type
+        return top_contributors(groups)
+
+    def as_dict(self) -> Dict[str, object]:
+        return {
+            "current_total": self.current_total,
+            "baseline_total": self.baseline_total,
+            "delta": self.delta,
+            "pct_change": self.pct_change,
+            "by_product": [g.as_dict() for g in self.by_product],
+            "by_complaint_type": [g.as_dict() for g in self.by_complaint_type],
+        }
+
+
+def top_contributors(groups: List[GroupDelta]) -> List[GroupDelta]:
+    """증가분의 TOP_SHARE_TARGET 을 덮는 양의 그룹, 최대 TOP_MAX 개. 들어온 순서대로 누적한다."""
+    positives = [g for g in groups if g.delta > 0]
+    picked: List[GroupDelta] = []
+    cumulative = 0.0
+    for group in positives:
+        picked.append(group)
+        cumulative += group.share_of_increase
+        if cumulative >= TOP_SHARE_TARGET or len(picked) >= TOP_MAX:
+            break
+    return picked
+
+
+def _exact_int(value: object, what: str) -> int:
+    # bool 은 int 의 하위형이고 float 는 json 에서 "1903.0" 이 된다. 둘 다 v1 바이트를 깬다.
+    if type(value) is not int:
+        raise TypeError("complaints view needs an int for %s, got %r (%s)"
+                        % (what, value, type(value).__name__))
+    return value
+
+
+def _group_values(group: GroupResult) -> Tuple[int, int, int]:
+    label = "group %r" % (group.key,)
+    current = _exact_int(group.current_value, label + " current_value")
+    baseline = _exact_int(group.baseline_value, label + " baseline_value")
+    delta = _exact_int(group.group_delta, label + " group_delta")
+    if current - baseline != delta:
+        raise ValueError("%s: current_value - baseline_value = %d but group_delta = %d"
+                         % (label, current - baseline, delta))
+    return current, baseline, delta
+
+
+def _single_breakdown(result: StructuredAnalysisResult, dimension: str) -> BreakdownResult:
+    # 교차 한도는 단일 차원 분기에 걸리지 않고 요청은 두 차원을 모두 싣는다. 그래서
+    # 여기서 실패하면 엔진·요청 계약이 깨진 것이다 — 호환 오류로 위장하지 않는다.
+    for breakdown in result.breakdowns:
+        if not breakdown.cross and breakdown.dimensions == (dimension,):
+            if breakdown.status != STATUS_OK:
+                raise ValueError("the %s breakdown is %s (%s)"
+                                 % (dimension, breakdown.status, breakdown.reason))
+            return breakdown
+    raise ValueError("the result has no %s breakdown" % dimension)
+
+
+def _group_deltas(breakdown: BreakdownResult, dimension: str) -> List[GroupDelta]:
+    ordered = order_groups(breakdown.groups, RANK_GROUP_DELTA, breakdown.dimensions)
+    values = [(g.key[dimension],) + _group_values(g) for g in ordered]
+    # v1 의미: 그 차원에서 늘어난 그룹들의 합 대비 비율. v2 의 순기여 비율과 다른 양이다.
+    total_increase = sum(delta for _v, _c, _b, delta in values if delta > 0)
+    out = []
+    for value, current, baseline, delta in values:
+        share = (round(delta / float(total_increase), 4)
+                 if (delta > 0 and total_increase) else 0.0)
+        out.append(GroupDelta(dimension, value, current, baseline, delta, share))
+    return out
+
+
+def _cell_deltas(breakdown: BreakdownResult) -> List[CellDelta]:
+    ordered = order_groups(breakdown.groups, RANK_GROUP_DELTA, breakdown.dimensions)
+    out = []
+    for group in ordered:
+        current, baseline, delta = _group_values(group)
+        out.append(CellDelta(group.key["product"], group.key["complaint_type"],
+                             current, baseline, delta))
+    return out
+
+
+def complaint_view(result: StructuredAnalysisResult) -> ComplaintAnalysisView:
+    """v2 결과를 v1 호환 뷰로 옮긴다. 값은 엔진이 낸 정수만 쓰고 다시 합산하지 않는다."""
+    if result.metric.get("name") != METRIC_COMPLAINT_COUNT or result.metric.get("kind") != KIND_ADDITIVE:
+        raise ValueError("complaints view needs the additive %r metric, got %r"
+                         % (METRIC_COMPLAINT_COUNT, result.metric))
+    current_total = _exact_int(result.comparison.get("current"), "comparison current")
+    baseline_total = _exact_int(result.comparison.get("baseline"), "comparison baseline")
+    delta = _exact_int(result.comparison.get("delta"), "comparison delta")
+    if current_total - baseline_total != delta:
+        raise ValueError("comparison: current - baseline = %d but delta = %d"
+                         % (current_total - baseline_total, delta))
+
+    cells = _cell_deltas(required_joint_breakdown(result))
+    by_product = _group_deltas(_single_breakdown(result, DIM_PRODUCT), DIM_PRODUCT)
+    by_type = _group_deltas(_single_breakdown(result, DIM_COMPLAINT_TYPE), DIM_COMPLAINT_TYPE)
+
+    pct = (round(100.0 * (current_total - baseline_total) / float(baseline_total), 2)
+           if baseline_total else None)
+    return ComplaintAnalysisView(current_total, baseline_total, delta, pct,
+                                 by_product, by_type, cells)

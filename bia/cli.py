@@ -7,6 +7,7 @@ import os
 import sys
 from typing import List, Optional
 
+from .adapters.complaints import ComplaintAnalysisCompatibilityError
 from .controller import RunResult, investigate
 from .decision import DeterministicHeuristicSelector, GreedyEvidenceSelector
 from .external import ExternalDataError, load_external_dataset
@@ -71,6 +72,15 @@ def run_data_dir(
     provider = _resolve_selector(selector)
     intent, rows, tickets = load_external_dataset(data_dir, current, baseline)
     return investigate(intent, rows, tickets, provider)
+
+
+def _compatibility_message(exc: ComplaintAnalysisCompatibilityError) -> str:
+    return (
+        "데이터를 분석할 수 없다 — 제품×불만 유형 교차 분해가 필요한데 만들 수 없다 "
+        "(reason=%s, cause=%s, observed_cells=%s, limit=%d). 교차 셀 상한은 사전 등록된 "
+        "상수라 입력에 맞춰 늘리지 않는다. 제품 또는 불만 유형 수를 줄인 데이터로 다시 실행하라."
+        % (exc.reason, exc.cause, exc.observed_cells, exc.limit)
+    )
 
 
 def _print_header(scenario_id: str, meta_label: Optional[str]) -> None:
@@ -168,6 +178,8 @@ def main(argv: Optional[List[str]] = None) -> int:
             result = run_data_dir(args.data_dir, args.current, args.baseline, args.selector)
         except ExternalDataError as exc:
             raise SystemExit("데이터를 받을 수 없다 — %s" % exc)
+        except ComplaintAnalysisCompatibilityError as exc:
+            raise SystemExit(_compatibility_message(exc))
         if args.json:
             print(json.dumps(result.as_dict(), ensure_ascii=False, indent=2, sort_keys=True))
             return 0

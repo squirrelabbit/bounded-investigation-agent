@@ -1,7 +1,8 @@
 """The ComplaintAnalysis seam, closed by AST because nothing type-checks the Protocol.
 
-1. Import closure: among product modules under `bia/`, only
-   `bia/complaint_analysis.py` imports `bia.metrics`.
+1. Import closure: no product module under `bia/` imports `bia.metrics`. It is
+   the legacy v1 reference the compatibility tests compare against, not a
+   runtime dependency.
 2. Consumption closure: every attribute read on `EvidenceState.metrics`, along
    every path it flows through (including local aliases such as
    `metrics = state.metrics` in `bia/answer.py`), is a contract member; and the
@@ -121,14 +122,14 @@ def metrics_importers(files: Dict[str, str]) -> Dict[str, List[str]]:
 
 
 class ImportClosureTests(unittest.TestCase):
-    def test_only_the_seam_imports_bia_metrics(self):
+    def test_no_product_module_imports_bia_metrics(self):
         files = _product_files()
         for expected in ("bia/controller.py", "bia/evidence.py", "bia/answer.py", SEAM):
             self.assertIn(expected, files)
-        importers = metrics_importers(files)
-        # Equality, not "nothing else": the seam's own import must be seen, or
-        # the detector is blind and the empty remainder means nothing.
-        self.assertEqual(sorted(importers), [SEAM], importers)
+        # `bia/metrics.py` is the legacy reference now, not a runtime dependency.
+        # An empty result only means something because the planted-import tests
+        # below show the detector sees every form, in this very file set too.
+        self.assertEqual(metrics_importers(files), {})
 
     def test_every_import_form_is_caught(self):
         planted = {
@@ -154,7 +155,16 @@ class ImportClosureTests(unittest.TestCase):
             "from . import integrity as integrity_mod\nfrom . import metrics as metrics_mod\n",
             1,
         )
-        self.assertEqual(sorted(metrics_importers(files)), sorted(["bia/controller.py", SEAM]))
+        self.assertEqual(sorted(metrics_importers(files)), ["bia/controller.py"])
+
+    def test_the_seam_itself_with_a_planted_import_is_caught(self):
+        files = _product_files()
+        files[SEAM] = files[SEAM].replace(
+            "from .adapters.complaints import complaint_view\n",
+            "from .adapters.complaints import complaint_view\nfrom . import metrics\n",
+            1,
+        )
+        self.assertEqual(sorted(metrics_importers(files)), [SEAM])
 
     def test_mentions_that_are_not_imports_are_ignored(self):
         clean = {
