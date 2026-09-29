@@ -1,0 +1,51 @@
+{
+  "files": {
+    "company_product": {
+      "bytes": 1701848,
+      "committed": true,
+      "path": "derived/company_product.csv",
+      "rows": 24457,
+      "sha256": "c06c8a399dd4e2f400eeca315895b51114742860891c8aacb76252170f7efd14"
+    },
+    "product_issue": {
+      "bytes": 589117,
+      "committed": true,
+      "path": "derived/product_issue.csv",
+      "rows": 7246,
+      "sha256": "16c8503b27db0bd4939b7405122a874786c26a86f7cb468ee42ccf001cf172ae"
+    }
+  },
+  "stats": {
+    "blank_company_in_windows": 0,
+    "blank_issue_in_windows": 1,
+    "blank_product_in_windows": 0,
+    "rows_in_windows": {
+      "E1_baseline": 150437,
+      "E1_current": 166309,
+      "E2_baseline": 17352,
+      "E2_current": 18388
+    },
+    "rows_out_of_windows": 17701453,
+    "rows_read": 18053939,
+    "timely_blank_in_windows": {},
+    "whitespace_padded_values_in_windows": 0
+  },
+  "windows": {
+    "E1_baseline": [
+      "2024-02-01",
+      "2024-02-28"
+    ],
+    "E1_current": [
+      "2024-03-01",
+      "2024-03-28"
+    ],
+    "E2_baseline": [
+      "2017-03-27",
+      "2017-04-23"
+    ],
+    "E2_current": [
+      "2017-04-24",
+      "2017-05-21"
+    ]
+  }
+}
