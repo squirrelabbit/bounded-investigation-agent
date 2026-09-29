@@ -299,7 +299,7 @@ python3 -m bia.cli run --data-dir ./examples/custom-data-template \
 | 옵션 | 기본값 | 설명 |
 |---|---|---|
 | `--scenario` | (필수) | `S01`~`S24` |
-| `--selector` | `heuristic` | 현재 선택 가능한 값은 `heuristic` 하나 |
+| `--selector` | `heuristic` | 오프라인 코드 selector `heuristic`, `greedy`. 모델 selector(`jev`)는 과금 방지를 위해 CLI 에서 거부한다 |
 | `--json` | 꺼짐 | intent·EvidenceState·후보·검증 결과·답변 전체를 JSON으로 |
 | `--case` | (필수) | `normal`, `partial`, `no-evidence` |
 | `--data-dir` | — | `metrics.csv` + `tickets.jsonl` 이 든 디렉터리. `--scenario` 와 함께 쓸 수 없다 |
