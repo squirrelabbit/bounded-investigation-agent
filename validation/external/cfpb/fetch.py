@@ -1,138 +1,130 @@
-"""사전등록 3절: CFPB 검색 API 에서 원본 CSV 를 저장소 밖으로 스트리밍해 받는다.
+"""사전등록 3절 + 개정 1: CFPB 공식 전체 데이터셋 ZIP 을 저장소 밖으로 한 번만 스트리밍해 받는다.
 
-원본은 RAW_DIR(저장소 밖)에만 쓴다. 저장소에는 요청 URL·UTC 시각·원본 SHA-256·바이트 수·행 수만
-`results/acquisition.json` 으로 남긴다. 헤더는 allowlist 6개 열의 존재만 기록하고, 나머지 열 이름은
-기록하지 않는다(개수만).
+개정 1 에 따라 검색 API 경로는 제거했다 — 이 파일은 검색 API 에 요청하지 않는다.
+- 정적 파일 HEAD 는 이미 controller 가 1회 수행했다(개정 1). 여기서는 HEAD 를 보내지 않고 그 기록을 복사한다.
+- 다운로드는 최대 1회, 재시도 없음. 실패하거나 바이트 수가 HEAD 의 Content-Length 와 다르면 멈춘다.
+- 기록: URL, 다운로드 시작·끝 UTC, 바이트 수, ZIP 바이트 SHA-256, HEAD 기록, CSV 멤버의 allowlist 확인과 행 수.
+  헤더는 allowlist 6개 열의 존재만 기록하고 나머지 열 이름은 기록하지 않는다(개수만).
+- ZIP 은 풀지 않는다. CSV 멤버를 스트림으로 읽는다.
 """
 from __future__ import annotations
 
 import csv
 import datetime as _dt
 import hashlib
+import io
 import json
 import os
 import sys
-import time
-import urllib.parse
 import urllib.request
+import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-RAW_DIR = os.environ.get("BIA_CFPB_RAW_DIR", "/tmp/bia-cfpb-raw")
+REPO = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
+RAW_DIR = "/tmp/bia-cfpb-raw"
 ACQUISITION = os.path.join(HERE, "results", "acquisition.json")
+HEAD_RECORD = "/Users/silverone/.claude/jobs/2eedd855/tmp/cfpb_head.json"
 
-API = "https://www.consumerfinance.gov/data-research/consumer-complaints/search/api/v1/"
+URL = "https://files.consumerfinance.gov/ccdb/complaints.csv.zip"
+RAW_ZIP = os.path.join(RAW_DIR, "complaints.csv.zip")
 
 ALLOWLIST = ("Date received", "Product", "Issue", "Company", "Timely response?", "Complaint ID")
-
-# 구간보다 하루씩 넓게 요청한다(3절). 정확한 구간 자르기는 loader 몫이다.
-REQUESTS = (
-    {"id": "r2024", "date_received_min": "2024-01-31", "date_received_max": "2024-03-29",
-     "covers": ["E1", "E3"]},
-    {"id": "r2017", "date_received_min": "2017-03-26", "date_received_max": "2017-05-22",
-     "covers": ["E2"]},
-)
-
 CHUNK = 1 << 20
 
 
-def raw_path(request_id: str) -> str:
-    return os.path.join(RAW_DIR, "%s.csv" % request_id)
+def now_utc() -> str:
+    return _dt.datetime.now(_dt.timezone.utc).isoformat()
 
 
-def request_url(req) -> str:
-    query = urllib.parse.urlencode([
-        ("format", "csv"), ("no_aggs", "true"),
-        ("date_received_min", req["date_received_min"]),
-        ("date_received_max", req["date_received_max"]),
-    ])
-    return API + "?" + query
+def open_csv_member(zip_path: str):
+    """ZIP 안의 유일한 CSV 멤버를 텍스트 스트림으로 연다(디스크에 풀지 않는다)."""
+    archive = zipfile.ZipFile(zip_path)
+    members = [n for n in archive.namelist() if n.lower().endswith(".csv")]
+    if len(members) != 1:
+        raise ValueError("expected exactly one CSV member, found %d" % len(members))
+    raw = archive.open(members[0], "r")
+    return archive, members[0], io.TextIOWrapper(raw, encoding="utf-8-sig", newline="")
 
 
-def _download(url: str, dest: str):
-    digest = hashlib.sha256()
-    size = 0
-    req = urllib.request.Request(url, headers={"User-Agent": "bia-cfpb-external-validation/1"})
-    with urllib.request.urlopen(req, timeout=600) as resp, open(dest + ".part", "wb") as out:
-        status = resp.status
-        content_type = resp.headers.get("Content-Type")
-        while True:
-            chunk = resp.read(CHUNK)
-            if not chunk:
-                break
-            digest.update(chunk)
-            size += len(chunk)
-            out.write(chunk)
-    os.replace(dest + ".part", dest)
-    return {"http_status": status, "content_type": content_type,
-            "bytes": size, "sha256": digest.hexdigest()}
-
-
-def inspect_raw(path: str):
-    """헤더 allowlist 확인과 CSV 레코드 수. 레코드 내용은 보관하지 않는다."""
+def inspect_zip(zip_path: str):
     csv.field_size_limit(sys.maxsize)
-    with open(path, "r", encoding="utf-8-sig", newline="") as handle:
-        reader = csv.reader(handle)
+    archive, member, text = open_csv_member(zip_path)
+    with archive, text:
+        reader = csv.reader(text)
         header = next(reader)
         rows = 0
         for _ in reader:
             rows += 1
-    missing = [c for c in ALLOWLIST if c not in header]
-    duplicated = [c for c in ALLOWLIST if header.count(c) > 1]
-    return {"allowlist_present": not missing, "allowlist_missing": missing,
-            "allowlist_duplicated": duplicated,
+    return {"csv_member": member,
+            "allowlist_missing": [c for c in ALLOWLIST if c not in header],
+            "allowlist_duplicated": [c for c in ALLOWLIST if header.count(c) > 1],
             "header_column_count": len(header),
             "non_allowlisted_column_count": len([c for c in header if c not in ALLOWLIST]),
             "rows": rows}
 
 
-def main() -> int:
-    os.makedirs(RAW_DIR, exist_ok=True)
+def write(record) -> None:
     os.makedirs(os.path.dirname(ACQUISITION), exist_ok=True)
-    if os.path.realpath(RAW_DIR).startswith(os.path.realpath(os.path.join(HERE, "..", "..", ".."))):
-        print("RAW_DIR must be outside the repository: %s" % RAW_DIR)
-        return 2
-    records = []
-    for req in REQUESTS:
-        url = request_url(req)
-        dest = raw_path(req["id"])
-        received = None
-        info = None
-        last_error = None
-        for attempt in (1, 2):  # 재시도는 한 번까지
-            try:
-                received = _dt.datetime.now(_dt.timezone.utc).isoformat()
-                info = _download(url, dest)
-                break
-            except Exception as exc:  # noqa: BLE001 — 실패 사유를 기록하고 멈춘다
-                last_error = "%s: %s" % (type(exc).__name__, exc)
-                print("attempt %d failed for %s: %s" % (attempt, req["id"], last_error))
-                time.sleep(5)
-        if info is None:
-            print("STOP: download failed twice for %s" % req["id"])
-            return 3
-        shape = inspect_raw(dest)
-        record = dict(req)
-        record.update({"url": url, "received_utc": received, "raw_path_outside_repo": dest})
-        record.update(info)
-        record.update(shape)
-        records.append(record)
-        print("%s: bytes=%d rows=%d sha256=%s allowlist_present=%s"
-              % (req["id"], info["bytes"], shape["rows"], info["sha256"],
-                 shape["allowlist_present"]))
-        if not shape["allowlist_present"] or shape["allowlist_duplicated"]:
-            print("STOP: header does not match the pre-registered allowlist: missing=%s dup=%s"
-                  % (shape["allowlist_missing"], shape["allowlist_duplicated"]))
-            _write(records)
-            return 4
-    _write(records)
-    return 0
-
-
-def _write(records) -> None:
     with open(ACQUISITION, "w", encoding="utf-8") as handle:
-        json.dump({"source": API, "note": "CCDB is a live database; bytes may differ on refetch.",
-                   "requests": records}, handle, indent=2, ensure_ascii=False)
+        json.dump(record, handle, indent=2, ensure_ascii=False)
         handle.write("\n")
+
+
+def main() -> int:
+    if os.path.realpath(RAW_DIR).startswith(os.path.realpath(REPO) + os.sep):
+        print("STOP: RAW_DIR must be outside the repository")
+        return 2
+    if os.path.exists(RAW_ZIP):
+        print("STOP: %s already exists; this script downloads at most once" % RAW_ZIP)
+        return 2
+    with open(HEAD_RECORD, "r", encoding="utf-8") as handle:
+        head = json.load(handle)
+    expected_bytes = int(head["headers"]["Content-Length"])
+    os.makedirs(RAW_DIR, exist_ok=True)
+
+    record = {"source": URL, "amendment": "preregistration.md 개정 1",
+              "note": "CCDB is a live database; the file may differ on refetch.",
+              "head_record": head, "url": URL, "raw_path_outside_repo": RAW_ZIP}
+    digest = hashlib.sha256()
+    size = 0
+    record["download_started_utc"] = now_utc()
+    try:  # 재시도 없음(개정 1)
+        req = urllib.request.Request(URL, headers={"User-Agent": "bia-cfpb-external-validation/1"})
+        with urllib.request.urlopen(req, timeout=1800) as resp, open(RAW_ZIP + ".part", "wb") as out:
+            record["http_status"] = resp.status
+            while True:
+                chunk = resp.read(CHUNK)
+                if not chunk:
+                    break
+                digest.update(chunk)
+                size += len(chunk)
+                out.write(chunk)
+    except Exception as exc:  # noqa: BLE001
+        record["download_finished_utc"] = now_utc()
+        record["error"] = "%s: %s" % (type(exc).__name__, exc)
+        record["bytes"] = size
+        write(record)
+        print("STOP: download failed: %s" % record["error"])
+        return 3
+    record["download_finished_utc"] = now_utc()
+    os.replace(RAW_ZIP + ".part", RAW_ZIP)
+    record.update({"bytes": size, "sha256_zip": digest.hexdigest(),
+                   "bytes_match_head_content_length": size == expected_bytes})
+    if size != expected_bytes:
+        write(record)
+        print("STOP: byte count %d != HEAD Content-Length %d" % (size, expected_bytes))
+        return 4
+    shape = inspect_zip(RAW_ZIP)
+    record.update(shape)
+    record["allowlist_present"] = not shape["allowlist_missing"] and not shape["allowlist_duplicated"]
+    write(record)
+    print("bytes=%d sha256=%s rows=%d allowlist_present=%s"
+          % (size, record["sha256_zip"], shape["rows"], record["allowlist_present"]))
+    if not record["allowlist_present"]:
+        print("STOP: header does not match the allowlist: missing=%s dup=%s"
+              % (shape["allowlist_missing"], shape["allowlist_duplicated"]))
+        return 5
+    return 0
 
 
 if __name__ == "__main__":

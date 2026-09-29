@@ -94,6 +94,12 @@ def amb_thr(q, threshold):
     return abs(q - threshold) <= FLOAT_TOL
 
 
+def in_disputed_band(x):
+    """진단 전용. 개정 1 부속 2 는 모호 띠를 `0 < |x| <= 1e-9` 로 적었고 d5bd688 코드는 `<= 2e-9` 다.
+    둘이 갈리는 구간 (1e-9, 2e-9] 에 든 값의 개수를 센다. 판정에는 쓰지 않는다."""
+    return FLOAT_TOL < abs(x) <= 2 * FLOAT_TOL
+
+
 def _f(x):
     return None if x is None else float(x)
 
@@ -198,7 +204,9 @@ def ratio_branch(cur, base, dims, cross):
             "totals": {"total_rate_effect": float(total_rate),
                        "total_mix_effect": float(total_mix),
                        "entry_exit_effect": float(entry_exit), "gross_movement": float(gross)},
-            "flags": flags, "ambiguous_flags": ambiguous}
+            "flags": flags, "ambiguous_flags": ambiguous,
+            "tol_values_in_disputed_band": sum(
+                1 for x in [entry_exit, total_rate, delta_r] + rate_values if in_disputed_band(x))}
 
 
 def analyze(derived_dir, experiment, metric_name):

@@ -56,7 +56,12 @@ class LoaderRejected(ValueError):
 def read_allowlisted(path: str) -> Iterator[Tuple[str, ...]]:
     """원본 CSV 를 스트림으로 읽어 allowlist 6개 값 튜플만 내보낸다(ALLOWLIST 순서)."""
     csv.field_size_limit(sys.maxsize)
-    with open(path, "r", encoding="utf-8-sig", newline="") as handle:
+    if path.endswith(".zip"):
+        from fetch import open_csv_member
+        archive, _, handle = open_csv_member(path)
+    else:
+        archive, handle = None, open(path, "r", encoding="utf-8-sig", newline="")
+    with handle:
         reader = csv.reader(handle)
         header = next(reader)
         missing = [c for c in ALLOWLIST if c not in header]
@@ -69,6 +74,8 @@ def read_allowlisted(path: str) -> Iterator[Tuple[str, ...]]:
                 raise LoaderRejected({"ragged_record": 1})
             yield tuple(record[i] for i in index)
             del record
+    if archive is not None:
+        archive.close()
 
 
 def _window_of(day: _dt.date, windows: Dict[str, Tuple[_dt.date, _dt.date]]):
@@ -159,7 +166,7 @@ def file_record(path: str, rows: int) -> Dict[str, object]:
 def main() -> int:
     with open(ACQUISITION, "r", encoding="utf-8") as handle:
         acquisition = json.load(handle)
-    paths = [r["raw_path_outside_repo"] for r in acquisition["requests"]]
+    paths = [acquisition["raw_path_outside_repo"]]
 
     def stream():
         for path in paths:

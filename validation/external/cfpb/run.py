@@ -117,6 +117,7 @@ class Tally:
         self.floats = 0
         self.flags = 0
         self.flags_ambiguous = 0
+        self.disputed_band = 0
         self.max_float_diff = 0.0
         self.mismatches = []
 
@@ -196,6 +197,7 @@ def compare(label, engine, oracle, arith, flag_t, cross_rows):
         arith.other(where + ":totals_keys", sorted(eb["totals"]), sorted(ob["totals"]), "keys")
         for f in ob["totals"]:
             arith.float_eq(where + ":totals." + f, eb["totals"].get(f), ob["totals"][f])
+        flag_t.disputed_band += ob.get("tol_values_in_disputed_band", 0)
         flag_t.other(where + ":flag_keys", sorted(eb["flags"]), sorted(ob["flags"]), "keys")
         for f, value in ob["flags"].items():
             if f in ob["ambiguous_flags"]:
@@ -299,7 +301,7 @@ def run_mutations(e1_full, acquisition):
     for mid, layer, expected in M.TABLE:
         entry = {"id": mid, "layer": layer, "expected": expected, "runs": {}}
         if mid == "M1":
-            raw = next(r for r in acquisition["requests"] if r["id"] == "r2024")
+            raw = acquisition
             stream, counter = M.m1_stream(read_allowlisted(raw["raw_path_outside_repo"]))
             outcome = guarded_run(lambda s: derive(s)[0], stream)
             outcome["touched"] = counter["injected"]
@@ -451,6 +453,7 @@ def main():
                        "max_float_diff": arith.max_float_diff, "mismatches": arith.mismatches[:200],
                        "mismatch_count": len(arith.mismatches)},
         "flags": {"compared": flag_t.flags, "ambiguous_excluded": flag_t.flags_ambiguous,
+                  "tol_values_in_disputed_band_1e9_2e9": flag_t.disputed_band,
                   "mismatches": flag_t.mismatches[:200], "mismatch_count": len(flag_t.mismatches)},
         "cross": cross_rows})
     write_json("predictions.json", preds)
