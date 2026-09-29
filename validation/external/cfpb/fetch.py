@@ -23,7 +23,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 RAW_DIR = "/tmp/bia-cfpb-raw"
 ACQUISITION = os.path.join(HERE, "results", "acquisition.json")
-HEAD_RECORD = "/Users/silverone/.claude/jobs/2eedd855/tmp/cfpb_head.json"
+ATTEMPT1 = os.path.join(HERE, "results", "acquisition_attempt1.json")  # HEAD 기록은 여기 보존돼 있다
 
 URL = "https://files.consumerfinance.gov/ccdb/complaints.csv.zip"
 RAW_ZIP = os.path.join(RAW_DIR, "complaints.csv.zip")
@@ -77,19 +77,23 @@ def main() -> int:
     if os.path.exists(RAW_ZIP):
         print("STOP: %s already exists; this script downloads at most once" % RAW_ZIP)
         return 2
-    with open(HEAD_RECORD, "r", encoding="utf-8") as handle:
-        head = json.load(handle)
+    with open(ATTEMPT1, "r", encoding="utf-8") as handle:
+        head = json.load(handle)["head_record"]
     expected_bytes = int(head["headers"]["Content-Length"])
     os.makedirs(RAW_DIR, exist_ok=True)
 
-    record = {"source": URL, "amendment": "preregistration.md 개정 1",
+    # 개정 2: 같은 파일에서 HEAD 200 을 받은 조건 그대로 — User-Agent 헤더를 지정하지 않는다.
+    user_agent = dict(urllib.request.build_opener().addheaders).get("User-agent")
+    record = {"source": URL, "amendment": "preregistration.md 개정 2", "attempt": 2,
+              "request_user_agent": user_agent, "request_client":
+              "urllib.request (%s %s)" % (sys.executable, sys.version.split()[0]),
               "note": "CCDB is a live database; the file may differ on refetch.",
               "head_record": head, "url": URL, "raw_path_outside_repo": RAW_ZIP}
     digest = hashlib.sha256()
     size = 0
     record["download_started_utc"] = now_utc()
     try:  # 재시도 없음(개정 1)
-        req = urllib.request.Request(URL, headers={"User-Agent": "bia-cfpb-external-validation/1"})
+        req = urllib.request.Request(URL)
         with urllib.request.urlopen(req, timeout=1800) as resp, open(RAW_ZIP + ".part", "wb") as out:
             record["http_status"] = resp.status
             while True:
