@@ -39,3 +39,9 @@ CCDB 는 계속 갱신되므로 재다운로드하면 바이트가 달라질 수
 ## 결과
 
 [`results/summary.md`](results/summary.md) — 예측 P1~P7, 합격 기준 A1~A4, 손상 14종.
+
+- [`findings.md`](findings.md) — 봉인된 결과 이후에 쓴 **사후 해석**. 예측이 빗나간 것, 판정과 실제 방어 능력이 다른 것,
+  새로 드러난 외부 제약, 확인된 방어 공백. 결과 파일과 어긋나면 결과가 맞다.
+- 획득 경로는 사전등록 이후 두 번 바뀌었다 — [`preregistration.md`](preregistration.md) 의 개정 1(검색 API → 공식 전체 파일),
+  개정 2(성공한 요청 조건으로 다운로드 1회 재허용). 두 개정 모두 민원 레코드를 보기 전이다. 시도 기록은
+  `results/acquisition_attempt1.json`(실패), `results/acquisition.json`(성공).
