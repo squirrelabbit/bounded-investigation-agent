@@ -1,0 +1,26 @@
+{
+ "amendment": "preregistration.md 개정 1",
+ "attempt": 1,
+ "bytes": 0,
+ "download_finished_utc": "2026-09-29T01:09:14.198890+00:00",
+ "download_started_utc": "2026-09-29T01:09:13.999958+00:00",
+ "error": "HTTPError: HTTP Error 403: Forbidden",
+ "head_record": {
+  "at_utc": "2026-09-29T01:06:43.154507+00:00",
+  "headers": {
+   "Content-Length": "348672205",
+   "Content-Type": "binary/octet-stream",
+   "ETag": "\"2662d2ce6adab75d84bf8f2449c820a4-42\"",
+   "Last-Modified": "Mon, 28 Sep 2026 19:02:33 GMT"
+  },
+  "status": 200,
+  "url": "https://files.consumerfinance.gov/ccdb/complaints.csv.zip"
+ },
+ "note": "CCDB is a live database; the file may differ on refetch.",
+ "raw_path_outside_repo": "/tmp/bia-cfpb-raw/complaints.csv.zip",
+ "relation_to_head": "같은 URL 에 대한 HEAD (2026-09-29T01:06:43Z) 는 200 이었다. 그 HEAD 는 /usr/bin/python3 3.9.6 urllib 로 User-Agent 헤더를 지정하지 않고 보냈으므로 UA 는 런타임 기본값 'Python-urllib/3.9' 다 — 이 값은 HEAD 요청 기록에 찍힌 것이 아니라 보낸 스크립트(헤더 미지정)와 런타임에서 도출했다. 403 은 UA 'bia-cfpb-external-validation/1' 로 보낸 요청(검색 API 1–2, 이 다운로드)에서만 관찰됐다.",
+ "request_client": "python3 urllib.request (/usr/bin/python3 3.9.6)",
+ "request_user_agent": "bia-cfpb-external-validation/1",
+ "source": "https://files.consumerfinance.gov/ccdb/complaints.csv.zip",
+ "url": "https://files.consumerfinance.gov/ccdb/complaints.csv.zip"
+}
