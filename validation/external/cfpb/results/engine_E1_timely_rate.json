@@ -1,0 +1,3165 @@
+{
+ "error": null,
+ "result": {
+  "breakdowns": [
+   {
+    "cross": false,
+    "dimensions": [],
+    "flags": {
+     "composition_dominant": false,
+     "decomposition_complete": true,
+     "heavy_cancellation": false,
+     "simpson_strict": false,
+     "suppress_top_contributor": false
+    },
+    "groups": [
+     {
+      "comparable": true,
+      "contribution_share": 1.0,
+      "key": {},
+      "mix_effect": 0.0,
+      "net_contribution": 0.00020692623231000074,
+      "rate_effect": 0.00020692623231000074
+     }
+    ],
+    "non_comparable_groups": [],
+    "ranking": {},
+    "status": "ok",
+    "totals": {
+     "entry_exit_effect": 0.0,
+     "gross_movement": 0.00020692623231000074,
+     "total_mix_effect": 0.0,
+     "total_rate_effect": 0.00020692623231000074
+    }
+   },
+   {
+    "cross": false,
+    "dimensions": [
+     "product"
+    ],
+    "flags": {
+     "composition_dominant": false,
+     "decomposition_complete": true,
+     "heavy_cancellation": true,
+     "simpson_strict": false,
+     "suppress_top_contributor": true
+    },
+    "groups": [
+     {
+      "comparable": true,
+      "key": {
+       "product": "Checking or savings account"
+      },
+      "mix_effect": -0.00043258957213356756,
+      "net_contribution": -0.00040692161955665357,
+      "rate_effect": 2.5667952576913887e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "product": "Credit card"
+      },
+      "mix_effect": -0.00016551400712938342,
+      "net_contribution": -0.00021675375276772324,
+      "rate_effect": -5.1239745638350565e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      "mix_effect": -0.013386868433829455,
+      "net_contribution": -0.013140978127021086,
+      "rate_effect": 0.0002458903068084016
+     },
+     {
+      "comparable": true,
+      "key": {
+       "product": "Debt collection"
+      },
+      "mix_effect": 0.013993523607589327,
+      "net_contribution": 0.014129842840559521,
+      "rate_effect": 0.00013631923297018417
+     },
+     {
+      "comparable": true,
+      "key": {
+       "product": "Debt or credit management"
+      },
+      "mix_effect": -4.216400109971989e-05,
+      "net_contribution": -3.784371785326248e-05,
+      "rate_effect": 4.32028324645733e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": -0.00017212988161258998,
+      "net_contribution": -0.00035022037381560525,
+      "rate_effect": -0.00017809049220301508
+     },
+     {
+      "comparable": true,
+      "key": {
+       "product": "Mortgage"
+      },
+      "mix_effect": -0.0017337602823560873,
+      "net_contribution": -0.0017448606191767402,
+      "rate_effect": -1.1100336820653746e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 0.001149845092194517,
+      "net_contribution": 0.0011666088757768998,
+      "rate_effect": 1.6763783582383446e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "product": "Prepaid card"
+      },
+      "mix_effect": -0.00015309259838841485,
+      "net_contribution": -9.535554667466787e-05,
+      "rate_effect": 5.773705171374745e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "product": "Student loan"
+      },
+      "mix_effect": -0.0002949674296879046,
+      "net_contribution": -0.00011008897333885347,
+      "rate_effect": 0.0001848784563490509
+     },
+     {
+      "comparable": true,
+      "key": {
+       "product": "Vehicle loan or lease"
+      },
+      "mix_effect": 0.0009828249906873303,
+      "net_contribution": 0.0010134972461780618,
+      "rate_effect": 3.0672255490732426e-05
+     }
+    ],
+    "non_comparable_groups": [],
+    "ranking": {
+     "by": "net_contribution",
+     "groups": [
+      {
+       "product": "Debt collection"
+      },
+      {
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "product": "Vehicle loan or lease"
+      },
+      {
+       "product": "Debt or credit management"
+      },
+      {
+       "product": "Prepaid card"
+      },
+      {
+       "product": "Student loan"
+      },
+      {
+       "product": "Credit card"
+      },
+      {
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "product": "Checking or savings account"
+      },
+      {
+       "product": "Mortgage"
+      },
+      {
+       "product": "Credit reporting or other personal consumer reports"
+      }
+     ]
+    },
+    "status": "ok",
+    "totals": {
+     "entry_exit_effect": 0.0,
+     "gross_movement": 0.03241297169271907,
+     "total_mix_effect": -0.000254892515765948,
+     "total_rate_effect": 0.0004618187480758518
+    }
+   },
+   {
+    "cross": false,
+    "dimensions": [
+     "issue"
+    ],
+    "flags": {
+     "composition_dominant": false,
+     "decomposition_complete": false,
+     "heavy_cancellation": true,
+     "simpson_strict": false,
+     "suppress_top_contributor": true
+    },
+    "groups": [
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Advertising"
+      },
+      "mix_effect": 1.30463007042389e-05,
+      "net_contribution": 2.0879628904472277e-05,
+      "rate_effect": 7.833328200233371e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Advertising and marketing, including promotional offers"
+      },
+      "mix_effect": 0.00017794702469496636,
+      "net_contribution": 0.00017950306357143297,
+      "rate_effect": 1.5560388764669278e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Applying for a mortgage or refinancing an existing mortgage"
+      },
+      "mix_effect": -0.00012311366498933972,
+      "net_contribution": -0.0001360088462077965,
+      "rate_effect": -1.2895181218456647e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Attempts to collect debt not owed"
+      },
+      "mix_effect": 0.005583018343079904,
+      "net_contribution": 0.0054966420484142235,
+      "rate_effect": -8.637629466567633e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Can't contact lender or servicer"
+      },
+      "mix_effect": 9.377263140191293e-07,
+      "net_contribution": 9.377263140191293e-07,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Can't stop withdrawals from your bank account"
+      },
+      "mix_effect": -3.105651731096421e-05,
+      "net_contribution": -2.5651477139918405e-05,
+      "rate_effect": 5.40504017104581e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Charged fees or interest you didn't expect"
+      },
+      "mix_effect": 0.0005118293974872919,
+      "net_contribution": 0.0005473111317214187,
+      "rate_effect": 3.548173423412679e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Charged upfront or unexpected fees"
+      },
+      "mix_effect": -4.919332769944155e-05,
+      "net_contribution": -6.870726818163873e-05,
+      "rate_effect": -1.951394048219719e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Closing an account"
+      },
+      "mix_effect": -6.094232453325076e-05,
+      "net_contribution": -7.100060276752501e-05,
+      "rate_effect": -1.0058278234274302e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Closing on a mortgage"
+      },
+      "mix_effect": -0.00015734637642998012,
+      "net_contribution": -0.00015967391516587596,
+      "rate_effect": -2.327538735895885e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Closing your account"
+      },
+      "mix_effect": -0.0004721169259721985,
+      "net_contribution": -0.00047298110291785645,
+      "rate_effect": -8.641769456576602e-07
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Communication tactics"
+      },
+      "mix_effect": 0.00010151612811839637,
+      "net_contribution": 0.0001592560332080279,
+      "rate_effect": 5.773990508963157e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Confusing or misleading advertising or marketing"
+      },
+      "mix_effect": -9.263778711070394e-06,
+      "net_contribution": -2.5653275771013765e-06,
+      "rate_effect": 6.6984511339690014e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Confusing or missing disclosures"
+      },
+      "mix_effect": -2.8732048145046874e-05,
+      "net_contribution": -3.489184446895435e-05,
+      "rate_effect": -6.159796323907413e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Credit limit changed"
+      },
+      "mix_effect": 1.1391410210480345e-05,
+      "net_contribution": 1.1391410210480345e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Credit monitoring or identity theft protection services"
+      },
+      "mix_effect": 8.583978613320866e-05,
+      "net_contribution": 9.399274387841827e-05,
+      "rate_effect": 8.15295774520979e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Dealing with your lender or servicer"
+      },
+      "mix_effect": -0.00012298858151316578,
+      "net_contribution": 4.8262468336891275e-05,
+      "rate_effect": 0.00017125104985005738
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Didn't provide services promised"
+      },
+      "mix_effect": 1.1557384113065719e-05,
+      "net_contribution": 3.064343785187033e-05,
+      "rate_effect": 1.908605373880466e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Electronic communications"
+      },
+      "mix_effect": 7.500023072539913e-05,
+      "net_contribution": 4.727466013925872e-05,
+      "rate_effect": -2.7725570586140588e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "False statements or representation"
+      },
+      "mix_effect": -0.0003659614978033409,
+      "net_contribution": -0.0003168952569395471,
+      "rate_effect": 4.906624086379394e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Fees or interest"
+      },
+      "mix_effect": -5.0259478770753926e-05,
+      "net_contribution": -5.6326251142429975e-05,
+      "rate_effect": -6.066772371676127e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Fraud or scam"
+      },
+      "mix_effect": -0.0006776055179391715,
+      "net_contribution": -0.0007054997373286544,
+      "rate_effect": -2.7894219389482547e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Getting a credit card"
+      },
+      "mix_effect": -0.00011825002793682404,
+      "net_contribution": -0.00011778135880796681,
+      "rate_effect": 4.6866912885657963e-07
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Getting a line of credit"
+      },
+      "mix_effect": -3.770502341101173e-05,
+      "net_contribution": -3.770502341101173e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Getting a loan"
+      },
+      "mix_effect": 4.345850383025393e-05,
+      "net_contribution": 4.7137764328103324e-05,
+      "rate_effect": 3.679260497849386e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Getting a loan or lease"
+      },
+      "mix_effect": 6.510436694913126e-05,
+      "net_contribution": 5.932820641035201e-05,
+      "rate_effect": -5.7761605387793055e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Getting the loan"
+      },
+      "mix_effect": 8.205512702267165e-05,
+      "net_contribution": 6.925844868845102e-05,
+      "rate_effect": -1.2796678334220584e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Identity theft protection or other monitoring services"
+      },
+      "mix_effect": 2.5292670221161746e-05,
+      "net_contribution": 2.5292670221161746e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Improper use of your report"
+      },
+      "mix_effect": -0.00626985477336415,
+      "net_contribution": -0.006185471153449695,
+      "rate_effect": 8.438361991444577e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Incorrect exchange rate"
+      },
+      "mix_effect": -7.916095207809994e-06,
+      "net_contribution": -7.916095207809994e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Incorrect information on your report"
+      },
+      "mix_effect": -0.014590677630719544,
+      "net_contribution": -0.014530014397462765,
+      "rate_effect": 6.0663233256761025e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Issue where my lender is my school"
+      },
+      "mix_effect": 4.744109346995963e-06,
+      "net_contribution": 4.744109346995963e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Issue with income share agreement"
+      },
+      "mix_effect": 1.0757013038317542e-05,
+      "net_contribution": 1.0757013038317542e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Issues with repayment"
+      },
+      "mix_effect": -9.819286724298413e-06,
+      "net_contribution": -9.819286724298413e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Loan payment wasn't credited to your account"
+      },
+      "mix_effect": 8.205105247667381e-07,
+      "net_contribution": 1.423232804098789e-05,
+      "rate_effect": 1.3411817516221156e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Lost or stolen money order"
+      },
+      "mix_effect": -5.709574549465247e-06,
+      "net_contribution": -1.8369779104271203e-05,
+      "rate_effect": -1.2660204554805956e-05
+     },
+     {
+      "comparable": false,
+      "key": {
+       "issue": "Lost or stolen refund"
+      },
+      "net_contribution": 1.2025807382643153e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Managing an account"
+      },
+      "mix_effect": 0.0003221363625787998,
+      "net_contribution": 0.00034726925985331496,
+      "rate_effect": 2.5132897274514847e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Managing the loan or lease"
+      },
+      "mix_effect": 0.00030278848946959156,
+      "net_contribution": 0.00032014326494132946,
+      "rate_effect": 1.7354775471738005e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Managing, opening, or closing your mobile wallet account"
+      },
+      "mix_effect": -0.0001868142991266258,
+      "net_contribution": -0.0001868142991266258,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Money was not available when promised"
+      },
+      "mix_effect": 0.00038178847802644605,
+      "net_contribution": 0.00040305692090660125,
+      "rate_effect": 2.12684428801553e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Money was taken from your bank account on the wrong day or for the wrong amount"
+      },
+      "mix_effect": 4.744109346995963e-06,
+      "net_contribution": 4.744109346995963e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Opening an account"
+      },
+      "mix_effect": -0.00027130760524488387,
+      "net_contribution": -0.0002777272669650583,
+      "rate_effect": -6.419661720174407e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Other features, terms, or problems"
+      },
+      "mix_effect": -0.0002488501248185211,
+      "net_contribution": -0.0002488501248185211,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Other service problem"
+      },
+      "mix_effect": 4.3494453850317585e-05,
+      "net_contribution": 3.982832740400598e-05,
+      "rate_effect": -3.6661264463116174e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Other transaction problem"
+      },
+      "mix_effect": 9.037484584336423e-05,
+      "net_contribution": 1.3927200268036045e-05,
+      "rate_effect": -7.644764557532805e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Overdraft, savings, or rewards features"
+      },
+      "mix_effect": -1.3928998899131572e-05,
+      "net_contribution": -1.3928998899131572e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": false,
+      "key": {
+       "issue": "Problem adding money"
+      },
+      "net_contribution": 1.8038711073964727e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem caused by your funds being low"
+      },
+      "mix_effect": -0.000229066357723153,
+      "net_contribution": -0.00021075675696920703,
+      "rate_effect": 1.8309600753946186e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem getting a card or closing an account"
+      },
+      "mix_effect": -0.00012184652429323318,
+      "net_contribution": -0.00010704668876481321,
+      "rate_effect": 1.479983552841993e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem when making payments"
+      },
+      "mix_effect": -0.0002251595763824628,
+      "net_contribution": -0.00025635193533067374,
+      "rate_effect": -3.1192358948211414e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a company's investigation into an existing issue"
+      },
+      "mix_effect": -7.048988403743873e-05,
+      "net_contribution": -7.700990919665558e-05,
+      "rate_effect": -6.520025159216795e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a company's investigation into an existing problem"
+      },
+      "mix_effect": 0.008846634284322832,
+      "net_contribution": 0.008932295356859188,
+      "rate_effect": 8.566107253637643e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a lender or other company charging your account"
+      },
+      "mix_effect": -0.00019414655782764808,
+      "net_contribution": -0.00019371304861725723,
+      "rate_effect": 4.3350921039082515e-07
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a purchase or transfer"
+      },
+      "mix_effect": 5.388733728408141e-06,
+      "net_contribution": 7.4185938468026e-06,
+      "rate_effect": 2.029860118394294e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a purchase shown on your statement"
+      },
+      "mix_effect": -0.0005135950574498151,
+      "net_contribution": -0.0005381092950674056,
+      "rate_effect": -2.4514237617591066e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with additional add-on products or services"
+      },
+      "mix_effect": 0.0004474871052149468,
+      "net_contribution": 0.00046641342145753136,
+      "rate_effect": 1.8926316242584682e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with cash advance"
+      },
+      "mix_effect": -1.9031915164884204e-06,
+      "net_contribution": -1.9031915164884204e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with customer service"
+      },
+      "mix_effect": 7.290019223599115e-05,
+      "net_contribution": 7.209936651895858e-05,
+      "rate_effect": -8.008257170325092e-07
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with fraud alerts or security freezes"
+      },
+      "mix_effect": -0.00016755243853969624,
+      "net_contribution": -0.00016734395763982543,
+      "rate_effect": 2.084808998711401e-07
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with overdraft"
+      },
+      "mix_effect": -7.281698035647187e-06,
+      "net_contribution": -7.281698035647187e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with the payoff process at the end of the loan"
+      },
+      "mix_effect": 4.496837540948512e-05,
+      "net_contribution": 5.215746392850547e-05,
+      "rate_effect": 7.189088519020354e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problems at the end of the loan or lease"
+      },
+      "mix_effect": 0.00015738611188313234,
+      "net_contribution": 0.00016626393962136448,
+      "rate_effect": 8.877827738232225e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problems receiving the advance"
+      },
+      "mix_effect": 1.6769916729639118e-05,
+      "net_contribution": 1.6769916729639118e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Received a loan you didn't apply for"
+      },
+      "mix_effect": 5.9851648028714e-06,
+      "net_contribution": 5.9851648028714e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Repossession"
+      },
+      "mix_effect": 0.00040509878309681813,
+      "net_contribution": 0.00041488855607009316,
+      "rate_effect": 9.789772973275067e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Struggling to pay mortgage"
+      },
+      "mix_effect": -0.0005784707182869186,
+      "net_contribution": -0.0005791732820340009,
+      "rate_effect": -7.025637470822701e-07
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Struggling to pay your bill"
+      },
+      "mix_effect": -1.0205832531505216e-05,
+      "net_contribution": -1.0205832531505216e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Struggling to pay your loan"
+      },
+      "mix_effect": 0.0003324111576282889,
+      "net_contribution": 0.00033404632358310633,
+      "rate_effect": 1.6351659548172858e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Struggling to repay your loan"
+      },
+      "mix_effect": -0.00013894614385032313,
+      "net_contribution": -0.00014014629727107978,
+      "rate_effect": -1.200153420756694e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Threatened to contact someone or share information improperly"
+      },
+      "mix_effect": -3.1426696513419064e-05,
+      "net_contribution": -4.225675916995201e-05,
+      "rate_effect": -1.0830062656532955e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Took or threatened to take negative or legal action"
+      },
+      "mix_effect": -0.0003656520042308153,
+      "net_contribution": -0.00042179090282291583,
+      "rate_effect": -5.613889859210041e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Trouble accessing funds in your mobile or digital wallet"
+      },
+      "mix_effect": -3.7262233651133336e-05,
+      "net_contribution": -6.05987993857731e-05,
+      "rate_effect": -2.333656573463972e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Trouble during payment process"
+      },
+      "mix_effect": -0.0008608696751982793,
+      "net_contribution": -0.0008626119221796201,
+      "rate_effect": -1.7422469813404343e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Trouble using the card"
+      },
+      "mix_effect": -0.00011598210558606348,
+      "net_contribution": -0.000100097857390568,
+      "rate_effect": 1.5884248195495327e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Trouble using your card"
+      },
+      "mix_effect": 1.2650314282107814e-05,
+      "net_contribution": 6.880763179675613e-07,
+      "rate_effect": -1.196223796414011e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Unable to get your credit report or credit score"
+      },
+      "mix_effect": -0.0003074785867146687,
+      "net_contribution": -0.00028840286196912075,
+      "rate_effect": 1.9075724745548192e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Unauthorized transactions or other transaction problem"
+      },
+      "mix_effect": 0.00012852407161880955,
+      "net_contribution": 0.00012293255832623807,
+      "rate_effect": -5.591513292571361e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Unauthorized withdrawals or charges"
+      },
+      "mix_effect": -7.929964652035067e-06,
+      "net_contribution": -1.5998623746320956e-06,
+      "rate_effect": 6.3301022774029745e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Unexpected fees"
+      },
+      "mix_effect": 4.744109346995963e-06,
+      "net_contribution": 4.744109346995963e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Unexpected or other fees"
+      },
+      "mix_effect": 8.918384857717437e-05,
+      "net_contribution": 9.295125653498068e-05,
+      "rate_effect": 3.767407957806382e-06
+     },
+     {
+      "comparable": false,
+      "key": {
+       "issue": "Vehicle was damaged or destroyed the vehicle"
+      },
+      "net_contribution": 3.006451845660788e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Vehicle was repossessed or sold the vehicle"
+      },
+      "mix_effect": 9.488218693991926e-06,
+      "net_contribution": 9.488218693991926e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": false,
+      "key": {
+       "issue": "Was approved for a loan, but didn't receive money"
+      },
+      "net_contribution": -6.647300863484382e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Was approved for a loan, but didn't receive the money"
+      },
+      "mix_effect": -9.819286724298413e-06,
+      "net_contribution": -9.819286724298413e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Written notification about debt"
+      },
+      "mix_effect": 0.009040722258859026,
+      "net_contribution": 0.009207613017730418,
+      "rate_effect": 0.00016689075887139042
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Wrong amount charged or received"
+      },
+      "mix_effect": 4.623877217060491e-06,
+      "net_contribution": 5.6818356610150925e-06,
+      "rate_effect": 1.0579584439546125e-06
+     },
+     {
+      "comparable": false,
+      "key": {
+       "issue": "__UNKNOWN__"
+      },
+      "net_contribution": 6.0129036913215765e-06
+     }
+    ],
+    "non_comparable_groups": [
+     {
+      "issue": "Lost or stolen refund"
+     },
+     {
+      "issue": "Problem adding money"
+     },
+     {
+      "issue": "Vehicle was damaged or destroyed the vehicle"
+     },
+     {
+      "issue": "Was approved for a loan, but didn't receive money"
+     },
+     {
+      "issue": "__UNKNOWN__"
+     }
+    ],
+    "ranking": {
+     "by": "net_contribution",
+     "groups": [
+      {
+       "issue": "Written notification about debt"
+      },
+      {
+       "issue": "Problem with a company's investigation into an existing problem"
+      },
+      {
+       "issue": "Attempts to collect debt not owed"
+      },
+      {
+       "issue": "Charged fees or interest you didn't expect"
+      },
+      {
+       "issue": "Problem with additional add-on products or services"
+      },
+      {
+       "issue": "Repossession"
+      },
+      {
+       "issue": "Money was not available when promised"
+      },
+      {
+       "issue": "Managing an account"
+      },
+      {
+       "issue": "Struggling to pay your loan"
+      },
+      {
+       "issue": "Managing the loan or lease"
+      },
+      {
+       "issue": "Advertising and marketing, including promotional offers"
+      },
+      {
+       "issue": "Problems at the end of the loan or lease"
+      },
+      {
+       "issue": "Communication tactics"
+      },
+      {
+       "issue": "Unauthorized transactions or other transaction problem"
+      },
+      {
+       "issue": "Credit monitoring or identity theft protection services"
+      },
+      {
+       "issue": "Unexpected or other fees"
+      },
+      {
+       "issue": "Problem with customer service"
+      },
+      {
+       "issue": "Getting the loan"
+      },
+      {
+       "issue": "Getting a loan or lease"
+      },
+      {
+       "issue": "Problem with the payoff process at the end of the loan"
+      },
+      {
+       "issue": "Dealing with your lender or servicer"
+      },
+      {
+       "issue": "Electronic communications"
+      },
+      {
+       "issue": "Getting a loan"
+      },
+      {
+       "issue": "Other service problem"
+      },
+      {
+       "issue": "Didn't provide services promised"
+      },
+      {
+       "issue": "Vehicle was damaged or destroyed the vehicle"
+      },
+      {
+       "issue": "Identity theft protection or other monitoring services"
+      },
+      {
+       "issue": "Advertising"
+      },
+      {
+       "issue": "Problem adding money"
+      },
+      {
+       "issue": "Problems receiving the advance"
+      },
+      {
+       "issue": "Loan payment wasn't credited to your account"
+      },
+      {
+       "issue": "Other transaction problem"
+      },
+      {
+       "issue": "Lost or stolen refund"
+      },
+      {
+       "issue": "Credit limit changed"
+      },
+      {
+       "issue": "Issue with income share agreement"
+      },
+      {
+       "issue": "Vehicle was repossessed or sold the vehicle"
+      },
+      {
+       "issue": "Problem with a purchase or transfer"
+      },
+      {
+       "issue": "__UNKNOWN__"
+      },
+      {
+       "issue": "Received a loan you didn't apply for"
+      },
+      {
+       "issue": "Wrong amount charged or received"
+      },
+      {
+       "issue": "Issue where my lender is my school"
+      },
+      {
+       "issue": "Money was taken from your bank account on the wrong day or for the wrong amount"
+      },
+      {
+       "issue": "Unexpected fees"
+      },
+      {
+       "issue": "Can't contact lender or servicer"
+      },
+      {
+       "issue": "Trouble using your card"
+      },
+      {
+       "issue": "Unauthorized withdrawals or charges"
+      },
+      {
+       "issue": "Problem with cash advance"
+      },
+      {
+       "issue": "Confusing or misleading advertising or marketing"
+      },
+      {
+       "issue": "Was approved for a loan, but didn't receive money"
+      },
+      {
+       "issue": "Problem with overdraft"
+      },
+      {
+       "issue": "Incorrect exchange rate"
+      },
+      {
+       "issue": "Issues with repayment"
+      },
+      {
+       "issue": "Was approved for a loan, but didn't receive the money"
+      },
+      {
+       "issue": "Struggling to pay your bill"
+      },
+      {
+       "issue": "Overdraft, savings, or rewards features"
+      },
+      {
+       "issue": "Lost or stolen money order"
+      },
+      {
+       "issue": "Can't stop withdrawals from your bank account"
+      },
+      {
+       "issue": "Confusing or missing disclosures"
+      },
+      {
+       "issue": "Getting a line of credit"
+      },
+      {
+       "issue": "Threatened to contact someone or share information improperly"
+      },
+      {
+       "issue": "Fees or interest"
+      },
+      {
+       "issue": "Trouble accessing funds in your mobile or digital wallet"
+      },
+      {
+       "issue": "Charged upfront or unexpected fees"
+      },
+      {
+       "issue": "Closing an account"
+      },
+      {
+       "issue": "Problem with a company's investigation into an existing issue"
+      },
+      {
+       "issue": "Trouble using the card"
+      },
+      {
+       "issue": "Problem getting a card or closing an account"
+      },
+      {
+       "issue": "Getting a credit card"
+      },
+      {
+       "issue": "Applying for a mortgage or refinancing an existing mortgage"
+      },
+      {
+       "issue": "Struggling to repay your loan"
+      },
+      {
+       "issue": "Closing on a mortgage"
+      },
+      {
+       "issue": "Problem with fraud alerts or security freezes"
+      },
+      {
+       "issue": "Managing, opening, or closing your mobile wallet account"
+      },
+      {
+       "issue": "Problem with a lender or other company charging your account"
+      },
+      {
+       "issue": "Problem caused by your funds being low"
+      },
+      {
+       "issue": "Other features, terms, or problems"
+      },
+      {
+       "issue": "Problem when making payments"
+      },
+      {
+       "issue": "Opening an account"
+      },
+      {
+       "issue": "Unable to get your credit report or credit score"
+      },
+      {
+       "issue": "False statements or representation"
+      },
+      {
+       "issue": "Took or threatened to take negative or legal action"
+      },
+      {
+       "issue": "Closing your account"
+      },
+      {
+       "issue": "Problem with a purchase shown on your statement"
+      },
+      {
+       "issue": "Struggling to pay mortgage"
+      },
+      {
+       "issue": "Fraud or scam"
+      },
+      {
+       "issue": "Trouble during payment process"
+      },
+      {
+       "issue": "Improper use of your report"
+      },
+      {
+       "issue": "Incorrect information on your report"
+      }
+     ]
+    },
+    "status": "ok",
+    "totals": {
+     "entry_exit_effect": 5.949463974105296e-05,
+     "gross_movement": 0.05574185995164875,
+     "total_mix_effect": -0.00032988871828766353,
+     "total_rate_effect": 0.0004773203108566073
+    }
+   },
+   {
+    "cross": true,
+    "dimensions": [
+     "product",
+     "issue"
+    ],
+    "flags": {
+     "composition_dominant": false,
+     "decomposition_complete": false,
+     "heavy_cancellation": true,
+     "simpson_strict": false,
+     "suppress_top_contributor": true
+    },
+    "groups": [
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Closing an account",
+       "product": "Checking or savings account"
+      },
+      "mix_effect": -6.094232453325076e-05,
+      "net_contribution": -7.100060276752501e-05,
+      "rate_effect": -1.0058278234274302e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Credit monitoring or identity theft protection services",
+       "product": "Checking or savings account"
+      },
+      "mix_effect": 1.1391410210480345e-05,
+      "net_contribution": 1.1391410210480345e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Improper use of your report",
+       "product": "Checking or savings account"
+      },
+      "mix_effect": 8.219424349666317e-06,
+      "net_contribution": 8.219424349666317e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Incorrect information on your report",
+       "product": "Checking or savings account"
+      },
+      "mix_effect": -6.978368893790867e-06,
+      "net_contribution": -6.978368893790867e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Managing an account",
+       "product": "Checking or savings account"
+      },
+      "mix_effect": 0.0003221363625787998,
+      "net_contribution": 0.00034726925985331496,
+      "rate_effect": 2.5132897274514847e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Opening an account",
+       "product": "Checking or savings account"
+      },
+      "mix_effect": -0.00027130760524488387,
+      "net_contribution": -0.0002777272669650583,
+      "rate_effect": -6.419661720174407e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem caused by your funds being low",
+       "product": "Checking or savings account"
+      },
+      "mix_effect": -0.000229066357723153,
+      "net_contribution": -0.00021075675696920703,
+      "rate_effect": 1.8309600753946186e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a company's investigation into an existing problem",
+       "product": "Checking or savings account"
+      },
+      "mix_effect": -1.8369779104271203e-05,
+      "net_contribution": -1.8369779104271203e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a lender or other company charging your account",
+       "product": "Checking or savings account"
+      },
+      "mix_effect": -0.00019414655782764808,
+      "net_contribution": -0.00019371304861725723,
+      "rate_effect": 4.3350921039082515e-07
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with fraud alerts or security freezes",
+       "product": "Checking or savings account"
+      },
+      "mix_effect": -1.2687943443256107e-06,
+      "net_contribution": -1.2687943443256107e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": false,
+      "key": {
+       "issue": "__UNKNOWN__",
+       "product": "Checking or savings account"
+      },
+      "net_contribution": 6.0129036913215765e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Advertising and marketing, including promotional offers",
+       "product": "Credit card"
+      },
+      "mix_effect": 0.00017794702469496636,
+      "net_contribution": 0.00017950306357143297,
+      "rate_effect": 1.5560388764669278e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Closing your account",
+       "product": "Credit card"
+      },
+      "mix_effect": -0.0004721169259721985,
+      "net_contribution": -0.00047298110291785645,
+      "rate_effect": -8.641769456576602e-07
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Credit monitoring or identity theft protection services",
+       "product": "Credit card"
+      },
+      "mix_effect": 1.8754526280382586e-06,
+      "net_contribution": 1.8754526280382586e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Fees or interest",
+       "product": "Credit card"
+      },
+      "mix_effect": -5.0259478770753926e-05,
+      "net_contribution": -5.6326251142429975e-05,
+      "rate_effect": -6.066772371676127e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Getting a credit card",
+       "product": "Credit card"
+      },
+      "mix_effect": -0.00011825002793682404,
+      "net_contribution": -0.00011778135880796681,
+      "rate_effect": 4.6866912885657963e-07
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Improper use of your report",
+       "product": "Credit card"
+      },
+      "mix_effect": -2.0687255316416582e-05,
+      "net_contribution": -2.0687255316416582e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Incorrect information on your report",
+       "product": "Credit card"
+      },
+      "mix_effect": 0.0006706698460263233,
+      "net_contribution": 0.0006652499307046094,
+      "rate_effect": -5.419915321713901e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Other features, terms, or problems",
+       "product": "Credit card"
+      },
+      "mix_effect": -0.0002488501248185211,
+      "net_contribution": -0.0002488501248185211,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem when making payments",
+       "product": "Credit card"
+      },
+      "mix_effect": -0.00026125612589839855,
+      "net_contribution": -0.00026763238998735346,
+      "rate_effect": -6.376264088954932e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a company's investigation into an existing problem",
+       "product": "Credit card"
+      },
+      "mix_effect": 0.0006783226213239774,
+      "net_contribution": 0.0006783226213239774,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a purchase shown on your statement",
+       "product": "Credit card"
+      },
+      "mix_effect": -0.0005135950574498151,
+      "net_contribution": -0.0005381092950674056,
+      "rate_effect": -2.4514237617591066e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with fraud alerts or security freezes",
+       "product": "Credit card"
+      },
+      "mix_effect": 4.109712174833159e-06,
+      "net_contribution": 4.109712174833159e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Struggling to pay your bill",
+       "product": "Credit card"
+      },
+      "mix_effect": -1.0205832531505216e-05,
+      "net_contribution": -1.0205832531505216e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Trouble using your card",
+       "product": "Credit card"
+      },
+      "mix_effect": 1.2650314282107814e-05,
+      "net_contribution": 6.880763179675613e-07,
+      "rate_effect": -1.196223796414011e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Unable to get your credit report or credit score",
+       "product": "Credit card"
+      },
+      "mix_effect": -1.3928998899131572e-05,
+      "net_contribution": -1.3928998899131572e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Credit monitoring or identity theft protection services",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      "mix_effect": 0.00011876907419244958,
+      "net_contribution": 0.00012030635707895032,
+      "rate_effect": 1.5372828865001438e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Identity theft protection or other monitoring services",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      "mix_effect": 2.5292670221161746e-05,
+      "net_contribution": 2.5292670221161746e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Improper use of your report",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      "mix_effect": -0.006092584302537381,
+      "net_contribution": -0.006008944104888836,
+      "rate_effect": 8.364019764853146e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Incorrect information on your report",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      "mix_effect": -0.015257544455595962,
+      "net_contribution": -0.015199978899994804,
+      "rate_effect": 5.756555560111636e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a company's investigation into an existing issue",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      "mix_effect": -7.048988403743873e-05,
+      "net_contribution": -7.700990919665558e-05,
+      "rate_effect": -6.520025159216795e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a company's investigation into an existing problem",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      "mix_effect": 0.008306086223426918,
+      "net_contribution": 0.008389567297047318,
+      "rate_effect": 8.348107362038829e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with fraud alerts or security freezes",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      "mix_effect": -0.00015648473984048757,
+      "net_contribution": -0.00015625587657120158,
+      "rate_effect": 2.2886326928636066e-07
+     },
+     {
+      "comparable": false,
+      "key": {
+       "issue": "Problems at the end of the loan or lease",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      "net_contribution": 1.2025807382643153e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Unable to get your credit report or credit score",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      "mix_effect": -0.0002653190466632125,
+      "net_contribution": -0.00024598146809956317,
+      "rate_effect": 1.9337578563649156e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Attempts to collect debt not owed",
+       "product": "Debt collection"
+      },
+      "mix_effect": 0.005583018343079904,
+      "net_contribution": 0.0054966420484142235,
+      "rate_effect": -8.637629466567633e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Communication tactics",
+       "product": "Debt collection"
+      },
+      "mix_effect": 0.00010151612811839637,
+      "net_contribution": 0.0001592560332080279,
+      "rate_effect": 5.773990508963157e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Electronic communications",
+       "product": "Debt collection"
+      },
+      "mix_effect": 7.500023072539913e-05,
+      "net_contribution": 4.727466013925872e-05,
+      "rate_effect": -2.7725570586140588e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "False statements or representation",
+       "product": "Debt collection"
+      },
+      "mix_effect": -0.0003659614978033409,
+      "net_contribution": -0.0003168952569395471,
+      "rate_effect": 4.906624086379394e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Threatened to contact someone or share information improperly",
+       "product": "Debt collection"
+      },
+      "mix_effect": -3.1426696513419064e-05,
+      "net_contribution": -4.225675916995201e-05,
+      "rate_effect": -1.0830062656532955e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Took or threatened to take negative or legal action",
+       "product": "Debt collection"
+      },
+      "mix_effect": -0.0003656520042308153,
+      "net_contribution": -0.00042179090282291583,
+      "rate_effect": -5.613889859210041e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Written notification about debt",
+       "product": "Debt collection"
+      },
+      "mix_effect": 0.009040722258859026,
+      "net_contribution": 0.009207613017730418,
+      "rate_effect": 0.00016689075887139042
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Charged upfront or unexpected fees",
+       "product": "Debt or credit management"
+      },
+      "mix_effect": -4.919332769944155e-05,
+      "net_contribution": -6.870726818163873e-05,
+      "rate_effect": -1.951394048219719e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Confusing or misleading advertising or marketing",
+       "product": "Debt or credit management"
+      },
+      "mix_effect": 9.64399913241022e-06,
+      "net_contribution": 1.1060342180173864e-05,
+      "rate_effect": 1.4163430477636397e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Confusing or missing disclosures",
+       "product": "Debt or credit management"
+      },
+      "mix_effect": -9.468293858412094e-06,
+      "net_contribution": -2.187283299539175e-05,
+      "rate_effect": -1.2404539136979628e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Didn't provide services promised",
+       "product": "Debt or credit management"
+      },
+      "mix_effect": 1.1557384113065719e-05,
+      "net_contribution": 3.064343785187033e-05,
+      "rate_effect": 1.908605373880466e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with customer service",
+       "product": "Debt or credit management"
+      },
+      "mix_effect": 4.966908213722995e-06,
+      "net_contribution": 1.2632465666355787e-05,
+      "rate_effect": 7.665557452632807e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Unauthorized withdrawals or charges",
+       "product": "Debt or credit management"
+      },
+      "mix_effect": -7.929964652035067e-06,
+      "net_contribution": -1.5998623746320956e-06,
+      "rate_effect": 6.3301022774029745e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Confusing or misleading advertising or marketing",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": -1.1071229449632006e-05,
+      "net_contribution": -5.075177377302443e-06,
+      "rate_effect": 5.996052072329562e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Confusing or missing disclosures",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": -2.3351452645596566e-05,
+      "net_contribution": -1.7128723648395753e-05,
+      "rate_effect": 6.222728997200805e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Fraud or scam",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": -0.0006776055179391715,
+      "net_contribution": -0.0007054997373286544,
+      "rate_effect": -2.7894219389482547e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Incorrect exchange rate",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": -7.916095207809994e-06,
+      "net_contribution": -7.916095207809994e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Lost or stolen money order",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": -5.709574549465247e-06,
+      "net_contribution": -1.8369779104271203e-05,
+      "rate_effect": -1.2660204554805956e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Managing, opening, or closing your mobile wallet account",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": -0.0001868142991266258,
+      "net_contribution": -0.0001868142991266258,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Money was not available when promised",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": 0.00038178847802644605,
+      "net_contribution": 0.00040305692090660125,
+      "rate_effect": 2.12684428801553e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Other service problem",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": 4.3494453850317585e-05,
+      "net_contribution": 3.982832740400598e-05,
+      "rate_effect": -3.6661264463116174e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Other transaction problem",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": 9.037484584336423e-05,
+      "net_contribution": 1.3927200268036045e-05,
+      "rate_effect": -7.644764557532805e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Overdraft, savings, or rewards features",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": -1.3928998899131572e-05,
+      "net_contribution": -1.3928998899131572e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": false,
+      "key": {
+       "issue": "Problem adding money",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "net_contribution": 1.8038711073964727e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with customer service",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": 6.938998152244462e-05,
+      "net_contribution": 5.946690085260282e-05,
+      "rate_effect": -9.923080669841803e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Trouble accessing funds in your mobile or digital wallet",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": -3.7262233651133336e-05,
+      "net_contribution": -6.05987993857731e-05,
+      "rate_effect": -2.333656573463972e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Unauthorized transactions or other transaction problem",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": 0.00012852407161880955,
+      "net_contribution": 0.00012293255832623807,
+      "rate_effect": -5.591513292571361e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Unexpected or other fees",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": 1.373110284745312e-05,
+      "net_contribution": 2.1787817698945664e-06,
+      "rate_effect": -1.1552321077558559e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Wrong amount charged or received",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      "mix_effect": 4.623877217060491e-06,
+      "net_contribution": 5.6818356610150925e-06,
+      "rate_effect": 1.0579584439546125e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Applying for a mortgage or refinancing an existing mortgage",
+       "product": "Mortgage"
+      },
+      "mix_effect": -0.00012311366498933972,
+      "net_contribution": -0.0001360088462077965,
+      "rate_effect": -1.2895181218456647e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Closing on a mortgage",
+       "product": "Mortgage"
+      },
+      "mix_effect": -0.00015734637642998012,
+      "net_contribution": -0.00015967391516587596,
+      "rate_effect": -2.327538735895885e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Credit monitoring or identity theft protection services",
+       "product": "Mortgage"
+      },
+      "mix_effect": -1.3928998899131572e-05,
+      "net_contribution": -1.3928998899131572e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Improper use of your report",
+       "product": "Mortgage"
+      },
+      "mix_effect": 1.5721234861819372e-06,
+      "net_contribution": 1.5721234861819372e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Incorrect information on your report",
+       "product": "Mortgage"
+      },
+      "mix_effect": 1.4015749692904753e-05,
+      "net_contribution": 2.0824151127571953e-05,
+      "rate_effect": 6.808401434667188e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a company's investigation into an existing problem",
+       "product": "Mortgage"
+      },
+      "mix_effect": 4.0819732863830104e-06,
+      "net_contribution": 4.0819732863830104e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Struggling to pay mortgage",
+       "product": "Mortgage"
+      },
+      "mix_effect": -0.0005784707182869186,
+      "net_contribution": -0.0005791732820340009,
+      "rate_effect": -7.025637470822701e-07
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Trouble during payment process",
+       "product": "Mortgage"
+      },
+      "mix_effect": -0.0008608696751982793,
+      "net_contribution": -0.0008626119221796201,
+      "rate_effect": -1.7422469813404343e-06
+     },
+     {
+      "comparable": false,
+      "key": {
+       "issue": "Unable to get your credit report or credit score",
+       "product": "Mortgage"
+      },
+      "net_contribution": -1.9941902590453147e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Can't contact lender or servicer",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 9.377263140191293e-07,
+      "net_contribution": 9.377263140191293e-07,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Can't stop withdrawals from your bank account",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": -3.105651731096421e-05,
+      "net_contribution": -2.5651477139918405e-05,
+      "rate_effect": 5.40504017104581e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Charged fees or interest you didn't expect",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 0.0005118293974872919,
+      "net_contribution": 0.0005473111317214187,
+      "rate_effect": 3.548173423412679e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Confusing or misleading advertising or marketing",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": -8.5504923799728e-06,
+      "net_contribution": -8.5504923799728e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Confusing or missing disclosures",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 4.109712174833159e-06,
+      "net_contribution": 4.109712174833159e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Credit limit changed",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 1.1391410210480345e-05,
+      "net_contribution": 1.1391410210480345e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Credit monitoring or identity theft protection services",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 4.109712174833159e-06,
+      "net_contribution": 4.109712174833159e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Getting a line of credit",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": -3.770502341101173e-05,
+      "net_contribution": -3.770502341101173e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Getting the loan",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 8.205512702267165e-05,
+      "net_contribution": 6.925844868845102e-05,
+      "rate_effect": -1.2796678334220584e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Improper use of your report",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": -3.608873878757167e-05,
+      "net_contribution": -3.737395538070522e-05,
+      "rate_effect": -1.2852165931335677e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Incorrect information on your report",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 9.941654058755785e-06,
+      "net_contribution": 5.019699600402119e-06,
+      "rate_effect": -4.921954458353688e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Issues with repayment",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": -9.819286724298413e-06,
+      "net_contribution": -9.819286724298413e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Loan payment wasn't credited to your account",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 8.205105247667381e-07,
+      "net_contribution": 1.423232804098789e-05,
+      "rate_effect": 1.3411817516221156e-05
+     },
+     {
+      "comparable": false,
+      "key": {
+       "issue": "Lost or stolen refund",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "net_contribution": 1.2025807382643153e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Money was taken from your bank account on the wrong day or for the wrong amount",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 4.744109346995963e-06,
+      "net_contribution": 4.744109346995963e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem when making payments",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 3.353237974531558e-05,
+      "net_contribution": 1.1280454656679723e-05,
+      "rate_effect": -2.2251925088635995e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a company's investigation into an existing problem",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": -8.630744901277953e-05,
+      "net_contribution": -9.529647163557625e-05,
+      "rate_effect": -8.98902262279673e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with additional add-on products or services",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 0.0004474871052149468,
+      "net_contribution": 0.00046641342145753136,
+      "rate_effect": 1.8926316242584682e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with cash advance",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": -1.9031915164884204e-06,
+      "net_contribution": -1.9031915164884204e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": false,
+      "key": {
+       "issue": "Problem with fraud alerts or security freezes",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "net_contribution": -1.3294601726968764e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with the payoff process at the end of the loan",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 4.496837540948512e-05,
+      "net_contribution": 5.215746392850547e-05,
+      "rate_effect": 7.189088519020354e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problems receiving the advance",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 1.6769916729639118e-05,
+      "net_contribution": 1.6769916729639118e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Received a loan you didn't apply for",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 5.9851648028714e-06,
+      "net_contribution": 5.9851648028714e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Struggling to pay your loan",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 0.00014371421144530923,
+      "net_contribution": 0.00014326100672389802,
+      "rate_effect": -4.5320472141121997e-07
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Unable to get your credit report or credit score",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": -6.343971721628054e-07,
+      "net_contribution": -6.343971721628054e-07,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Unexpected fees",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 4.744109346995963e-06,
+      "net_contribution": 4.744109346995963e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": false,
+      "key": {
+       "issue": "Vehicle was damaged or destroyed the vehicle",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "net_contribution": 3.006451845660788e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Vehicle was repossessed or sold the vehicle",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": 9.488218693991926e-06,
+      "net_contribution": 9.488218693991926e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": false,
+      "key": {
+       "issue": "Was approved for a loan, but didn't receive money",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "net_contribution": -6.647300863484382e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Was approved for a loan, but didn't receive the money",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      "mix_effect": -9.819286724298413e-06,
+      "net_contribution": -9.819286724298413e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Advertising",
+       "product": "Prepaid card"
+      },
+      "mix_effect": 1.30463007042389e-05,
+      "net_contribution": 2.0879628904472277e-05,
+      "rate_effect": 7.833328200233371e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem getting a card or closing an account",
+       "product": "Prepaid card"
+      },
+      "mix_effect": -0.00012184652429323318,
+      "net_contribution": -0.00010704668876481321,
+      "rate_effect": 1.479983552841993e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a purchase or transfer",
+       "product": "Prepaid card"
+      },
+      "mix_effect": 5.388733728408141e-06,
+      "net_contribution": 7.4185938468026e-06,
+      "rate_effect": 2.029860118394294e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with overdraft",
+       "product": "Prepaid card"
+      },
+      "mix_effect": -7.281698035647187e-06,
+      "net_contribution": -7.281698035647187e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Trouble using the card",
+       "product": "Prepaid card"
+      },
+      "mix_effect": -0.00011598210558606348,
+      "net_contribution": -0.000100097857390568,
+      "rate_effect": 1.5884248195495327e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Unexpected or other fees",
+       "product": "Prepaid card"
+      },
+      "mix_effect": 7.549126090893484e-05,
+      "net_contribution": 9.077247476508611e-05,
+      "rate_effect": 1.5281213856151275e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Credit monitoring or identity theft protection services",
+       "product": "Student loan"
+      },
+      "mix_effect": -3.294346484429093e-05,
+      "net_contribution": -2.8492394970425948e-05,
+      "rate_effect": 4.4510698738649866e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Dealing with your lender or servicer",
+       "product": "Student loan"
+      },
+      "mix_effect": -0.00012298858151316578,
+      "net_contribution": 4.8262468336891275e-05,
+      "rate_effect": 0.00017125104985005738
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Getting a loan",
+       "product": "Student loan"
+      },
+      "mix_effect": 4.345850383025393e-05,
+      "net_contribution": 4.7137764328103324e-05,
+      "rate_effect": 3.679260497849386e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Improper use of your report",
+       "product": "Student loan"
+      },
+      "mix_effect": -1.0467553340686298e-05,
+      "net_contribution": -1.6797655618089273e-05,
+      "rate_effect": -6.3301022774029804e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Incorrect information on your report",
+       "product": "Student loan"
+      },
+      "mix_effect": -2.232065340746037e-05,
+      "net_contribution": -1.528100990880768e-05,
+      "rate_effect": 7.039643498652695e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Issue where my lender is my school",
+       "product": "Student loan"
+      },
+      "mix_effect": 4.744109346995963e-06,
+      "net_contribution": 4.744109346995963e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Issue with income share agreement",
+       "product": "Student loan"
+      },
+      "mix_effect": 1.0757013038317542e-05,
+      "net_contribution": 1.0757013038317542e-05,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a company's investigation into an existing problem",
+       "product": "Student loan"
+      },
+      "mix_effect": -3.694177763644664e-05,
+      "net_contribution": -2.62858743120812e-05,
+      "rate_effect": 1.0655903324365432e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Struggling to repay your loan",
+       "product": "Student loan"
+      },
+      "mix_effect": -0.00013894614385032313,
+      "net_contribution": -0.00014014629727107978,
+      "rate_effect": -1.200153420756694e-06
+     },
+     {
+      "comparable": false,
+      "key": {
+       "issue": "Unable to get your credit report or credit score",
+       "product": "Student loan"
+      },
+      "net_contribution": 6.0129036913215765e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Credit monitoring or identity theft protection services",
+       "product": "Vehicle loan or lease"
+      },
+      "mix_effect": -1.2687943443256107e-06,
+      "net_contribution": -1.2687943443256107e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Getting a loan or lease",
+       "product": "Vehicle loan or lease"
+      },
+      "mix_effect": 6.510436694913126e-05,
+      "net_contribution": 5.932820641035201e-05,
+      "rate_effect": -5.7761605387793055e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Improper use of your report",
+       "product": "Vehicle loan or lease"
+      },
+      "mix_effect": -0.00011676490559333953,
+      "net_contribution": -0.00011145973008150272,
+      "rate_effect": 5.305175511836796e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Incorrect information on your report",
+       "product": "Vehicle loan or lease"
+      },
+      "mix_effect": 1.1300999020747967e-06,
+      "net_contribution": 1.1300999020747967e-06,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Managing the loan or lease",
+       "product": "Vehicle loan or lease"
+      },
+      "mix_effect": 0.00030278848946959156,
+      "net_contribution": 0.00032014326494132946,
+      "rate_effect": 1.7354775471738005e-05
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with a company's investigation into an existing problem",
+       "product": "Vehicle loan or lease"
+      },
+      "mix_effect": 6.190236226841378e-06,
+      "net_contribution": 2.755902534061494e-07,
+      "rate_effect": -5.914645973435205e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problem with fraud alerts or security freezes",
+       "product": "Vehicle loan or lease"
+      },
+      "mix_effect": -6.343971721628054e-07,
+      "net_contribution": -6.343971721628054e-07,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Problems at the end of the loan or lease",
+       "product": "Vehicle loan or lease"
+      },
+      "mix_effect": 0.00014547640133588528,
+      "net_contribution": 0.0001542381322387214,
+      "rate_effect": 8.761730902836101e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Repossession",
+       "product": "Vehicle loan or lease"
+      },
+      "mix_effect": 0.00040509878309681813,
+      "net_contribution": 0.00041488855607009316,
+      "rate_effect": 9.789772973275067e-06
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Struggling to pay your loan",
+       "product": "Vehicle loan or lease"
+      },
+      "mix_effect": 0.00019078531685920818,
+      "net_contribution": 0.00019078531685920818,
+      "rate_effect": 0.0
+     },
+     {
+      "comparable": true,
+      "key": {
+       "issue": "Unable to get your credit report or credit score",
+       "product": "Vehicle loan or lease"
+      },
+      "mix_effect": -1.3928998899131572e-05,
+      "net_contribution": -1.3928998899131572e-05,
+      "rate_effect": 0.0
+     }
+    ],
+    "non_comparable_groups": [
+     {
+      "issue": "__UNKNOWN__",
+      "product": "Checking or savings account"
+     },
+     {
+      "issue": "Problems at the end of the loan or lease",
+      "product": "Credit reporting or other personal consumer reports"
+     },
+     {
+      "issue": "Problem adding money",
+      "product": "Money transfer, virtual currency, or money service"
+     },
+     {
+      "issue": "Unable to get your credit report or credit score",
+      "product": "Mortgage"
+     },
+     {
+      "issue": "Lost or stolen refund",
+      "product": "Payday loan, title loan, personal loan, or advance loan"
+     },
+     {
+      "issue": "Problem with fraud alerts or security freezes",
+      "product": "Payday loan, title loan, personal loan, or advance loan"
+     },
+     {
+      "issue": "Vehicle was damaged or destroyed the vehicle",
+      "product": "Payday loan, title loan, personal loan, or advance loan"
+     },
+     {
+      "issue": "Was approved for a loan, but didn't receive money",
+      "product": "Payday loan, title loan, personal loan, or advance loan"
+     },
+     {
+      "issue": "Unable to get your credit report or credit score",
+      "product": "Student loan"
+     }
+    ],
+    "ranking": {
+     "by": "net_contribution",
+     "groups": [
+      {
+       "issue": "Written notification about debt",
+       "product": "Debt collection"
+      },
+      {
+       "issue": "Problem with a company's investigation into an existing problem",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      {
+       "issue": "Attempts to collect debt not owed",
+       "product": "Debt collection"
+      },
+      {
+       "issue": "Problem with a company's investigation into an existing problem",
+       "product": "Credit card"
+      },
+      {
+       "issue": "Incorrect information on your report",
+       "product": "Credit card"
+      },
+      {
+       "issue": "Charged fees or interest you didn't expect",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Problem with additional add-on products or services",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Repossession",
+       "product": "Vehicle loan or lease"
+      },
+      {
+       "issue": "Money was not available when promised",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Managing an account",
+       "product": "Checking or savings account"
+      },
+      {
+       "issue": "Managing the loan or lease",
+       "product": "Vehicle loan or lease"
+      },
+      {
+       "issue": "Struggling to pay your loan",
+       "product": "Vehicle loan or lease"
+      },
+      {
+       "issue": "Advertising and marketing, including promotional offers",
+       "product": "Credit card"
+      },
+      {
+       "issue": "Communication tactics",
+       "product": "Debt collection"
+      },
+      {
+       "issue": "Problems at the end of the loan or lease",
+       "product": "Vehicle loan or lease"
+      },
+      {
+       "issue": "Struggling to pay your loan",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Unauthorized transactions or other transaction problem",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Credit monitoring or identity theft protection services",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      {
+       "issue": "Unexpected or other fees",
+       "product": "Prepaid card"
+      },
+      {
+       "issue": "Getting the loan",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Problem with customer service",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Getting a loan or lease",
+       "product": "Vehicle loan or lease"
+      },
+      {
+       "issue": "Problem with the payoff process at the end of the loan",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Dealing with your lender or servicer",
+       "product": "Student loan"
+      },
+      {
+       "issue": "Electronic communications",
+       "product": "Debt collection"
+      },
+      {
+       "issue": "Getting a loan",
+       "product": "Student loan"
+      },
+      {
+       "issue": "Other service problem",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Didn't provide services promised",
+       "product": "Debt or credit management"
+      },
+      {
+       "issue": "Vehicle was damaged or destroyed the vehicle",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Identity theft protection or other monitoring services",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      {
+       "issue": "Advertising",
+       "product": "Prepaid card"
+      },
+      {
+       "issue": "Incorrect information on your report",
+       "product": "Mortgage"
+      },
+      {
+       "issue": "Problem adding money",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Problems receiving the advance",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Loan payment wasn't credited to your account",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Other transaction problem",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Problem with customer service",
+       "product": "Debt or credit management"
+      },
+      {
+       "issue": "Problems at the end of the loan or lease",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      {
+       "issue": "Lost or stolen refund",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Credit monitoring or identity theft protection services",
+       "product": "Checking or savings account"
+      },
+      {
+       "issue": "Credit limit changed",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Problem when making payments",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Confusing or misleading advertising or marketing",
+       "product": "Debt or credit management"
+      },
+      {
+       "issue": "Issue with income share agreement",
+       "product": "Student loan"
+      },
+      {
+       "issue": "Vehicle was repossessed or sold the vehicle",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Improper use of your report",
+       "product": "Checking or savings account"
+      },
+      {
+       "issue": "Problem with a purchase or transfer",
+       "product": "Prepaid card"
+      },
+      {
+       "issue": "__UNKNOWN__",
+       "product": "Checking or savings account"
+      },
+      {
+       "issue": "Unable to get your credit report or credit score",
+       "product": "Student loan"
+      },
+      {
+       "issue": "Received a loan you didn't apply for",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Wrong amount charged or received",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Incorrect information on your report",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Money was taken from your bank account on the wrong day or for the wrong amount",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Unexpected fees",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Issue where my lender is my school",
+       "product": "Student loan"
+      },
+      {
+       "issue": "Problem with fraud alerts or security freezes",
+       "product": "Credit card"
+      },
+      {
+       "issue": "Confusing or missing disclosures",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Credit monitoring or identity theft protection services",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Problem with a company's investigation into an existing problem",
+       "product": "Mortgage"
+      },
+      {
+       "issue": "Unexpected or other fees",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Credit monitoring or identity theft protection services",
+       "product": "Credit card"
+      },
+      {
+       "issue": "Improper use of your report",
+       "product": "Mortgage"
+      },
+      {
+       "issue": "Incorrect information on your report",
+       "product": "Vehicle loan or lease"
+      },
+      {
+       "issue": "Can't contact lender or servicer",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Trouble using your card",
+       "product": "Credit card"
+      },
+      {
+       "issue": "Problem with a company's investigation into an existing problem",
+       "product": "Vehicle loan or lease"
+      },
+      {
+       "issue": "Unable to get your credit report or credit score",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Problem with fraud alerts or security freezes",
+       "product": "Vehicle loan or lease"
+      },
+      {
+       "issue": "Problem with fraud alerts or security freezes",
+       "product": "Checking or savings account"
+      },
+      {
+       "issue": "Credit monitoring or identity theft protection services",
+       "product": "Vehicle loan or lease"
+      },
+      {
+       "issue": "Unauthorized withdrawals or charges",
+       "product": "Debt or credit management"
+      },
+      {
+       "issue": "Problem with cash advance",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Confusing or misleading advertising or marketing",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Was approved for a loan, but didn't receive money",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Incorrect information on your report",
+       "product": "Checking or savings account"
+      },
+      {
+       "issue": "Problem with overdraft",
+       "product": "Prepaid card"
+      },
+      {
+       "issue": "Incorrect exchange rate",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Confusing or misleading advertising or marketing",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Issues with repayment",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Was approved for a loan, but didn't receive the money",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Struggling to pay your bill",
+       "product": "Credit card"
+      },
+      {
+       "issue": "Problem with fraud alerts or security freezes",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Unable to get your credit report or credit score",
+       "product": "Credit card"
+      },
+      {
+       "issue": "Overdraft, savings, or rewards features",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Credit monitoring or identity theft protection services",
+       "product": "Mortgage"
+      },
+      {
+       "issue": "Unable to get your credit report or credit score",
+       "product": "Vehicle loan or lease"
+      },
+      {
+       "issue": "Incorrect information on your report",
+       "product": "Student loan"
+      },
+      {
+       "issue": "Improper use of your report",
+       "product": "Student loan"
+      },
+      {
+       "issue": "Confusing or missing disclosures",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Problem with a company's investigation into an existing problem",
+       "product": "Checking or savings account"
+      },
+      {
+       "issue": "Lost or stolen money order",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Unable to get your credit report or credit score",
+       "product": "Mortgage"
+      },
+      {
+       "issue": "Improper use of your report",
+       "product": "Credit card"
+      },
+      {
+       "issue": "Confusing or missing disclosures",
+       "product": "Debt or credit management"
+      },
+      {
+       "issue": "Can't stop withdrawals from your bank account",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Problem with a company's investigation into an existing problem",
+       "product": "Student loan"
+      },
+      {
+       "issue": "Credit monitoring or identity theft protection services",
+       "product": "Student loan"
+      },
+      {
+       "issue": "Improper use of your report",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Getting a line of credit",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Threatened to contact someone or share information improperly",
+       "product": "Debt collection"
+      },
+      {
+       "issue": "Fees or interest",
+       "product": "Credit card"
+      },
+      {
+       "issue": "Trouble accessing funds in your mobile or digital wallet",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Charged upfront or unexpected fees",
+       "product": "Debt or credit management"
+      },
+      {
+       "issue": "Closing an account",
+       "product": "Checking or savings account"
+      },
+      {
+       "issue": "Problem with a company's investigation into an existing issue",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      {
+       "issue": "Problem with a company's investigation into an existing problem",
+       "product": "Payday loan, title loan, personal loan, or advance loan"
+      },
+      {
+       "issue": "Trouble using the card",
+       "product": "Prepaid card"
+      },
+      {
+       "issue": "Problem getting a card or closing an account",
+       "product": "Prepaid card"
+      },
+      {
+       "issue": "Improper use of your report",
+       "product": "Vehicle loan or lease"
+      },
+      {
+       "issue": "Getting a credit card",
+       "product": "Credit card"
+      },
+      {
+       "issue": "Applying for a mortgage or refinancing an existing mortgage",
+       "product": "Mortgage"
+      },
+      {
+       "issue": "Struggling to repay your loan",
+       "product": "Student loan"
+      },
+      {
+       "issue": "Problem with fraud alerts or security freezes",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      {
+       "issue": "Closing on a mortgage",
+       "product": "Mortgage"
+      },
+      {
+       "issue": "Managing, opening, or closing your mobile wallet account",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Problem with a lender or other company charging your account",
+       "product": "Checking or savings account"
+      },
+      {
+       "issue": "Problem caused by your funds being low",
+       "product": "Checking or savings account"
+      },
+      {
+       "issue": "Unable to get your credit report or credit score",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      {
+       "issue": "Other features, terms, or problems",
+       "product": "Credit card"
+      },
+      {
+       "issue": "Problem when making payments",
+       "product": "Credit card"
+      },
+      {
+       "issue": "Opening an account",
+       "product": "Checking or savings account"
+      },
+      {
+       "issue": "False statements or representation",
+       "product": "Debt collection"
+      },
+      {
+       "issue": "Took or threatened to take negative or legal action",
+       "product": "Debt collection"
+      },
+      {
+       "issue": "Closing your account",
+       "product": "Credit card"
+      },
+      {
+       "issue": "Problem with a purchase shown on your statement",
+       "product": "Credit card"
+      },
+      {
+       "issue": "Struggling to pay mortgage",
+       "product": "Mortgage"
+      },
+      {
+       "issue": "Fraud or scam",
+       "product": "Money transfer, virtual currency, or money service"
+      },
+      {
+       "issue": "Trouble during payment process",
+       "product": "Mortgage"
+      },
+      {
+       "issue": "Improper use of your report",
+       "product": "Credit reporting or other personal consumer reports"
+      },
+      {
+       "issue": "Incorrect information on your report",
+       "product": "Credit reporting or other personal consumer reports"
+      }
+     ]
+    },
+    "status": "ok",
+    "totals": {
+     "entry_exit_effect": 4.4296846497595785e-05,
+     "gross_movement": 0.057586321686277066,
+     "total_mix_effect": -0.00030329214368196133,
+     "total_rate_effect": 0.0004659215294942763
+    }
+   }
+  ],
+  "comparison": {
+   "baseline": 0.9958786734646397,
+   "current": 0.9960855996969497,
+   "delta": 0.00020692623231000074,
+   "relative_change": 0.00020778257213813908
+  },
+  "metric": {
+   "kind": "ratio",
+   "name": "timely_rate"
+  }
+ }
+}

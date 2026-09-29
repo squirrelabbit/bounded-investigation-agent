@@ -1,0 +1,97 @@
+{
+ "P1": {
+  "hit": true,
+  "observed": {
+   "refused": [],
+   "runs": [
+    "E1/complaint_count",
+    "E1/timely_rate",
+    "E2/complaint_count",
+    "E2/timely_rate"
+   ]
+  }
+ },
+ "P2": {
+  "hit": true,
+  "observed": {
+   "cells": 130,
+   "status": "ok"
+  }
+ },
+ "P3": {
+  "hit": true,
+  "observed": {
+   "entry_exit_effect": 0.0,
+   "flags": {
+    "composition_dominant": false,
+    "decomposition_complete": true,
+    "heavy_cancellation": true,
+    "simpson_strict": false,
+    "suppress_top_contributor": true
+   },
+   "non_comparable_groups": []
+  }
+ },
+ "P4": {
+  "hit": true,
+  "observed": {
+   "entry_exit_effect": -0.02431591383038605,
+   "flags": {
+    "composition_dominant": false,
+    "decomposition_complete": false,
+    "heavy_cancellation": true,
+    "simpson_strict": false,
+    "suppress_top_contributor": true
+   },
+   "non_comparable_group_count": 14
+  }
+ },
+ "P5": {
+  "hit": false,
+  "observed": {
+   "flags": {
+    "decomposition_complete": true,
+    "heavy_cancellation": true,
+    "suppress_top_contributor": true
+   },
+   "products_entered": [
+    "Credit card or prepaid card",
+    "Credit reporting, credit repair services, or other personal consumer reports",
+    "Money transfer, virtual currency, or money service",
+    "Payday loan, title loan, or personal loan",
+    "Vehicle loan or lease"
+   ],
+   "products_exited": [
+    "Bank account or service",
+    "Consumer Loan",
+    "Credit card",
+    "Credit reporting",
+    "Money transfers",
+    "Other financial service",
+    "Payday loan",
+    "Prepaid card",
+    "Virtual currency"
+   ],
+   "warnings": [
+    "heavy_cancellation",
+    "suppress_top_contributor"
+   ]
+  },
+  "premise_entry_or_exit_present": true
+ },
+ "P6": {
+  "hit": true,
+  "observed": {
+   "observed_cells": 3629,
+   "reason": "cross_cell_limit_exceeded",
+   "status": "omitted"
+  }
+ },
+ "P7": {
+  "hit": true,
+  "observed": {
+   "groups": 1900,
+   "status": "ok"
+  }
+ }
+}

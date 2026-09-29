@@ -1,0 +1,27 @@
+{
+ "acceptance": {
+  "A1": {
+   "note": "정수 7569 · 실수 4398 비교, 불일치 0, 최대 실수 차 2.22e-15",
+   "pass": true
+  },
+  "A2": {
+   "note": "플래그 73 비교, 불일치 0, 모호 제외 0",
+   "pass": true
+  },
+  "A3": {
+   "note": "교차 분해 5, 규칙 일치 5",
+   "pass": true
+  },
+  "A4": {
+   "note": "채점 20, 기대 일치 17, 불일치 3, 방어 실패 0 (-), 무효 0",
+   "pass": true
+  }
+ },
+ "defense_failures": [],
+ "invalid_mutations": [],
+ "mismatched_mutations": [
+  "M5/complaint_count",
+  "M11/complaint_count",
+  "M11/timely_rate"
+ ]
+}

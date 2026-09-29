@@ -1,0 +1,12 @@
+{
+ "derived_sha_match": true,
+ "guard": {
+  "command": "git diff main -- bia data eval tests scripts",
+  "diff_empty": true,
+  "head": "7ad1a2ea6c4b6dc64d73c888c7a8b8e221795c27",
+  "untracked_or_modified_empty": true
+ },
+ "oracle_bia_modules_loaded": [],
+ "oracle_independent": true,
+ "python": "3.9.6"
+}

@@ -1,0 +1,1517 @@
+{
+ "base_rows": 4257,
+ "clean_subset_equals_full_file_run": {
+  "complaint_count": true,
+  "timely_rate": true
+ },
+ "mutations": [
+  {
+   "applied": {
+    "injected": 1805394,
+    "rows": 18053939
+   },
+   "expected": {
+    "loader": "reject"
+   },
+   "id": "M1",
+   "layer": "raw_loader",
+   "loader_reasons": "loader rejected input: {'duplicate_complaint_id': 1805394}",
+   "runs": {
+    "loader": {
+     "actual": "reject",
+     "defense_failure": false,
+     "error": "LoaderRejected",
+     "expected": "reject",
+     "graded": true,
+     "match": true
+    }
+   }
+  },
+  {
+   "applied": {
+    "rows_duplicated": 426,
+    "touched": 426
+   },
+   "expected": {
+    "complaint_count": "valid-correct",
+    "timely_rate": "valid-correct"
+   },
+   "id": "M2",
+   "layer": "engine_input",
+   "runs": {
+    "complaint_count": {
+     "actual": "valid-correct",
+     "defense_failure": false,
+     "diff_vs_truth": {
+      "breakdowns": [
+       {
+        "dimensions": [],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product",
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       }
+      ],
+      "comparison": {
+       "got": {
+        "baseline": 150437,
+        "current": 166309,
+        "delta": 15872,
+        "relative_change": 0.10550595930522412
+       },
+       "ref": {
+        "baseline": 150437,
+        "current": 166309,
+        "delta": 15872,
+        "relative_change": 0.10550595930522412
+       }
+      },
+      "comparison_equal": true
+     },
+     "error": null,
+     "expected": "valid-correct",
+     "graded": true,
+     "match": true,
+     "message": null,
+     "new_warnings": [],
+     "stage": null
+    },
+    "timely_rate": {
+     "actual": "valid-correct",
+     "defense_failure": false,
+     "diff_vs_truth": {
+      "breakdowns": [
+       {
+        "dimensions": [],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product",
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       }
+      ],
+      "comparison": {
+       "got": {
+        "baseline": 0.9958786734646397,
+        "current": 0.9960855996969497,
+        "delta": 0.00020692623231000074,
+        "relative_change": 0.00020778257213813908
+       },
+       "ref": {
+        "baseline": 0.9958786734646397,
+        "current": 0.9960855996969497,
+        "delta": 0.00020692623231000074,
+        "relative_change": 0.00020778257213813908
+       }
+      },
+      "comparison_equal": true
+     },
+     "error": null,
+     "expected": "valid-correct",
+     "graded": true,
+     "match": true,
+     "message": null,
+     "new_warnings": [],
+     "stage": null
+    }
+   }
+  },
+  {
+   "applied": {
+    "rows_duplicated_with_different_count": 43,
+    "touched": 43
+   },
+   "expected": {
+    "complaint_count": "reject"
+   },
+   "id": "M3",
+   "layer": "engine_input",
+   "runs": {
+    "complaint_count": {
+     "actual": "reject",
+     "defense_failure": false,
+     "error": "AnalysisRefused",
+     "expected": "reject",
+     "graded": true,
+     "match": true,
+     "message": "integrity: conflicting duplicate rows at grain ['day', 'product', 'issue']: ['2024-02-01|Checking or savings account|Closing an account', '2024-02-02|Credit reporting or other personal consumer reports|Incorrect information on your report', '2024-02-03|Money transfer, virtual currency, or money service|Fraud or scam', '2024-02-05|Checking or savings account|Problem caused by your funds being low',",
+     "stage": "integrity"
+    },
+    "timely_rate": {
+     "actual": "valid-correct",
+     "diff_vs_truth": {
+      "breakdowns": [
+       {
+        "dimensions": [],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product",
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       }
+      ],
+      "comparison": {
+       "got": {
+        "baseline": 0.9958786734646397,
+        "current": 0.9960855996969497,
+        "delta": 0.00020692623231000074,
+        "relative_change": 0.00020778257213813908
+       },
+       "ref": {
+        "baseline": 0.9958786734646397,
+        "current": 0.9960855996969497,
+        "delta": 0.00020692623231000074,
+        "relative_change": 0.00020778257213813908
+       }
+      },
+      "comparison_equal": true
+     },
+     "error": null,
+     "graded": false,
+     "message": null,
+     "new_warnings": [],
+     "stage": null
+    }
+   }
+  },
+  {
+   "applied": {
+    "distinct_products_in_current": 11,
+    "products_renamed": 3,
+    "touched": 632
+   },
+   "expected": {
+    "complaint_count": "valid-silent-wrong",
+    "timely_rate": "caveat"
+   },
+   "id": "M4",
+   "layer": "engine_input",
+   "runs": {
+    "complaint_count": {
+     "actual": "valid-silent-wrong",
+     "defense_failure": false,
+     "diff_vs_truth": {
+      "breakdowns": [
+       {
+        "dimensions": [],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product"
+        ],
+        "flags_changed": {},
+        "groups_changed": 3,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 3,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product",
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 36,
+        "groups_only_in_ref": 2,
+        "groups_only_in_result": 38,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       }
+      ],
+      "comparison": {
+       "got": {
+        "baseline": 150437,
+        "current": 166309,
+        "delta": 15872,
+        "relative_change": 0.10550595930522412
+       },
+       "ref": {
+        "baseline": 150437,
+        "current": 166309,
+        "delta": 15872,
+        "relative_change": 0.10550595930522412
+       }
+      },
+      "comparison_equal": true
+     },
+     "error": null,
+     "expected": "valid-silent-wrong",
+     "graded": true,
+     "match": true,
+     "message": null,
+     "new_warnings": [],
+     "stage": null
+    },
+    "timely_rate": {
+     "actual": "caveat",
+     "defense_failure": false,
+     "diff_vs_truth": {
+      "breakdowns": [
+       {
+        "dimensions": [],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product"
+        ],
+        "flags_changed": {
+         "decomposition_complete": [
+          true,
+          false
+         ]
+        },
+        "groups_changed": 3,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 3,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product",
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 36,
+        "groups_only_in_ref": 2,
+        "groups_only_in_result": 38,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       }
+      ],
+      "comparison": {
+       "got": {
+        "baseline": 0.9958786734646397,
+        "current": 0.9960855996969497,
+        "delta": 0.00020692623231000074,
+        "relative_change": 0.00020778257213813908
+       },
+       "ref": {
+        "baseline": 0.9958786734646397,
+        "current": 0.9960855996969497,
+        "delta": 0.00020692623231000074,
+        "relative_change": 0.00020778257213813908
+       }
+      },
+      "comparison_equal": true
+     },
+     "error": null,
+     "expected": "caveat",
+     "graded": true,
+     "match": true,
+     "message": null,
+     "new_warnings": [
+      {
+       "cross": false,
+       "dimensions": [
+        "product"
+       ],
+       "new": [
+        "decomposition_incomplete"
+       ]
+      }
+     ],
+     "stage": null
+    }
+   }
+  },
+  {
+   "applied": {
+    "days_removed": [
+     "2024-03-14",
+     "2024-03-15",
+     "2024-03-16"
+    ],
+    "touched": 227
+   },
+   "expected": {
+    "complaint_count": "valid-silent-wrong",
+    "timely_rate": "valid-silent-wrong"
+   },
+   "id": "M5",
+   "layer": "engine_input",
+   "runs": {
+    "complaint_count": {
+     "actual": "caveat",
+     "defense_failure": false,
+     "diff_vs_truth": {
+      "breakdowns": [
+       {
+        "dimensions": [],
+        "flags_changed": {},
+        "groups_changed": 1,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product"
+        ],
+        "flags_changed": {},
+        "groups_changed": 11,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "issue"
+        ],
+        "flags_changed": {
+         "heavy_cancellation": [
+          false,
+          true
+         ],
+         "suppress_top_contributor": [
+          false,
+          true
+         ]
+        },
+        "groups_changed": 72,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product",
+         "issue"
+        ],
+        "flags_changed": {
+         "heavy_cancellation": [
+          false,
+          true
+         ],
+         "suppress_top_contributor": [
+          false,
+          true
+         ]
+        },
+        "groups_changed": 96,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       }
+      ],
+      "comparison": {
+       "got": {
+        "baseline": 150437,
+        "current": 149161,
+        "delta": -1276,
+        "relative_change": -0.008481955901806072
+       },
+       "ref": {
+        "baseline": 150437,
+        "current": 166309,
+        "delta": 15872,
+        "relative_change": 0.10550595930522412
+       }
+      },
+      "comparison_equal": false
+     },
+     "error": null,
+     "expected": "valid-silent-wrong",
+     "graded": true,
+     "match": false,
+     "message": null,
+     "new_warnings": [
+      {
+       "cross": false,
+       "dimensions": [
+        "issue"
+       ],
+       "new": [
+        "heavy_cancellation",
+        "suppress_top_contributor"
+       ]
+      },
+      {
+       "cross": true,
+       "dimensions": [
+        "product",
+        "issue"
+       ],
+       "new": [
+        "heavy_cancellation",
+        "suppress_top_contributor"
+       ]
+      }
+     ],
+     "stage": null
+    },
+    "timely_rate": {
+     "actual": "valid-silent-wrong",
+     "defense_failure": false,
+     "diff_vs_truth": {
+      "breakdowns": [
+       {
+        "dimensions": [],
+        "flags_changed": {},
+        "groups_changed": 1,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product"
+        ],
+        "flags_changed": {},
+        "groups_changed": 11,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 87,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product",
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 127,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       }
+      ],
+      "comparison": {
+       "got": {
+        "baseline": 0.9958786734646397,
+        "current": 0.996131696623112,
+        "delta": 0.0002530231584723097,
+        "relative_change": 0.0002540702649972891
+       },
+       "ref": {
+        "baseline": 0.9958786734646397,
+        "current": 0.9960855996969497,
+        "delta": 0.00020692623231000074,
+        "relative_change": 0.00020778257213813908
+       }
+      },
+      "comparison_equal": false
+     },
+     "error": null,
+     "expected": "valid-silent-wrong",
+     "graded": true,
+     "match": true,
+     "message": null,
+     "new_warnings": [],
+     "stage": null
+    }
+   }
+  },
+  {
+   "applied": {
+    "touched": 2154
+   },
+   "expected": {
+    "complaint_count": "valid-silent-wrong",
+    "timely_rate": "valid-silent-wrong"
+   },
+   "id": "M6",
+   "layer": "engine_input",
+   "runs": {
+    "complaint_count": {
+     "actual": "valid-silent-wrong",
+     "defense_failure": false,
+     "diff_vs_truth": {
+      "breakdowns": [
+       {
+        "dimensions": [],
+        "flags_changed": {},
+        "groups_changed": 1,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product"
+        ],
+        "flags_changed": {},
+        "groups_changed": 11,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 63,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product",
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 79,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       }
+      ],
+      "comparison": {
+       "got": {
+        "baseline": 150437,
+        "current": 160123,
+        "delta": 9686,
+        "relative_change": 0.06438575616370973
+       },
+       "ref": {
+        "baseline": 150437,
+        "current": 166309,
+        "delta": 15872,
+        "relative_change": 0.10550595930522412
+       }
+      },
+      "comparison_equal": false
+     },
+     "error": null,
+     "expected": "valid-silent-wrong",
+     "graded": true,
+     "match": true,
+     "message": null,
+     "new_warnings": [],
+     "stage": null
+    },
+    "timely_rate": {
+     "actual": "valid-silent-wrong",
+     "defense_failure": false,
+     "diff_vs_truth": {
+      "breakdowns": [
+       {
+        "dimensions": [],
+        "flags_changed": {},
+        "groups_changed": 1,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product"
+        ],
+        "flags_changed": {},
+        "groups_changed": 11,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 87,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product",
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 127,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": false,
+        "ref_status": "ok",
+        "status": "ok"
+       }
+      ],
+      "comparison": {
+       "got": {
+        "baseline": 0.9958786734646397,
+        "current": 0.9961029958219618,
+        "delta": 0.00022432235732217087,
+        "relative_change": 0.00022525068896370518
+       },
+       "ref": {
+        "baseline": 0.9958786734646397,
+        "current": 0.9960855996969497,
+        "delta": 0.00020692623231000074,
+        "relative_change": 0.00020778257213813908
+       }
+      },
+      "comparison_equal": false
+     },
+     "error": null,
+     "expected": "valid-silent-wrong",
+     "graded": true,
+     "match": true,
+     "message": null,
+     "new_warnings": [],
+     "stage": null
+    }
+   }
+  },
+  {
+   "applied": {
+    "rows_with_timely_yes_positive": 690,
+    "target_product": "Credit card",
+    "touched": 690
+   },
+   "expected": {
+    "timely_rate": "reject"
+   },
+   "id": "M7",
+   "layer": "engine_input",
+   "runs": {
+    "complaint_count": {
+     "actual": "valid-correct",
+     "diff_vs_truth": {
+      "breakdowns": [
+       {
+        "dimensions": [],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product",
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       }
+      ],
+      "comparison": {
+       "got": {
+        "baseline": 150437,
+        "current": 166309,
+        "delta": 15872,
+        "relative_change": 0.10550595930522412
+       },
+       "ref": {
+        "baseline": 150437,
+        "current": 166309,
+        "delta": 15872,
+        "relative_change": 0.10550595930522412
+       }
+      },
+      "comparison_equal": true
+     },
+     "error": null,
+     "graded": false,
+     "message": null,
+     "new_warnings": [],
+     "stage": null
+    },
+    "timely_rate": {
+     "actual": "reject",
+     "defense_failure": false,
+     "error": "AnalysisRefused",
+     "expected": "reject",
+     "graded": true,
+     "match": true,
+     "message": "integrity: group {} has timely_yes=165658 greater than timely_known=160840 in the current period, but this metric declares the numerator is bounded by the denominator",
+     "stage": "integrity"
+    }
+   }
+  },
+  {
+   "applied": {
+    "target_product": "Credit card",
+    "touched": 690
+   },
+   "expected": {
+    "timely_rate": "reject"
+   },
+   "id": "M8",
+   "layer": "engine_input",
+   "runs": {
+    "complaint_count": {
+     "actual": "valid-correct",
+     "diff_vs_truth": {
+      "breakdowns": [
+       {
+        "dimensions": [],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product",
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       }
+      ],
+      "comparison": {
+       "got": {
+        "baseline": 150437,
+        "current": 166309,
+        "delta": 15872,
+        "relative_change": 0.10550595930522412
+       },
+       "ref": {
+        "baseline": 150437,
+        "current": 166309,
+        "delta": 15872,
+        "relative_change": 0.10550595930522412
+       }
+      },
+      "comparison_equal": true
+     },
+     "error": null,
+     "graded": false,
+     "message": null,
+     "new_warnings": [],
+     "stage": null
+    },
+    "timely_rate": {
+     "actual": "reject",
+     "defense_failure": false,
+     "error": "AnalysisRefused",
+     "expected": "reject",
+     "graded": true,
+     "match": true,
+     "message": "integrity: group {'product': 'Credit card'} has timely_yes=5816 greater than timely_known=5469 in the current period, but this metric declares the numerator is bounded by the denominator",
+     "stage": "integrity"
+    }
+   }
+  },
+  {
+   "applied": {
+    "after": "28.0",
+    "before": "28",
+    "row_index": 0,
+    "touched": 1
+   },
+   "expected": {
+    "complaint_count": "reject"
+   },
+   "id": "M9",
+   "layer": "engine_input",
+   "runs": {
+    "complaint_count": {
+     "actual": "reject",
+     "defense_failure": false,
+     "error": "SpecError",
+     "expected": "reject",
+     "graded": true,
+     "match": true,
+     "message": "/var/folders/wr/v0442wq55wxdtwwfjv8bz8lw0000gn/T/bia-cfpb-mut-rd2f1e9t/M9.csv line 2: 'complaints' must be an integer, got '28.0'",
+     "stage": null
+    },
+    "timely_rate": {
+     "actual": "valid-correct",
+     "diff_vs_truth": {
+      "breakdowns": [
+       {
+        "dimensions": [],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product",
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       }
+      ],
+      "comparison": {
+       "got": {
+        "baseline": 0.9958786734646397,
+        "current": 0.9960855996969497,
+        "delta": 0.00020692623231000074,
+        "relative_change": 0.00020778257213813908
+       },
+       "ref": {
+        "baseline": 0.9958786734646397,
+        "current": 0.9960855996969497,
+        "delta": 0.00020692623231000074,
+        "relative_change": 0.00020778257213813908
+       }
+      },
+      "comparison_equal": true
+     },
+     "error": null,
+     "graded": false,
+     "message": null,
+     "new_warnings": [],
+     "stage": null
+    }
+   }
+  },
+  {
+   "applied": {
+    "after": "1,234",
+    "before": "28",
+    "row_index": 0,
+    "touched": 1
+   },
+   "expected": {
+    "complaint_count": "reject"
+   },
+   "id": "M10",
+   "layer": "engine_input",
+   "runs": {
+    "complaint_count": {
+     "actual": "reject",
+     "defense_failure": false,
+     "error": "SpecError",
+     "expected": "reject",
+     "graded": true,
+     "match": true,
+     "message": "/var/folders/wr/v0442wq55wxdtwwfjv8bz8lw0000gn/T/bia-cfpb-mut-rd2f1e9t/M10.csv line 2: 'complaints' must be an integer, got '1,234'",
+     "stage": null
+    },
+    "timely_rate": {
+     "actual": "valid-correct",
+     "diff_vs_truth": {
+      "breakdowns": [
+       {
+        "dimensions": [],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product",
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       }
+      ],
+      "comparison": {
+       "got": {
+        "baseline": 0.9958786734646397,
+        "current": 0.9960855996969497,
+        "delta": 0.00020692623231000074,
+        "relative_change": 0.00020778257213813908
+       },
+       "ref": {
+        "baseline": 0.9958786734646397,
+        "current": 0.9960855996969497,
+        "delta": 0.00020692623231000074,
+        "relative_change": 0.00020778257213813908
+       }
+      },
+      "comparison_equal": true
+     },
+     "error": null,
+     "graded": false,
+     "message": null,
+     "new_warnings": [],
+     "stage": null
+    }
+   }
+  },
+  {
+   "applied": {
+    "touched": 213
+   },
+   "expected": {
+    "complaint_count": "valid-correct",
+    "timely_rate": "valid-correct"
+   },
+   "id": "M11",
+   "layer": "engine_input",
+   "runs": {
+    "complaint_count": {
+     "actual": "reject",
+     "defense_failure": false,
+     "error": "AnalysisRefused",
+     "expected": "valid-correct",
+     "graded": true,
+     "match": false,
+     "message": "integrity: conflicting duplicate rows at grain ['day', 'product', 'issue']: ['2024-02-07|__UNKNOWN__|Improper use of your report', '2024-03-18|__UNKNOWN__|Incorrect information on your report']",
+     "stage": "integrity"
+    },
+    "timely_rate": {
+     "actual": "reject",
+     "defense_failure": false,
+     "error": "AnalysisRefused",
+     "expected": "valid-correct",
+     "graded": true,
+     "match": false,
+     "message": "integrity: conflicting duplicate rows at grain ['day', 'product', 'issue']: ['2024-02-07|__UNKNOWN__|Improper use of your report', '2024-03-18|__UNKNOWN__|Incorrect information on your report']",
+     "stage": "integrity"
+    }
+   },
+   "truth_info": {
+    "grain_collisions_after_unknown_mapping": 3
+   }
+  },
+  {
+   "applied": {
+    "column_removed": "issue",
+    "touched": 4257
+   },
+   "expected": {
+    "complaint_count": "reject",
+    "timely_rate": "reject"
+   },
+   "id": "M12",
+   "layer": "engine_input",
+   "runs": {
+    "complaint_count": {
+     "actual": "reject",
+     "defense_failure": false,
+     "error": "SpecError",
+     "expected": "reject",
+     "graded": true,
+     "match": true,
+     "message": "/var/folders/wr/v0442wq55wxdtwwfjv8bz8lw0000gn/T/bia-cfpb-mut-rd2f1e9t/M12.csv: column 'issue' is required by domain 'cfpb_product_issue' but the header is ['day', 'product', 'complaints', 'timely_yes', 'timely_known']",
+     "stage": null
+    },
+    "timely_rate": {
+     "actual": "reject",
+     "defense_failure": false,
+     "error": "SpecError",
+     "expected": "reject",
+     "graded": true,
+     "match": true,
+     "message": "/var/folders/wr/v0442wq55wxdtwwfjv8bz8lw0000gn/T/bia-cfpb-mut-rd2f1e9t/M12.csv: column 'issue' is required by domain 'cfpb_product_issue' but the header is ['day', 'product', 'complaints', 'timely_yes', 'timely_known']",
+     "stage": null
+    }
+   }
+  },
+  {
+   "applied": {
+    "after": "-28",
+    "before": "28",
+    "row_index": 0,
+    "touched": 1
+   },
+   "expected": {
+    "complaint_count": "reject"
+   },
+   "id": "M13",
+   "layer": "engine_input",
+   "runs": {
+    "complaint_count": {
+     "actual": "reject",
+     "defense_failure": false,
+     "error": "SpecError",
+     "expected": "reject",
+     "graded": true,
+     "match": true,
+     "message": "/var/folders/wr/v0442wq55wxdtwwfjv8bz8lw0000gn/T/bia-cfpb-mut-rd2f1e9t/M13.csv line 2: 'complaints' must not be negative, got -28",
+     "stage": null
+    },
+    "timely_rate": {
+     "actual": "valid-correct",
+     "diff_vs_truth": {
+      "breakdowns": [
+       {
+        "dimensions": [],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product",
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       }
+      ],
+      "comparison": {
+       "got": {
+        "baseline": 0.9958786734646397,
+        "current": 0.9960855996969497,
+        "delta": 0.00020692623231000074,
+        "relative_change": 0.00020778257213813908
+       },
+       "ref": {
+        "baseline": 0.9958786734646397,
+        "current": 0.9960855996969497,
+        "delta": 0.00020692623231000074,
+        "relative_change": 0.00020778257213813908
+       }
+      },
+      "comparison_equal": true
+     },
+     "error": null,
+     "graded": false,
+     "message": null,
+     "new_warnings": [],
+     "stage": null
+    }
+   }
+  },
+  {
+   "applied": {
+    "touched": 2103
+   },
+   "expected": {
+    "timely_rate": "reject"
+   },
+   "id": "M14",
+   "layer": "engine_input",
+   "runs": {
+    "complaint_count": {
+     "actual": "valid-correct",
+     "diff_vs_truth": {
+      "breakdowns": [
+       {
+        "dimensions": [],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       },
+       {
+        "dimensions": [
+         "product",
+         "issue"
+        ],
+        "flags_changed": {},
+        "groups_changed": 0,
+        "groups_only_in_ref": 0,
+        "groups_only_in_result": 0,
+        "ranking_equal": true,
+        "ref_status": "ok",
+        "status": "ok"
+       }
+      ],
+      "comparison": {
+       "got": {
+        "baseline": 150437,
+        "current": 166309,
+        "delta": 15872,
+        "relative_change": 0.10550595930522412
+       },
+       "ref": {
+        "baseline": 150437,
+        "current": 166309,
+        "delta": 15872,
+        "relative_change": 0.10550595930522412
+       }
+      },
+      "comparison_equal": true
+     },
+     "error": null,
+     "graded": false,
+     "message": null,
+     "new_warnings": [],
+     "stage": null
+    },
+    "timely_rate": {
+     "actual": "reject",
+     "defense_failure": false,
+     "error": "AnalysisRefused",
+     "expected": "reject",
+     "graded": true,
+     "match": true,
+     "message": "aggregate: the overall denominator 'timely_known' is zero in one of the periods (current=166309, baseline=0); a rate is undefined there",
+     "stage": "aggregate"
+    }
+   }
+  }
+ ]
+}

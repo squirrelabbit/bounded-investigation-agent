@@ -1,0 +1,68 @@
+{
+ "arithmetic": {
+  "floats": 4398,
+  "ints": 7569,
+  "max_float_diff": 2.220446049250313e-15,
+  "mismatch_count": 0,
+  "mismatches": []
+ },
+ "cross": [
+  {
+   "engine_groups": 130,
+   "engine_observed_cells": null,
+   "engine_status": "ok",
+   "match": true,
+   "oracle_observed_cells": 130,
+   "oracle_rule_status": "ok",
+   "oracle_status": "ok",
+   "where": "E1/complaint_count:productxissue"
+  },
+  {
+   "engine_groups": 130,
+   "engine_observed_cells": null,
+   "engine_status": "ok",
+   "match": true,
+   "oracle_observed_cells": 130,
+   "oracle_rule_status": "ok",
+   "oracle_status": "ok",
+   "where": "E1/timely_rate:productxissue"
+  },
+  {
+   "engine_groups": 205,
+   "engine_observed_cells": null,
+   "engine_status": "ok",
+   "match": true,
+   "oracle_observed_cells": 205,
+   "oracle_rule_status": "ok",
+   "oracle_status": "ok",
+   "where": "E2/complaint_count:productxissue"
+  },
+  {
+   "engine_groups": 205,
+   "engine_observed_cells": null,
+   "engine_status": "ok",
+   "match": true,
+   "oracle_observed_cells": 205,
+   "oracle_rule_status": "ok",
+   "oracle_status": "ok",
+   "where": "E2/timely_rate:productxissue"
+  },
+  {
+   "engine_groups": null,
+   "engine_observed_cells": 3629,
+   "engine_status": "omitted",
+   "match": true,
+   "oracle_observed_cells": 3629,
+   "oracle_rule_status": "omitted",
+   "oracle_status": "omitted",
+   "where": "E3/complaint_count:companyxproduct"
+  }
+ ],
+ "flags": {
+  "ambiguous_excluded": 0,
+  "compared": 73,
+  "mismatch_count": 0,
+  "mismatches": [],
+  "tol_values_in_disputed_band_1e9_2e9": 0
+ }
+}
