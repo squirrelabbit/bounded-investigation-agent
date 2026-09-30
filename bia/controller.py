@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Sequence
 
 from . import integrity as integrity_mod
+from . import legacy_comparability as legacy
 from .answer import AnswerDocument, build_answer
 from .complaint_analysis import analyze_complaints
 from .decision import DecisionProvider
@@ -80,9 +81,9 @@ def investigate(
 ) -> RunResult:
     intent.validate()
 
-    current_rows, current_integrity = integrity_mod.inspect_period(list(rows), intent.current_period)
-    baseline_rows, baseline_integrity = integrity_mod.inspect_period(list(rows), intent.baseline_period)
-    comparability = integrity_mod.decide_comparability(current_integrity, baseline_integrity)
+    current_rows, current_integrity = legacy.inspect_period(list(rows), intent.current_period)
+    baseline_rows, baseline_integrity = legacy.inspect_period(list(rows), intent.baseline_period)
+    comparability = legacy.decide_comparability(current_integrity, baseline_integrity)
 
     state = EvidenceState(
         current_window=comparability.current_window,

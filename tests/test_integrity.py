@@ -12,13 +12,15 @@ import unittest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from bia.integrity import (  # noqa: E402
-    MIN_WINDOW_DAYS,
-    MIN_WINDOW_FRACTION,
     MODE_ALIGNED_WINDOW,
     MODE_BLOCKED,
     MODE_FULL,
-    decide_comparability,
     dedupe_rows,
+)
+from bia.legacy_comparability import (  # noqa: E402
+    MIN_WINDOW_DAYS,
+    MIN_WINDOW_FRACTION,
+    decide_comparability,
     inspect_period,
 )
 from bia.types import MetricRow, Period  # noqa: E402

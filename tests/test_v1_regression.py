@@ -11,7 +11,7 @@ from bia.analysis.request import AnalysisRequest, PeriodComparison
 from bia.analysis.result import (BreakdownResult, GroupResult,
                                  StructuredAnalysisResult)
 from bia.domains import complaints as complaints_domain  # noqa: F401  (등록 부작용)
-from bia.integrity import decide_comparability, inspect_period
+from bia.legacy_comparability import decide_comparability, inspect_period
 from bia.store import load_scenario
 
 SCENARIOS = ["S%02d" % n for n in range(1, 25)]

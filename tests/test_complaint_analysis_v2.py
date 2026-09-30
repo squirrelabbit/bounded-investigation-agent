@@ -37,7 +37,8 @@ from bia.controller import investigate
 from bia.decision import DeterministicHeuristicSelector, GreedyEvidenceSelector
 from bia.domains import complaints as complaints_domain
 from bia.domains import ecommerce as ecommerce_domain  # noqa: F401  (등록 부작용)
-from bia.integrity import _row_to_observation, decide_comparability, inspect_period
+from bia.integrity import _row_to_observation
+from bia.legacy_comparability import decide_comparability, inspect_period
 from bia.store import load_scenario
 from bia.types import (DIM_COMPLAINT_TYPE, DIM_PRODUCT, CellDelta, GroupDelta,
                        MetricRow, Period)
