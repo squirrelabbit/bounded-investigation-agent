@@ -10,6 +10,10 @@ SPEC = DomainSpec(
     dimensions=("product", "complaint_type"),
     metrics={"complaint_count": MetricSpec(
         name="complaint_count", kind="additive", value="count")},
+    partial_period_policy="align_common_window",
+    min_comparable_days=7,
+    min_comparable_ratio=0.5,
+    null_dimension_policy="unknown_group",
 )
 
 register(SPEC)

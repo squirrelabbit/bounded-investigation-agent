@@ -6,8 +6,10 @@ import tempfile
 import unittest
 
 from bia.analysis.errors import SpecError
-from bia.analysis.frame import Observation, load_observations, observation_key
+from bia.analysis.frame import (Frame, Observation, UNKNOWN, load_frame,
+                                load_observations, observation_key)
 from bia.analysis.spec import DomainSpec, MetricSpec
+from bia.types import parse_day
 
 DOMAIN = DomainSpec(
     name="_frametest",
@@ -78,3 +80,36 @@ class LoadTests(unittest.TestCase):
         with self.assertRaises(SpecError):
             load_observations(path, DOMAIN, ("orders",))
         os.unlink(path)
+
+
+class FrameAndNullProvenanceTests(unittest.TestCase):
+    def _csv(self, text):
+        handle = tempfile.NamedTemporaryFile("w", suffix=".csv", delete=False,
+                                             encoding="utf-8", newline="")
+        handle.write(text)
+        handle.close()
+        self.addCleanup(os.unlink, handle.name)
+        return handle.name
+
+    def test_frame_rows_are_a_tuple(self):
+        obs = Observation(day=parse_day("2026-07-01"), keys=(("g", "a"),), measures=(("v", 1),))
+        frame = Frame.of([obs])
+        self.assertIsInstance(frame.rows, tuple)
+        with self.assertRaises(Exception):
+            frame.rows = ()
+
+    def test_blank_dimension_is_recorded_and_still_normalised(self):
+        path = self._csv("day,channel,device,orders\n2026-07-01,,mobile,3\n"
+                         "2026-07-01,paid,mobile,4\n")
+        frame = load_frame(path, DOMAIN, ("orders",))
+        blank = [o for o in frame.rows if o.key_of("channel") == UNKNOWN][0]
+        self.assertEqual(blank.null_dimensions, ("channel",))
+        paid = [o for o in frame.rows if o.key_of("channel") == "paid"][0]
+        self.assertEqual(paid.null_dimensions, ())
+
+    def test_null_provenance_does_not_change_equality_or_hash(self):
+        a = Observation(day=parse_day("2026-07-01"), keys=(("g", UNKNOWN),), measures=(("v", 1),),
+                        null_dimensions=("g",))
+        b = Observation(day=parse_day("2026-07-01"), keys=(("g", UNKNOWN),), measures=(("v", 1),))
+        self.assertEqual(a, b)
+        self.assertEqual(hash(a), hash(b))

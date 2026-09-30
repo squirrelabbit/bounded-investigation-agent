@@ -19,6 +19,7 @@ SPEC = DomainSpec(
             numerator_bounded_by_denominator=True,
         ),
     },
+    null_dimension_policy="unknown_group",
 )
 
 register(SPEC)

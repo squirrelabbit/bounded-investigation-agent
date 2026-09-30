@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import csv
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Sequence, Tuple
 
 from ..types import parse_day
@@ -14,11 +14,14 @@ UNKNOWN = "__UNKNOWN__"
 
 @dataclass(frozen=True)
 class Observation:
-    """한 grain 행. `keys` 와 `measures` 는 정렬된 튜플쌍이라 해시 가능하다."""
+    """한 grain 행. `keys` 와 `measures` 는 정렬된 튜플쌍이라 해시 가능하다.
+    `null_dimensions` 는 로드 시 빈칸이라 `__UNKNOWN__` 으로 바꾼 차원 이름이다. 출처일 뿐이라
+    비교·해시에서 뺀다 — grain·중복 판정은 이 필드가 없던 때와 같다."""
 
     day: object
     keys: Tuple[Tuple[str, str], ...]
     measures: Tuple[Tuple[str, int], ...]
+    null_dimensions: Tuple[str, ...] = field(default=(), compare=False)
 
     def key_of(self, dimension: str) -> str:
         for name, value in self.keys:
@@ -56,8 +59,11 @@ def load_observations(
                 )
         for line_no, record in enumerate(reader, start=2):
             keys = []
+            nulls = []
             for dimension in dimensions:
                 raw = (record.get(dimension) or "").strip()
+                if not raw:
+                    nulls.append(dimension)
                 keys.append((dimension, raw if raw else UNKNOWN))
             measures = []
             for column in measure_columns:
@@ -80,6 +86,22 @@ def load_observations(
                     day=parse_day(record["day"]),
                     keys=tuple(sorted(keys)),
                     measures=tuple(sorted(measures)),
+                    null_dimensions=tuple(sorted(nulls)),
                 )
             )
     return out
+
+
+@dataclass(frozen=True)
+class Frame:
+    """판정과 실행이 함께 쓰는 불변 행 묶음. 행 자체도 frozen 이다."""
+
+    rows: Tuple[Observation, ...]
+
+    @staticmethod
+    def of(rows) -> "Frame":
+        return Frame(rows=tuple(rows))
+
+
+def load_frame(path: str, spec: DomainSpec, measure_columns: Sequence[str]) -> Frame:
+    return Frame.of(load_observations(path, spec, measure_columns))
