@@ -6,7 +6,7 @@
 """
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from .integrity import (
     MODE_ALIGNED_WINDOW,
@@ -14,12 +14,71 @@ from .integrity import (
     MODE_FULL,
     Comparability,
     PeriodIntegrity,
-    dedupe_rows,
 )
+from .analysis.frame import Observation
 from .types import MetricRow, Period
 
 MIN_WINDOW_DAYS = 7
 MIN_WINDOW_FRACTION = 0.5
+
+
+def observation_key(obs: Observation, grain: Sequence[str]) -> Tuple[str, ...]:
+    parts = []
+    for name in grain:
+        parts.append(obs.day.isoformat() if name == "day" else obs.key_of(name))
+    return tuple(parts)
+
+
+V1_GRAIN = ("day", "product", "complaint_type")
+
+
+def dedupe_observations(
+    rows: Sequence[Observation], grain: Sequence[str]
+) -> Tuple[List[Observation], int, List[str]]:
+    """중복은 언제나 **물리 grain** 으로 판정한다. 분석이 요청한 breakdown 이 아니다.
+
+    데이터 grain 이 day×channel×device 인데 breakdown 이 [channel] 뿐일 때 요청 기준으로
+    검사하면 device 별 정상 행이 전부 중복으로 잘못 판정된다.
+    """
+    seen: Dict[Tuple[str, ...], Observation] = {}
+    duplicates = 0
+    conflicts: List[str] = []
+    for row in rows:
+        key = observation_key(row, grain)
+        prior = seen.get(key)
+        if prior is None:
+            seen[key] = row
+            continue
+        if prior.measures == row.measures:
+            duplicates += 1
+        else:
+            label = "|".join(key)
+            if label not in conflicts:
+                conflicts.append(label)
+    clean = [seen[k] for k in sorted(seen.keys())]
+    return clean, duplicates, sorted(conflicts)
+
+
+def _row_to_observation(row: MetricRow) -> Observation:
+    return Observation(
+        day=row.day,
+        keys=(("complaint_type", row.complaint_type), ("product", row.product)),
+        measures=(("count", row.count),),
+    )
+
+
+def _observation_to_row(obs: Observation) -> MetricRow:
+    keys = dict(obs.keys)
+    return MetricRow(day=obs.day, product=keys["product"],
+                     complaint_type=keys["complaint_type"],
+                     count=dict(obs.measures)["count"])
+
+
+def dedupe_rows(rows: List[MetricRow]) -> Tuple[List[MetricRow], int, List[str]]:
+    """v1 표면. 판정은 grain 경로에 위임한다 — 구현이 둘이면 갈라진다."""
+    observations = [_row_to_observation(r) for r in rows]
+    clean, duplicates, conflicts = dedupe_observations(observations, V1_GRAIN)
+    return [_observation_to_row(o) for o in clean], duplicates, conflicts
 
 
 def inspect_period(rows: List[MetricRow], period: Period) -> Tuple[List[MetricRow], PeriodIntegrity]:
