@@ -117,3 +117,19 @@ class PolicyFieldTests(unittest.TestCase):
         for spec in (e.SPEC, s.SPEC):
             self.assertEqual((spec.partial_period_policy, spec.null_dimension_policy),
                              ("reject", "unknown_group"))
+
+    def test_grain_and_dimensions_lists_are_frozen_into_tuples(self):
+        grain, dims = ["day", "g"], ["g"]
+        spec = self._spec(grain=grain, dimensions=dims)
+        self.assertIsInstance(spec.grain, tuple)
+        self.assertIsInstance(spec.dimensions, tuple)
+        grain.append("x")
+        dims.append("x")
+        self.assertEqual(spec.grain, ("day", "g"))
+        self.assertEqual(spec.dimensions, ("g",))
+
+    def test_threshold_types_are_spec_errors(self):
+        for days, ratio in ((True, 0.5), (7, "0.5"), (7, True)):
+            with self.assertRaises(SpecError):
+                self._spec(partial_period_policy="align_common_window",
+                           min_comparable_days=days, min_comparable_ratio=ratio)

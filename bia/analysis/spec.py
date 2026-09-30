@@ -66,6 +66,8 @@ class DomainSpec:
     null_dimension_policy: str = NULL_REJECT
 
     def __post_init__(self) -> None:
+        object.__setattr__(self, "grain", tuple(self.grain))
+        object.__setattr__(self, "dimensions", tuple(self.dimensions))
         if not self.grain or self.grain[0] != "day":
             raise SpecError("domain %r: grain must start with 'day'" % self.name)
         extra = [d for d in self.dimensions if d not in self.grain]
@@ -94,9 +96,13 @@ class DomainSpec:
             if any(t is None for t in thresholds):
                 raise SpecError("domain %r: 'align_common_window' needs both "
                                 "min_comparable_days and min_comparable_ratio" % self.name)
-            if not (isinstance(self.min_comparable_days, int) and self.min_comparable_days >= 1):
+            days = self.min_comparable_days
+            if isinstance(days, bool) or not isinstance(days, int) or days < 1:
                 raise SpecError("domain %r: min_comparable_days must be an integer >= 1" % self.name)
-            if not (0 < self.min_comparable_ratio <= 1):
+            ratio = self.min_comparable_ratio
+            if isinstance(ratio, bool) or not isinstance(ratio, (int, float)):
+                raise SpecError("domain %r: min_comparable_ratio must be a number" % self.name)
+            if not (0 < ratio <= 1):
                 raise SpecError("domain %r: min_comparable_ratio must be in (0, 1]" % self.name)
 
     @property
