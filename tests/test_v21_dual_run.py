@@ -98,6 +98,47 @@ class DualRunTests(unittest.TestCase):
         for label, cur, base, rows in fixtures:
             self.assertSame(rows, cur, base, label)
 
+    def test_outside_and_order_fixtures(self):
+        cur, base = self._periods(30, 30)
+        full = self._rows(base, range(30)) + self._rows(cur, range(30))
+        gap = dt.date(2026, 6, 15)
+        before = base.start - dt.timedelta(1)
+        after = cur.end + dt.timedelta(1)
+        fixtures = []
+
+        outside_conflict = full + [_row(gap, count=1), _row(gap, count=2)]
+        fixtures.append(("outside-conflict-gap", cur, base, outside_conflict))
+        fixtures.append(("outside-duplicate-gap", cur, base, full + [_row(gap), _row(gap)]))
+        edges = full + [_row(before, count=1), _row(before, count=2), _row(before, count=1),
+                        _row(after, count=1), _row(after, count=3), _row(after, count=1)]
+        fixtures.append(("outside-edges", cur, base, edges))
+        partial = self._rows(base, range(30)) + self._rows(cur, range(20))
+        partial_outside = partial + [_row(gap, count=1), _row(gap, count=2),
+                                     _row(before, count=1), _row(before, count=5)]
+        fixtures.append(("outside-partial", cur, base, partial_outside))
+        both = full + [_row(base.start, count=9), _row(cur.end, count=9)]
+        fixtures.append(("conflict-both-windows", cur, base, both))
+        many = list(full)
+        for ctype in ("delivery_delay", "billing", "app_error"):
+            for product in ("P-A", "P-B"):
+                for period in (base, cur):
+                    d = period.start + dt.timedelta(3)
+                    many.append(_row(d, product=product, ctype=ctype, count=1))
+                    many.append(_row(d, product=product, ctype=ctype, count=4))
+        fixtures.append(("many-conflicts", cur, base, many))
+
+        rng = random.Random(SEED + 1)
+        for label, rows in (("outside-conflict-gap", outside_conflict),
+                            ("outside-partial", partial_outside),
+                            ("many-conflicts", many)):
+            shuffled = list(rows)
+            rng.shuffle(shuffled)
+            fixtures.append((label + "-shuffled", cur, base, shuffled))
+
+        self.assertEqual(len(fixtures), 9)
+        for label, c, b, rows in fixtures:
+            self.assertSame(rows, c, b, label)
+
     def test_seeded_random_space(self):
         rng = random.Random(SEED)
         generated = []
