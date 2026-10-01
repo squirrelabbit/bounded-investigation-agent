@@ -64,3 +64,6 @@ group_transition:
 - 26 사례 벤치마크가 교차 분해의 tie-break 규칙(선언 순서 vs 알파벳순)을 구분하지 못한다 — 역전 동률 사례가 없다
 - checker 가 `data/v2` 를 통째로 재생성하는 동안 트리가 비는 구간이 있다 — 테스트와 병렬로 돌리지 않는다
 - 억제 문자열 가드는 위치 문장만 본다(1 차 방어는 구조 spy)
+- 측정값 음수 금지 계약이 로드 경로 셋 중 둘에만 있다(`Frame` 로드, 외부 데이터). 번들 시나리오 경로(`store.py` →
+  `_row_to_observation`)에는 없다. v2.1 의 `group_transition` 은 `!= 0` 으로 정의해 이 계약에 기대지 않는다.
+- **External-validation artifact determinism:** 환경 의존적인 절대경로·임시경로·시각 등의 diagnostic metadata는 결과 artifact 직렬화 전에 안정적인 placeholder로 정규화한다. 의미 판정과 진단 원문이 필요하면 별도 execution log에 보존한다. (근거: CFPB 재현에서 `mutations.json` 만 `tempfile.mkdtemp` 경로 때문에 바이트가 달랐다 — [`validation/external/cfpb/README.md`](../validation/external/cfpb/README.md) 재현 절)

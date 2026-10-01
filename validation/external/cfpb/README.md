@@ -45,3 +45,31 @@ CCDB 는 계속 갱신되므로 재다운로드하면 바이트가 달라질 수
 - 획득 경로는 사전등록 이후 두 번 바뀌었다 — [`preregistration.md`](preregistration.md) 의 개정 1(검색 API → 공식 전체 파일),
   개정 2(성공한 요청 조건으로 다운로드 1회 재허용). 두 개정 모두 민원 레코드를 보기 전이다. 시도 기록은
   `results/acquisition_attempt1.json`(실패), `results/acquisition.json`(성공).
+
+## 재현
+
+| | |
+|---|---|
+| 엔진 | `v2.0.0` (`76bdb1f`) — 이 검증 동안 바뀌지 않았다 |
+| 재현 진입점 | `3d961e7` (하네스 문서까지 포함한 마지막 커밋) |
+| 봉인 경계 | `78576a9` (결과 봉인) |
+| 입력 | 봉인 당시 원본 ZIP 그 자체 — SHA-256 은 `results/acquisition.json` 의 `sha256_zip` |
+
+main 의 엔진은 v2.1 에서 `run_plan(plan, rows)` 를 없앴으므로 이 하네스는 main 에서 돌지 않는다. 봉인 자산이라 고치지 않는다.
+
+CFPB 는 매일 갱신되는 파일만 제공하고 과거 스냅샷을 제공하지 않는다. 다시 받아서는 같은 입력을 얻지 못하므로 `fetch.py` 는
+재현에 쓰지 않는다(받은 바이트 수가 봉인 당시 `Content-Length` 와 다르면 멈추도록 봉인돼 있다). 봉인 당시 ZIP 은 저장소 밖에
+보관한다(소비자 서술문 포함, 100 MB 초과).
+
+**일회용 clone 에서만 실행한다.** 이 하네스의 범위 가드는 작업 트리를 로컬 `main` 과 비교하므로 로컬 `main` 을 먼저 `3d961e7` 로
+맞춰야 한다.
+
+```bash
+git clone <repo> cfpb-repro && cd cfpb-repro
+git checkout -B main 3d961e7
+mkdir -p /tmp/bia-cfpb-raw && cp <보관한 complaints.csv.zip> /tmp/bia-cfpb-raw/
+python3 -c "import json,hashlib; e=json.load(open('validation/external/cfpb/results/acquisition.json'))['sha256_zip']; a=hashlib.sha256(open('/tmp/bia-cfpb-raw/complaints.csv.zip','rb').read()).hexdigest(); print('일치' if a==e else 'STOP: 다름')"
+python3 validation/external/cfpb/run.py
+```
+
+재현 결과 (2026-10-01, 일회용 clone, 동일 조건 2회): 결과 JSON 12개 중 11개는 봉인본과 바이트 단위로 일치했다. `mutations.json` 1개는 로더 오류 메시지 5개(M9·M10·M12×2·M13)에 `tempfile.mkdtemp(prefix="bia-cfpb-mut-")`가 생성한 임시 디렉터리 경로가 포함되어 실행마다 바이트가 달랐다. 해당 경로 부분만 `<TMPDIR>`로 정규화하면 봉인본과 두 재현 결과가 모두 동일하며, 판정·수치·사전등록 예측 결과는 실행 간 변하지 않았다. 봉인된 v2.0 하네스와 결과는 수정하지 않는다.
