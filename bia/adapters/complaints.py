@@ -8,10 +8,16 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 
 from ..analysis.operators import CROSS_CELL_LIMIT, order_groups
+from ..analysis.qualification import (
+    ACTION_ACCEPT, REASON_CONFLICTING_DUPLICATE, REASON_EMPTY_PERIOD,
+    REASON_INSUFFICIENT_COMMON_WINDOW, SCOPE_BASELINE, SCOPE_CURRENT, WINDOW_NO_OVERLAP,
+    ExecutableQualification, RejectedQualification,
+)
 from ..analysis.request import RANK_GROUP_DELTA
 from ..analysis.result import (STATUS_OK, BreakdownResult, GroupResult,
                                StructuredAnalysisResult)
 from ..analysis.spec import KIND_ADDITIVE
+from ..integrity import MODE_ALIGNED_WINDOW, MODE_BLOCKED, MODE_FULL, Comparability, PeriodIntegrity
 from ..types import (DIM_COMPLAINT_TYPE, DIM_PRODUCT, METRIC_COMPLAINT_COUNT,
                      CellDelta, GroupDelta)
 
@@ -224,3 +230,53 @@ def complaint_view(result: StructuredAnalysisResult) -> ComplaintAnalysisView:
            if baseline_total else None)
     return ComplaintAnalysisView(current_total, baseline_total, delta, pct,
                                  by_product, by_type, cells, suppressed)
+
+
+def _period_integrity(coverage, conflicts) -> PeriodIntegrity:
+    return PeriodIntegrity(
+        period=coverage.period,
+        observed_days=coverage.observed_days,
+        missing_days=list(coverage.missing_days),
+        duplicate_rows_removed=coverage.duplicate_rows_removed,
+        conflicting_keys=sorted(v.label for v in conflicts),
+        present_offsets=list(coverage.observed_offsets),
+    )
+
+
+def legacy_views(q):
+    """qualification 결과를 v1 제품 경로가 직렬화하는 두 객체로 글자 그대로 되돌린다.
+    reason 문장은 complaints 의 제품 문구라 공용 qualification 에 두지 않고 여기서 만든다."""
+    if isinstance(q, RejectedQualification) and q.reason_code not in (
+            REASON_CONFLICTING_DUPLICATE, REASON_EMPTY_PERIOD, REASON_INSUFFICIENT_COMMON_WINDOW):
+        raise ValueError("complaints declares unknown_group and align_common_window; "
+                         "reason %r cannot occur on this path" % q.reason_code)
+    facts = q.facts
+    current = _period_integrity(facts.current, facts.conflicts_in(SCOPE_CURRENT))
+    baseline = _period_integrity(facts.baseline, facts.conflicts_in(SCOPE_BASELINE))
+    if isinstance(q, ExecutableQualification):
+        if q.action == ACTION_ACCEPT:
+            comparability = Comparability(MODE_FULL, "both periods are complete and equal in length",
+                                          q.effective.current, q.effective.baseline)
+        else:
+            d = dict(q.detail)
+            comparability = Comparability(
+                MODE_ALIGNED_WINDOW,
+                "periods are not equally complete; compared on the aligned day-offset window %d..%d"
+                % (d["start_offset"] + 1, d["end_offset"] + 1),
+                q.effective.current, q.effective.baseline)
+        return current, baseline, comparability
+    if not isinstance(q, RejectedQualification):
+        raise TypeError("expected a qualification result, got %r" % type(q))
+    if q.reason_code == REASON_CONFLICTING_DUPLICATE:
+        reason = ("conflicting_duplicate_rows: the same (day, product, complaint_type) key carries "
+                  "two different counts, so no count can be trusted")
+    elif q.reason_code == REASON_EMPTY_PERIOD:
+        reason = "empty_period: one of the periods has no rows"
+    else:
+        d = dict(q.detail)
+        if d["kind"] == WINDOW_NO_OVERLAP:
+            reason = "no_comparable_window: no day-offset is present in both periods"
+        else:
+            reason = ("no_comparable_window: longest aligned window is %d day(s), below the required %d"
+                      % (d["length"], d["threshold"]))
+    return current, baseline, Comparability(MODE_BLOCKED, reason)
