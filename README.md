@@ -233,7 +233,8 @@ python3 scripts/check_v2bench.py                  # 디스크에서 다시 세�
 bounded-investigation-agent/
 ├── bia/
 │   ├── types.py          # Period, AnalysisIntent, EvidenceFilter, EvidenceCandidate
-│   ├── integrity.py      # 기간 완결성·결측·중복, 비교 가능 구간 결정
+│   ├── integrity.py      # grain 중복 판정(dedupe), v1 행 ↔ Observation 변환, v1 호환 뷰 컨테이너
+│   ├── legacy_comparability.py # v2.0 기간 판정의 동결 참조본. 테스트 전용(제품 경로는 import 하지 않음)
 │   ├── complaint_analysis.py # 제품 경로의 계산 경계 — v2 엔진 실행 후 v1 호환 뷰 반환
 │   ├── metrics.py        # v1 산술. 제품 경로에서 로드하지 않는 회귀 기준(legacy)
 │   ├── evidence.py       # EvidenceState, 서버의 닫힌 후보 생성
@@ -251,6 +252,8 @@ bounded-investigation-agent/
 │   │   ├── spec.py       #   DomainSpec, MetricSpec (도메인이 선언하는 계약)
 │   │   ├── request.py    #   AnalysisRequest, PeriodComparison (런타임 요청)
 │   │   ├── compiler.py   #   요청 × 선언 → ExecutionPlan (모순은 여기서 거부)
+│   │   ├── frame.py      #   CSV → Observation·Frame 로딩과 빈 차원값 정규화
+│   │   ├── qualification.py #  판정: 사실 관측 → 도메인 정책으로 결정 → 실행 가능 범위 봉인
 │   │   ├── operators.py  #   AGGREGATE·COMPARE·BREAKDOWN·RANK (CONTRIBUTION·RATE 는 decompose.py)
 │   │   ├── decompose.py  #   비율 metric 의 rate/mix/entry-exit 분해와 출력 정책
 │   │   ├── engine.py     #   plan 실행
@@ -571,7 +574,7 @@ v2 는 그 자리에 **타입 있는 실행 계층**을 둔다. 도메인은 `Do
 - oracle 생성기(`bia/v2bench/generate.py`)는 `bia.analysis` 도 `bia.metrics` 도 **import 하지 않는다.** 같은 코드를 부르면 엔진의 버그를 그대로 복제해 벤치마크가 아무것도 증명하지 못한다. 도메인 계약과 분해 수식을 다시 진술하고 `Fraction` 으로 정확히 계산한다.
 - 이 독립성은 사람 기억이 아니라 테스트가 지킨다 — 모듈의 **AST** 에서 금지 import 를 찾고, 별도 프로세스에서 생성기를 import 한 뒤 `sys.modules` 에 피검 모듈이 없음을 확인한다(간접 import 까지 잡는다).
 - 검사기(`scripts/check_v2bench.py`)는 생성기 함수도 재사용하지 않는다. 디스크의 CSV 를 직접 읽어 세 번째로 다시 센다. 재생성이 바이트 동일한지도 함께 본다.
-- **세 번째 재계산의 범위는 좁다.** 검사기가 다시 세는 것은 `baseline`·`current`·`delta`·그룹별 `net_contribution`·분할 합(그룹 합 = 전체 delta)·`observed_cells` 다. `rate_effect`·`mix_effect`·`contribution_share`·flags·ranking 은 **다시 세지 않는다** — 그것들은 oracle 과 엔진이라는 두 독립 계산의 대조로 지켜진다. 검사기가 출력하는 `checks run` 수가 분해까지 덮는다는 뜻이 아니다.
+- **세 번째 재계산의 범위는 좁다.** 검사기가 다시 세는 것은 `baseline`·`current`·`delta`·그룹별 `net_contribution`·분할 합(그룹 합 = 전체 delta)·`observed_cells`·합 분해의 `group_transition` 이다. `rate_effect`·`mix_effect`·`contribution_share`·flags·ranking 은 **다시 세지 않는다** — 그것들은 oracle 과 엔진이라는 두 독립 계산의 대조로 지켜진다. 검사기가 출력하는 `checks run` 수가 분해까지 덮는다는 뜻이 아니다.
 - 검사기의 가드는 `assert` 가 아니라 명시적 raise 다. `assert` 는 `python3 -O` 에서 통째로 사라지므로, 증거 산출물이 최적화 플래그 하나로 통과할 수 있다. `-O` 서브프로세스를 실제로 띄워 위반 입력에 비-0 종료를 확인하는 테스트가 이 성질을 고정한다.
 - 사례 수는 테스트에 **정확한 숫자로** 박혀 있다. 부등식으로 두면 사례가 조용히 사라져도 통과한다.
 
@@ -590,7 +593,7 @@ v1 은 `v1.0.0` 태그로 고정돼 있고 v2 작업의 **regression 은 0** 이
 - **일반화 증거의 무게는 한 도메인에 실려 있다.** 26 사례 중 **23 이 `ecommerce`, 1 이 `complaints`, 2 가 `support_ops`** 다. `complaints` 는 합 metric 만 선언하므로, **비율 분해를 `ecommerce` 밖에서 밟는 사례는 C18(`support_ops` · `sla_resolution_rate`) 하나**다. 이 브랜치의 중심인 rate / mix / entry-exit 분해와 억제 정책은 사실상 한 도메인 + 한 사례로 입증돼 있다. `support_ops` 는 grain 구조도 `complaints` 와 사실상 같다.
 - **overall(차원 없는) 분기는 벤치마크가 독립 대조하지 않는다.** 그 분기에서 oracle 과 맞추는 것은 comparison 의 `baseline`·`current`·`delta`·`relative_change` 뿐이고, 그 분기의 groups·totals·flags 와 `decompose_ratio` 경로는 단위 테스트가 덮는다.
 - **이 26 사례에는 실데이터가 없다.** 사례는 전부 손으로 검산 가능한 작은 정수이고, 표현 다양성·라벨 노이즈·결측 패턴 같은 실제 데이터의 성질은 들어 있지 않다.
-- **외부 공개 데이터 검증은 별도로 했다. 비공개 운영 데이터 검증은 없다.** 공개 CFPB 민원 데이터(348.7 MB ZIP)에 v2.0.0 엔진을 변경하지 않은 채 적용해 입력 계약·산술·정책 동작을 사전등록된 규칙으로 검증했다. 독립 oracle 과의 산술 비교에서 불일치 0건이었고, 20개 손상 사례에서도 사전등록 채점 기준상 방어 실패는 0건이었다. 다만 검증 과정에서 기간 누락·날짜 이동·합 지표의 진입·이탈을 직접 감지하지 못하는 방어 공백, 우연히 발생한 경고를 방어 성공으로 과대평가할 수 있는 채점 한계, 빈 차원값 정규화가 grain 충돌을 만들 수 있는 제약이 확인됐다([findings](validation/external/cfpb/findings.md)). 이 검증은 외부 데이터에 대한 실행·산술·방어 규칙의 검증이며, 현실 분석 결과의 정확성이나 비공개 운영 데이터에서의 유효성은 주장하지 않는다.
+- **외부 공개 데이터 검증은 별도로 했다. 비공개 운영 데이터 검증은 없다.** 공개 CFPB 민원 데이터(348.7 MB ZIP)에 v2.0.0 엔진을 변경하지 않은 채 적용해 입력 계약·산술·정책 동작을 사전등록된 규칙으로 검증했다. 독립 oracle 과의 산술 비교에서 불일치 0건이었고, 20개 손상 사례에서도 사전등록 채점 기준상 방어 실패는 0건이었다. 다만 검증 과정에서 기간 누락·날짜 이동·합 지표의 진입·이탈을 직접 감지하지 못하는 방어 공백, 우연히 발생한 경고를 방어 성공으로 과대평가할 수 있는 채점 한계, 빈 차원값 정규화가 grain 충돌을 만들 수 있는 제약이 확인됐다([findings](validation/external/cfpb/findings.md)). 이 결과는 v2.0.0 기준이다. v2.1 은 엔진 수준 기간 판정(도메인 선언에 따라 거부 또는 공통 구간 정렬)과, 합 분해의 `group_transition` 사실(답변·억제에는 연결되지 않음)을 더했다. CFPB 재검증은 하지 않았다. 이 검증은 외부 데이터에 대한 실행·산술·방어 규칙의 검증이며, 현실 분석 결과의 정확성이나 비공개 운영 데이터에서의 유효성은 주장하지 않는다.
 - **제품 경로가 쓰는 도메인은 `complaints` 하나다.** 파이프라인의 계산은 `analyze_complaints()` 를 거쳐 v2 엔진이 하고, 그 등록은 `bia/complaint_analysis.py` 가 `bia/domains/complaints.py` 를 import 할 때 일어난다. `ecommerce`·`support_ops` 는 제품 경로에서 로드되지 않고 벤치마크와 테스트가 명시적으로 등록한다. 답변은 제품·불만 유형 분해마다 엔진의 `suppress_top_contributor` 를 읽어, 참이면 그 차원의 "늘어난 그룹 합계의 N%" 를 싣지 않고 상쇄 때문에 비율을 생략한다고 밝힌다. `complaints` 는 합 metric 이라 이 플래그는 상쇄(`heavy_cancellation`) 에서만 서므로, 억제가 답변을 바꾸는 경우도 증가·감소가 크게 상쇄된 차원뿐이다.
 
 ---
@@ -647,7 +650,7 @@ v1 은 `v1.0.0` 태그로 고정돼 있고 v2 작업의 **regression 은 0** 이
 
 - **질문군이 하나다.** 기간 간 불만 건수 증가 외에는 답하지 않는다. `AnalysisIntent.validate()` 가 다른 질문을 거부한다.
 - **인과를 말하지 않는다.** 개입·대조 설계 없이 인과를 주장할 수 없고, 이 시스템에는 그 데이터가 없다. 답변은 항상 "어디서 늘었는가"까지다.
-- **비교 구간 정책이 고정돼 있다.** 두 기간에 공통으로 존재하는 최장 연속 구간이 기간 길이의 절반(최소 7일) 이상이어야 비교한다. 그 아래면 수치를 내지 않는다.
+- **비교 구간 정책은 도메인 선언으로 정해진다.** `complaints` 는 `align_common_window`·최소 7일·비율 0.5 를 선언한다 — 두 기간에 공통으로 존재하는 최장 연속 구간이 기간 길이의 절반(최소 7일) 이상이어야 비교한다. 그 아래면 수치를 내지 않는다. 요청마다 바꿀 수는 없다.
 - **precision 지표가 기준선에서는 변별력이 없다.** heuristic은 셀 후보만 고르므로 항상 1.0이다. 서버는 제품·유형 수준의 넓은 후보도 함께 제시하므로, 이 지표는 그런 후보를 고르는 provider가 붙을 때 비로소 변별한다.
 - **합성 데이터다.** 실제 고객 문의의 표현 다양성·라벨 노이즈를 재현하지 않는다. 본문 뒷받침 검사는 고정된 용어 목록에 의존한다.
 - **인과 가드는 어휘 차단 목록이다.** 20개 표현을 막을 뿐, 같은 뜻의 새로운 표현은 통과한다. 답변을 만드는 쪽이 서버 템플릿뿐이라 오늘은 충분하지만, 문장을 생성하는 주체가 늘면 이 가드만으로는 부족하다.
