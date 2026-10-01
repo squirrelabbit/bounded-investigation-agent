@@ -38,6 +38,20 @@
 
 **외부 데이터 검증:** 공개 CFPB 데이터로 고정된 v2.0.0 엔진을 검증해 독립 oracle 산술 불일치 0건을 확인했으며, 동시에 실제 데이터에서의 방어 공백과 입력 제약도 확인했다. 비공개 운영 데이터 검증은 없다. → [findings](validation/external/cfpb/findings.md)
 
+### v2.1 — Structured Data Qualification
+
+v2.0 엔진은 호출자가 기간 완결성을 확인하지 않으면 빠진 날을 조용히 적게 셌다. v2.1 은 그 확인을 호출자가 지켜야 하는 규칙이 아니라 **실행의 전제 조건**으로 올렸다.
+
+| | 결과 |
+|---|---|
+| 판정의 강제 | 엔진은 `qualify()` 가 발급한 판정 결과만 실행한다(`run_plan(executable)`). 계획과 행을 바로 넘겨 실행하는 경로는 없다 |
+| 결정 | 판정은 사실(기간별 관측 일수·누락일·중복·충돌·빈 값 출처)만 만들고, 도메인 선언(`DomainSpec`)의 정책에 따라 `accept` / `align` / `reject` 와 사유 코드로 결정한다 |
+| 실행 범위 | 판정을 통과한 **바로 그 계획·데이터·구간만** 실행된다. `align` 이면 두 기간의 공통 구간으로 좁혀 실행한다. 판정 결과는 읽기 전용으로 봉인된다 |
+| 기존 행동 | 제품 출력은 corpus·JEV digest 기준 v2.0 과 **바이트 동일**. v2.0 판정 함수는 동결된 참조본으로 남기고, 번들 32 사례·경계 fixture·고정 시드 3,000 조합에서 새 판정과 바이트 일치를 확인했다 |
+| 진입·이탈 사실 | 합 분해에 `group_transition`(진입·이탈·지속·비활성 그룹 수)을 더했다. 엔진을 import 하지 않는 oracle 이 따로 센다. 답변·억제에는 연결하지 않았다 |
+
+테스트 708개가 Python 3.9·3.11 에서 통과한다. 위의 CFPB 외부 검증 결과는 v2.0.0 엔진 기준이며, v2.1 엔진으로는 다시 검증하지 않았다.
+
 ---
 
 ## 데모
@@ -206,7 +220,7 @@ python3 -m bia.datagen
 ### 동작 확인
 
 ```bash
-python3 -m unittest discover -t . -s tests -q     # 632 tests, OK
+python3 -m unittest discover -t . -s tests -q     # 708 tests, OK
 python3 scripts/check_datagen.py                  # 합성 데이터 자체 검사
 python3 eval/run_eval.py                          # 24개 시나리오 평가, 종료코드 0이면 합격
 python3 -m bia.cli demo --case normal
@@ -282,7 +296,7 @@ bounded-investigation-agent/
 ├── examples/
 │   ├── custom-data-template/  # 자기 데이터로 돌려보는 최소 예시
 │   └── README.md              # 두 파일 계약과 닫힌 값 목록
-├── tests/                # 632 tests
+├── tests/                # 708 tests
 ├── validation/external/cfpb/  # 공개 CFPB 데이터 외부 검증 — 사전등록·하네스·봉인된 결과·사후 해석
 └── SCOPE.md              # 범위·비범위·권한 경계·완료 조건
 ```
