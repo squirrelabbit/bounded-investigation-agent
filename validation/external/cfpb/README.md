@@ -74,4 +74,4 @@ python3 validation/external/cfpb/run.py
 
 재현 결과 (2026-10-01, 일회용 clone, 동일 조건 2회): 결과 JSON 12개 중 11개는 봉인본과 바이트 단위로 일치했다. `mutations.json` 1개는 로더 오류 메시지 5개(M9·M10·M12×2·M13)에 `tempfile.mkdtemp(prefix="bia-cfpb-mut-")`가 생성한 임시 디렉터리 경로가 포함되어 실행마다 바이트가 달랐다. 해당 경로 부분만 `<TMPDIR>`로 정규화하면 봉인본과 두 재현 결과가 모두 동일하며, 판정·수치·사전등록 예측 결과는 실행 간 변하지 않았다. 봉인된 v2.0 하네스와 결과는 수정하지 않는다.
 
-(비교 대상 12개 중 `acquisition.json`·`acquisition_attempt1.json` 은 `run.py` 가 읽기만 하는 획득 기록이다. 비교에서 뺀 파일: `run_meta.json`(실행 시각·HEAD), `summary.md`.)
+(비교 대상 12개 중 `acquisition.json`·`acquisition_attempt1.json`·`derivation.json` 은 `run.py` 가 쓰지 않는 기록이고, 비교에서 뺀 파일은 `run_meta.json`(실행 시각·HEAD)과 `summary.md` 다.)
