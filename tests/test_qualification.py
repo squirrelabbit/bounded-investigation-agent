@@ -6,6 +6,7 @@ import pathlib
 import unittest
 
 from bia.analysis.compiler import compile_request
+from bia.analysis.engine import run_plan
 from bia.analysis.frame import UNKNOWN, Frame, Observation
 from bia.analysis.qualification import (
     ACTION_ACCEPT, ACTION_ALIGN, REASON_CONFLICTING_DUPLICATE, REASON_EMPTY_PERIOD,
@@ -243,6 +244,27 @@ def _names_factory(source):
         if isinstance(node, ast.alias) and node.name == "_FACTORY":
             return True
     return False
+
+
+class AlignedGroupTransitionTests(unittest.TestCase):
+    def test_transition_counts_use_the_effective_window(self):
+        extra = [_obs(d, "late", 5) for d in _days(BASE_START, (0, 1))]
+        extra += [_obs(d, "gone", 5) for d in _days(BASE_START, (5,))]
+        extra += [_obs(d, "gone2", 5) for d in _days(BASE_START, (6,))]
+        extra += [_obs(d, "new", 5) for d in _days(CUR_START, (10,))]
+        q = qualify(_plan(ALIGN), _frame(range(30), range(2, 30), extra))
+        self.assertEqual(q.action, ACTION_ALIGN)
+        result = run_plan(q)
+        want = {"entered": 1, "exited": 2, "persisted": 1, "inactive": 0}
+        checked = 0
+        for breakdown in result.breakdowns:
+            if not breakdown.dimensions:
+                continue
+            labels = sorted(g.key["g"] for g in breakdown.groups)
+            self.assertEqual(labels, ["a", "gone", "gone2", "new"])
+            self.assertEqual(breakdown.group_transition, want)
+            checked += 1
+        self.assertEqual(checked, 1)
 
 
 class FactoryTokenLeakTests(unittest.TestCase):

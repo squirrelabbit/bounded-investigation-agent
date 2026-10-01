@@ -193,3 +193,30 @@ class GroupTransitionTests(unittest.TestCase):
                 expected["persisted" if b and c else "exited" if b else "entered" if c else "inactive"] += 1
             self.assertEqual(t, expected)
             self.assertEqual(breakdown.as_dict()["group_transition"], t)
+
+
+class GroupTransitionHandWrittenTests(unittest.TestCase):
+    """기대값을 엔진 결과가 아니라 fixture 에서 손으로 적는다."""
+
+    def test_all_four_categories(self):
+        extra = []
+        for day in BASE.dates():
+            extra.append(obs(day, "gone", 7))
+            extra.append(obs(day, "gone2", 3))
+            extra.append(obs(day, "zero", 0))
+        for day in CUR.dates():
+            extra.append(obs(day, "new", 7))
+            extra.append(obs(day, "zero", 0))
+        result = execute(plan(), Frame.of(rows() + extra))
+        # paid·organic 는 양 기간 값이 0 이 아니므로 persisted 2, gone·gone2 exited 2,
+        # new entered 1, zero 는 양 기간 0 이라 inactive 1.
+        want = {"entered": 1, "exited": 2, "persisted": 2, "inactive": 1}
+        checked = 0
+        for breakdown in result.breakdowns:
+            if breakdown.status != "ok" or not breakdown.dimensions:
+                continue
+            self.assertEqual(len(breakdown.groups), 6)
+            self.assertEqual(breakdown.group_transition, want)
+            self.assertEqual(breakdown.as_dict()["group_transition"], want)
+            checked += 1
+        self.assertEqual(checked, 1)

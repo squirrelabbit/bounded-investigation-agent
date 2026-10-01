@@ -477,6 +477,8 @@ class BenchmarkTests(unittest.TestCase):
                 self.assertEqual(
                     breakdown.observed_cells,
                     expected["expect_omitted_observed_cells"][name], name)
+                self.assertIsNone(breakdown.group_transition, name)
+                self.assertNotIn("group_transition", breakdown.as_dict(), name)
                 continue
             self.assertEqual(breakdown.status, STATUS_OK, name)
             self._check_breakdown(case, name, breakdown,
