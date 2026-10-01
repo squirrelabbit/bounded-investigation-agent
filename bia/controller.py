@@ -10,9 +10,9 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Sequence
 
 from . import integrity as integrity_mod
-from . import legacy_comparability as legacy
 from .answer import AnswerDocument, build_answer
-from .complaint_analysis import analyze_complaints
+from .analysis.qualification import ExecutableQualification
+from .complaint_analysis import analyze_complaints, qualify_complaints
 from .decision import DecisionProvider
 from .evidence import (
     MAX_DECISION_CALLS,
@@ -81,9 +81,8 @@ def investigate(
 ) -> RunResult:
     intent.validate()
 
-    current_rows, current_integrity = legacy.inspect_period(list(rows), intent.current_period)
-    baseline_rows, baseline_integrity = legacy.inspect_period(list(rows), intent.baseline_period)
-    comparability = legacy.decide_comparability(current_integrity, baseline_integrity)
+    qualification, current_integrity, baseline_integrity, comparability = qualify_complaints(
+        rows, intent.current_period, intent.baseline_period)
 
     state = EvidenceState(
         current_window=comparability.current_window,
@@ -98,12 +97,9 @@ def investigate(
         state.finish_reason = FINISH_BLOCKED
         return RunResult(intent, state, build_answer(state), provider.name)
 
-    clean_rows = current_rows + baseline_rows
-    assert comparability.current_window is not None
-    assert comparability.baseline_window is not None
-    state.metrics = analyze_complaints(
-        clean_rows, comparability.current_window, comparability.baseline_window
-    )
+    if not isinstance(qualification, ExecutableQualification):
+        raise RuntimeError("comparability is usable but qualification is not executable")
+    state.metrics = analyze_complaints(qualification)
     state.top_products = state.metrics.top(DIM_PRODUCT)
     state.top_complaint_types = state.metrics.top(DIM_COMPLAINT_TYPE)
 

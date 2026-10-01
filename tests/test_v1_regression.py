@@ -5,8 +5,8 @@ import unittest
 from bia import metrics as v1_metrics
 from bia.adapters.complaints import top_contributor_cells
 from bia.analysis.compiler import compile_request
-from bia.analysis.engine import run_plan
-from bia.analysis.frame import Observation
+from bia.analysis.engine import execute
+from bia.analysis.frame import Frame, Observation
 from bia.analysis.request import AnalysisRequest, PeriodComparison
 from bia.analysis.result import (BreakdownResult, GroupResult,
                                  StructuredAnalysisResult)
@@ -48,7 +48,7 @@ class StructuredRegressionTests(unittest.TestCase):
                                             baseline=comparability.baseline_window),
                 rank_by="net_contribution",
             ))
-            new = run_plan(plan, _observations(current_rows + baseline_rows))
+            new = execute(plan, Frame.of(_observations(current_rows + baseline_rows)))
 
             self.assertEqual(new.comparison["current"], old.current_total, scenario_id)
             self.assertEqual(new.comparison["baseline"], old.baseline_total, scenario_id)

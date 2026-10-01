@@ -28,20 +28,23 @@ from bia.adapters.complaints import (REASON_JOINT_OMITTED,
                                      complaint_view)
 from bia.analysis import compiler, decompose, engine, operators
 from bia.analysis.compiler import compile_request
-from bia.analysis.engine import run_plan
+from bia.analysis.engine import execute
 from bia.analysis.errors import AnalysisRefused
-from bia.analysis.frame import Observation
+from bia.analysis.frame import Frame, Observation
 from bia.analysis.request import AnalysisRequest, PeriodComparison
-from bia.complaint_analysis import CONTRACT_MEMBERS, analyze_complaints
+from bia.complaint_analysis import CONTRACT_MEMBERS, analyze_complaints, qualify_complaints
 from bia.controller import investigate
-from bia.decision import DeterministicHeuristicSelector, GreedyEvidenceSelector
+from bia.decision import (DecisionProvider, DeterministicHeuristicSelector,
+                          GreedyEvidenceSelector)
 from bia.domains import complaints as complaints_domain
 from bia.domains import ecommerce as ecommerce_domain  # noqa: F401  (등록 부작용)
-from bia.integrity import _row_to_observation
+from bia.integrity import MODE_BLOCKED, _row_to_observation
 from bia.legacy_comparability import decide_comparability, inspect_period
 from bia.store import load_scenario
-from bia.types import (DIM_COMPLAINT_TYPE, DIM_PRODUCT, CellDelta, GroupDelta,
-                       MetricRow, Period)
+from bia.types import (DEFER, DIM_COMPLAINT_TYPE, DIM_PRODUCT, AnalysisIntent, CellDelta,
+                       GroupDelta, MetricRow, Period)
+
+from . import support
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CASES = ([("scenarios", "S%02d" % i) for i in range(1, 25)]
@@ -182,7 +185,7 @@ class NoLegacyCallTests(unittest.TestCase):
         intent, rows, tickets, _meta = _load("scenarios", "S01")
         with mock.patch.object(v1_metrics, "compute", side_effect=_explode):
             with mock.patch.object(controller_mod, "analyze_complaints",
-                                   lambda r, c, b: v1_metrics.compute(r, c, b)):
+                                   lambda q: v1_metrics.compute(q)):
                 with self.assertRaises(_Boom):
                     investigate(intent, rows, tickets, DeterministicHeuristicSelector())
 
@@ -231,8 +234,8 @@ class EngineCallTests(unittest.TestCase):
 
     def test_the_spy_sees_the_ratio_path_when_it_does_run(self):
         """Positive control for the negative assertion above."""
-        current = Period.of("2026-06-08", "2026-06-14")
-        baseline = Period.of("2026-06-01", "2026-06-07")
+        current = Period.of("2026-06-08", "2026-06-08")
+        baseline = Period.of("2026-06-01", "2026-06-01")
         observations = []
         for day, orders in ((baseline.start, 3), (current.start, 5)):
             for channel in ("organic", "paid"):
@@ -244,7 +247,7 @@ class EngineCallTests(unittest.TestCase):
             domain="ecommerce", metric="conversion_rate", breakdowns=("channel",),
             comparison=PeriodComparison(current=current, baseline=baseline)))
         with _CallSpy() as spy:
-            run_plan(plan, observations)
+            execute(plan, Frame.of(observations))
         self.assertTrue(spy.called(decompose.decompose_ratio))
 
 
@@ -292,7 +295,7 @@ class ViewReproducesLegacyTests(unittest.TestCase):
                 continue
             clean, current_window, baseline_window = prepared
             old = v1_metrics.compute(clean, current_window, baseline_window)
-            new = analyze_complaints(clean, current_window, baseline_window)
+            new = analyze_complaints(qualify_complaints(clean, current_window, baseline_window)[0])
             self.assertIs(type(new), adapter.ComplaintAnalysisView)
             self._assert_same(old, new, case_id)
             cross_cells.append(len(new.cells))
@@ -309,7 +312,7 @@ class ViewReproducesLegacyTests(unittest.TestCase):
                 intent, rows, tickets, _meta = _load(group, case_id)
                 new = investigate(intent, rows, tickets, factory())
                 with mock.patch.object(controller_mod, "analyze_complaints",
-                                       _legacy_with_policy):
+                                       lambda _q: _legacy_with_policy(*_windows(intent, rows))):
                     old = investigate(intent, rows, tickets, factory())
                 label = "%s/%s" % (case_id, factory.__name__)
                 self.assertEqual(dump(new.as_dict()), dump(old.as_dict()), label)
@@ -321,8 +324,8 @@ class ViewReproducesLegacyTests(unittest.TestCase):
     def test_ties_negatives_and_one_sided_groups_keep_the_v1_order(self):
         """The bundled cases barely tie. This input is built to: equal deltas across
         products and types, decreases, zero, groups present in one period only."""
-        baseline = Period.of("2026-06-01", "2026-06-07")
-        current = Period.of("2026-06-08", "2026-06-14")
+        baseline = Period.of("2026-06-02", "2026-06-02")
+        current = Period.of("2026-06-10", "2026-06-10")
         spec = [
             ("zeta", "delay", 2, 5), ("alpha", "delay", 2, 5), ("mid", "billing", 1, 4),
             ("alpha", "billing", 4, 4), ("beta", "crash", 6, 0), ("gamma", "crash", 0, 3),
@@ -330,24 +333,24 @@ class ViewReproducesLegacyTests(unittest.TestCase):
         ]
         rows = []
         for product, complaint_type, base, cur in spec:
-            rows.append(MetricRow(baseline.start + dt.timedelta(days=1), product,
+            rows.append(MetricRow(baseline.start, product,
                                   complaint_type, base))
-            rows.append(MetricRow(current.start + dt.timedelta(days=2), product,
+            rows.append(MetricRow(current.start, product,
                                   complaint_type, cur))
         old = v1_metrics.compute(rows, current, baseline)
-        new = analyze_complaints(rows, current, baseline)
+        new = analyze_complaints(qualify_complaints(rows, current, baseline)[0])
         self._assert_same(old, new, "synthetic ties")
         # The input really does tie, or the order check above proved nothing.
         deltas = [c.delta for c in new.cells]
         self.assertGreater(len(deltas), len(set(deltas)))
 
     def test_no_baseline_gives_a_null_pct_change_like_v1(self):
-        baseline = Period.of("2026-06-01", "2026-06-07")
-        current = Period.of("2026-06-08", "2026-06-14")
+        baseline = Period.of("2026-06-01", "2026-06-01")
+        current = Period.of("2026-06-08", "2026-06-08")
         rows = [MetricRow(current.start, "alpha", "delay", 4),
                 MetricRow(baseline.start, "alpha", "delay", 0)]
         old = v1_metrics.compute(rows, current, baseline)
-        new = analyze_complaints(rows, current, baseline)
+        new = analyze_complaints(qualify_complaints(rows, current, baseline)[0])
         self.assertIsNone(new.pct_change)
         self._assert_same(old, new, "zero baseline")
 
@@ -431,8 +434,8 @@ class V1QuantitiesOnlyTests(unittest.TestCase):
 
 
 def _small_result():
-    baseline = Period.of("2026-06-01", "2026-06-07")
-    current = Period.of("2026-06-08", "2026-06-14")
+    baseline = Period.of("2026-06-01", "2026-06-01")
+    current = Period.of("2026-06-08", "2026-06-08")
     rows = [MetricRow(baseline.start, "alpha", "delay", 2),
             MetricRow(current.start, "alpha", "delay", 5),
             MetricRow(current.start, "beta", "billing", 1)]
@@ -440,7 +443,7 @@ def _small_result():
         domain=complaints_domain.SPEC.name, metric="complaint_count",
         breakdowns=tuple(complaints_domain.SPEC.dimensions),
         comparison=PeriodComparison(current=current, baseline=baseline)))
-    return run_plan(plan, [_row_to_observation(r) for r in rows])
+    return execute(plan, Frame.of([_row_to_observation(r) for r in rows]))
 
 
 class IntegerFailClosedTests(unittest.TestCase):
@@ -494,8 +497,8 @@ class IntegerFailClosedTests(unittest.TestCase):
 
 
 def _wide_rows(cells):
-    baseline = Period.of("2026-06-01", "2026-06-07")
-    current = Period.of("2026-06-08", "2026-06-14")
+    baseline = Period.of("2026-06-01", "2026-06-01")
+    current = Period.of("2026-06-08", "2026-06-08")
     rows = []
     for i in range(cells):
         rows.append(MetricRow(current.start, "p%04d" % i, "delay", 1 + i % 3))
@@ -508,7 +511,7 @@ class NoFallbackTests(unittest.TestCase):
         rows, current, baseline = _wide_rows(1001)
         with mock.patch.object(v1_metrics, "compute", side_effect=_explode) as armed:
             with self.assertRaises(ComplaintAnalysisCompatibilityError) as raised:
-                analyze_complaints(rows, current, baseline)
+                analyze_complaints(qualify_complaints(rows, current, baseline)[0])
         error = raised.exception
         self.assertEqual(error.reason, REASON_JOINT_OMITTED)
         self.assertEqual(error.cause, "cross_cell_limit_exceeded")
@@ -518,19 +521,67 @@ class NoFallbackTests(unittest.TestCase):
 
     def test_the_limit_itself_still_builds(self):
         rows, current, baseline = _wide_rows(1000)
-        self.assertEqual(len(analyze_complaints(rows, current, baseline).cells), 1000)
+        self.assertEqual(len(analyze_complaints(qualify_complaints(rows, current, baseline)[0]).cells), 1000)
 
-    def test_an_engine_refusal_propagates_from_the_seam(self):
-        baseline = Period.of("2026-06-01", "2026-06-07")
-        current = Period.of("2026-06-08", "2026-06-14")
-        rows = [MetricRow(current.start, "alpha", "delay", 3),
-                MetricRow(current.start, "alpha", "delay", 4),
-                MetricRow(baseline.start, "alpha", "delay", 1)]
-        with mock.patch.object(v1_metrics, "compute", side_effect=_explode) as armed:
-            with self.assertRaises(AnalysisRefused) as raised:
-                analyze_complaints(rows, current, baseline)
-        self.assertEqual(raised.exception.stage, "integrity")
+    def test_a_conflicting_duplicate_is_refused_by_the_product_path(self):
+        """Migrated from the seam-level test `test_an_engine_refusal_propagates_from_the_seam`:
+        in v2.1 a rejected qualification can no longer reach `analyze_complaints`. The
+        product rejects at qualification and renders it through the comparability path."""
+        current, baseline, rows = _conflicting_rows()
+        provider = _RecordingProvider()
+        with mock.patch.object(v1_metrics, "compute", side_effect=_explode) as armed, \
+                mock.patch.object(engine, "run_plan", side_effect=_explode) as engine_run, \
+                mock.patch("bia.complaint_analysis.run_plan", side_effect=_explode) as seam_run:
+            result = investigate(AnalysisIntent(current_period=current, baseline_period=baseline),
+                                 rows, support.tickets(), provider)
+        state = result.state
+        self.assertEqual(state.finish_reason, controller_mod.FINISH_BLOCKED)
+        self.assertEqual(state.comparability.mode, MODE_BLOCKED)
+        self.assertTrue(state.comparability.reason.startswith("conflicting_duplicate_rows"),
+                        state.comparability.reason)
+        self.assertIn("2026-06-08|alpha|delay", state.current_integrity.conflicting_keys)
+        self.assertIsNone(state.metrics)
         self.assertEqual(armed.call_count, 0)
+        self.assertEqual(engine_run.call_count, 0)
+        self.assertEqual(seam_run.call_count, 0)
+        self.assertEqual(provider.calls, [])
+        self.assertTrue(result.answer.render())
+
+    def test_a_conflicting_duplicate_is_refused_by_the_engine_entry(self):
+        current, baseline, rows = _conflicting_rows()
+        plan = compile_request(AnalysisRequest(
+            domain=complaints_domain.SPEC.name, metric="complaint_count",
+            breakdowns=tuple(complaints_domain.SPEC.dimensions),
+            comparison=PeriodComparison(current=current, baseline=baseline)))
+        with self.assertRaises(AnalysisRefused) as raised:
+            execute(plan, Frame.of([_row_to_observation(r) for r in rows]))
+        self.assertEqual(raised.exception.stage, "integrity")
+        self.assertEqual(raised.exception.reason,
+                         "conflicting duplicate rows at grain ['day', 'product', 'complaint_type']: "
+                         "['2026-06-08|alpha|delay']")
+
+
+def _conflicting_rows():
+    baseline = Period.of("2026-06-01", "2026-06-07")
+    current = Period.of("2026-06-08", "2026-06-14")
+    rows = [MetricRow(current.start, "alpha", "delay", 3),
+            MetricRow(current.start, "alpha", "delay", 4),
+            MetricRow(baseline.start, "alpha", "delay", 1)]
+    return current, baseline, rows
+
+
+class _RecordingProvider(DecisionProvider):
+    """The controller swallows provider exceptions, so a raising provider would not
+    fail the test. This one records every call instead."""
+
+    name = "recording"
+
+    def __init__(self):
+        self.calls = []
+
+    def select_next_evidence(self, state, candidates):
+        self.calls.append(list(candidates))
+        return DEFER
 
 
 class CliCompatibilityErrorTests(unittest.TestCase):

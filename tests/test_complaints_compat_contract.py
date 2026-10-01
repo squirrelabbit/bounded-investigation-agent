@@ -17,16 +17,16 @@ from bia.adapters.complaints import (REASON_JOINT_MISSING, REASON_JOINT_OMITTED,
                                      top_contributor_cells)
 from bia.analysis import operators
 from bia.analysis.compiler import compile_request
-from bia.analysis.engine import run_plan
+from bia.analysis.engine import execute
 from bia.analysis.errors import AnalysisRefused
-from bia.analysis.frame import Observation
+from bia.analysis.frame import Frame, Observation
 from bia.analysis.request import AnalysisRequest, PeriodComparison
 from bia.analysis.result import STATUS_OK, STATUS_OMITTED
 from bia.domains import complaints as complaints_domain  # noqa: F401  (등록 부작용)
 from bia.types import Period
 
-BASELINE = Period.of("2026-06-01", "2026-06-07")
-CURRENT = Period.of("2026-06-08", "2026-06-14")
+BASELINE = Period.of("2026-06-01", "2026-06-01")
+CURRENT = Period.of("2026-06-08", "2026-06-08")
 TYPES = ("delay", "defect", "billing")
 
 
@@ -60,7 +60,7 @@ def _run(rows, breakdowns=("product", "complaint_type")):
         comparison=PeriodComparison(current=CURRENT, baseline=BASELINE),
         rank_by="net_contribution",
     ))
-    return run_plan(plan, rows)
+    return execute(plan, Frame.of(rows))
 
 
 class CrossCellLimitBoundaryTests(unittest.TestCase):

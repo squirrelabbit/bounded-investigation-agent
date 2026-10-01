@@ -4,8 +4,8 @@ import datetime as dt
 import unittest
 
 from bia.analysis.compiler import compile_request
-from bia.analysis.engine import run_plan
-from bia.analysis.frame import Observation
+from bia.analysis.engine import execute
+from bia.analysis.frame import Frame, Observation
 from bia.analysis.registry import register
 from bia.analysis.request import AnalysisRequest, PeriodComparison
 from bia.analysis.result import GroupResult
@@ -50,7 +50,7 @@ def plan():
 
 class AdditiveArithmeticTests(unittest.TestCase):
     def setUp(self):
-        self.result = run_plan(plan(), rows())
+        self.result = execute(plan(), Frame.of(rows()))
 
     def test_totals_and_delta(self):
         """baseline 30, current 50 을 손으로 계산해 둔다."""
@@ -87,7 +87,7 @@ class AdditiveGroupValueTests(unittest.TestCase):
 
     def test_group_values_are_the_period_sums(self):
         """baseline paid 20 / organic 10, current paid 40 / organic 10 을 손으로 계산해 둔다."""
-        groups = dict((g.key["channel"], g) for g in run_plan(plan(), rows()).breakdowns[1].groups)
+        groups = dict((g.key["channel"], g) for g in execute(plan(), Frame.of(rows())).breakdowns[1].groups)
         self.assertEqual((groups["paid"].current_value, groups["paid"].baseline_value), (40, 20))
         self.assertEqual((groups["organic"].current_value, groups["organic"].baseline_value),
                          (10, 10))
@@ -102,7 +102,7 @@ class AdditiveGroupValueTests(unittest.TestCase):
     def test_a_group_absent_from_one_period_has_value_zero_there(self):
         data = [obs(day, "paid", 3) for day in BASE.dates()]
         data += [obs(day, "organic", 4) for day in CUR.dates()]
-        groups = dict((g.key["channel"], g) for g in run_plan(plan(), data).breakdowns[1].groups)
+        groups = dict((g.key["channel"], g) for g in execute(plan(), Frame.of(data)).breakdowns[1].groups)
         self.assertEqual((groups["paid"].current_value, groups["paid"].baseline_value), (0, 6))
         self.assertEqual((groups["organic"].current_value, groups["organic"].baseline_value),
                          (8, 0))
@@ -118,7 +118,7 @@ class ZeroBaselineTests(unittest.TestCase):
     def test_relative_change_is_none_when_baseline_is_zero(self):
         data = [obs(day, "paid", 0) for day in BASE.dates()]
         data += [obs(day, "paid", 7) for day in CUR.dates()]
-        result = run_plan(plan(), data)
+        result = execute(plan(), Frame.of(data))
         self.assertEqual(result.comparison["delta"], 14)
         self.assertIsNone(result.comparison["relative_change"])
 
@@ -134,7 +134,7 @@ class AdditiveCancellationFlagTests(unittest.TestCase):
     RATIO_ONLY = ("composition_dominant", "simpson_strict")
 
     def _flags(self, data):
-        return run_plan(plan(), data).breakdowns[1].flags
+        return execute(plan(), Frame.of(data)).breakdowns[1].flags
 
     def test_a_textbook_cancellation_is_flagged(self):
         """+100 과 -100 으로 Δ=0 인 분해다. gross=200, |Δ|/gross=0."""

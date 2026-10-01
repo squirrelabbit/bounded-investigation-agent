@@ -14,9 +14,9 @@ from fractions import Fraction
 
 from bia.analysis.compiler import compile_request
 from bia.analysis.decompose import snap_share_boundary
-from bia.analysis.engine import run_plan
+from bia.analysis.engine import execute
 from bia.analysis.errors import AnalysisRefused, RequestError
-from bia.analysis.frame import load_observations
+from bia.analysis.frame import Frame, load_observations
 from bia.analysis.registry import get_domain
 from bia.analysis.request import AnalysisRequest, PeriodComparison
 from bia.analysis.result import STATUS_OK, STATUS_OMITTED
@@ -89,7 +89,7 @@ def _run_engine(case):
     plan = compile_request(_request(case))
     rows = load_observations(
         os.path.join(V2_ROOT, case.case_id, "metrics.csv"), spec, metric.columns)
-    return run_plan(plan, rows)
+    return execute(plan, Frame.of(rows))
 
 
 class BenchmarkInventoryTests(unittest.TestCase):
@@ -444,12 +444,12 @@ class BenchmarkTests(unittest.TestCase):
         if case.expect_refused:
             stage, needle = case.expect_refused
             with self.assertRaises(AnalysisRefused) as caught:
-                run_plan(plan, rows)
+                execute(plan, Frame.of(rows))
             self.assertEqual(caught.exception.stage, stage)
             self.assertIn(needle, caught.exception.reason)
             return
 
-        result = run_plan(plan, rows)
+        result = execute(plan, Frame.of(rows))
         self.assertEqual(result.metric["kind"], expected["kind"])
         self.assertAlmostEqual(result.comparison["delta"],
                                expected["expect_delta"], places=PLACES)

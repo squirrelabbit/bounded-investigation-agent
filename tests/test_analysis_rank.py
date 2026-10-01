@@ -18,8 +18,8 @@ import unittest
 
 from bia.analysis.compiler import compile_request
 from bia.analysis.decompose import FLOAT_TOL
-from bia.analysis.engine import run_plan
-from bia.analysis.frame import Observation
+from bia.analysis.engine import execute
+from bia.analysis.frame import Frame, Observation
 from bia.analysis.operators import order_groups, rank
 from bia.analysis.registry import register
 from bia.analysis.request import AnalysisRequest, PeriodComparison
@@ -202,7 +202,7 @@ class OverallBranchTests(unittest.TestCase):
         self.assertEqual([g.key for g in ordered], [{}])
 
     def test_the_overall_branch_carries_no_ranking(self):
-        result = run_plan(_plan(DOMAIN_ORIGINAL, CROSS_DIMS), _rows(CROSS_DIMS))
+        result = execute(_plan(DOMAIN_ORIGINAL, CROSS_DIMS), Frame.of(_rows(CROSS_DIMS)))
         overall = result.breakdowns[0]
         self.assertEqual(overall.dimensions, ())
         self.assertEqual(overall.ranking, {})
@@ -268,7 +268,7 @@ class DimensionNameSensitivityTests(unittest.TestCase):
     """
 
     def _cross_order(self, domain, dimensions):
-        result = run_plan(_plan(domain, dimensions), _rows(dimensions))
+        result = execute(_plan(domain, dimensions), Frame.of(_rows(dimensions)))
         cross = [b for b in result.breakdowns if b.cross]
         self.assertEqual(len(cross), 1)
         return [(g[dimensions[0]], g[dimensions[1]])

@@ -8,20 +8,23 @@ from .compiler import ExecutionPlan, PlanBranch
 from .decompose import (CANCELLATION_THRESHOLD, GROSS_EPSILON, SHARE_EPSILON,
                         decompose_ratio)
 from .errors import AnalysisRefused
-from .frame import Observation
+from .frame import Frame, Observation
 from .operators import CROSS_CELL_LIMIT, aggregate, compare, group_universe, rank
+from .qualification import ExecutableQualification, RejectedQualification, qualify
 from .result import (STATUS_OMITTED, BreakdownResult, GroupResult,
                      StructuredAnalysisResult)
 from .spec import KIND_ADDITIVE
 
 
-def run_plan(plan: ExecutionPlan, rows: Sequence[Observation]) -> StructuredAnalysisResult:
-    clean, _, conflicts = dedupe_observations(rows, plan.domain.grain)
-    if conflicts:
-        raise AnalysisRefused(
-            "integrity",
-            "conflicting duplicate rows at grain %s: %s" % (list(plan.domain.grain), conflicts),
-        )
+def run_plan(executable: ExecutableQualification) -> StructuredAnalysisResult:
+    """판정을 통과한 바로 그 계획·데이터·구간만 실행한다."""
+    if not isinstance(executable, ExecutableQualification):
+        raise TypeError("run_plan takes an ExecutableQualification issued by qualify(), got %r"
+                        % type(executable).__name__)
+    plan = executable.effective_plan
+    # 충돌은 qualification 이 요청 구간에서 이미 거부했다. 남는 것은 완전 중복을 합치는
+    # 정규화뿐이다(구간 밖 충돌은 집계 구간 밖이라 결과에 닿지 않는다).
+    clean, _, _ = dedupe_observations(executable.frame.rows, plan.domain.grain)
 
     columns = plan.metric.columns
     current_all = aggregate(clean, plan.comparison.current, columns, ())
@@ -61,6 +64,14 @@ def run_plan(plan: ExecutionPlan, rows: Sequence[Observation]) -> StructuredAnal
             _run_branch(plan, clean, branch)
         )
     return result
+
+
+def execute(plan: ExecutionPlan, frame: Frame) -> StructuredAnalysisResult:
+    """엔진 직접 호출자용: 판정 후 실행. 거부는 AnalysisRefused 로 알린다."""
+    qualification = qualify(plan, frame)
+    if isinstance(qualification, RejectedQualification):
+        raise qualification.as_refusal()
+    return run_plan(qualification)
 
 
 def _run_branch(

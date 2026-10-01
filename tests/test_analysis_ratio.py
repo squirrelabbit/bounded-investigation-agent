@@ -6,9 +6,9 @@ from fractions import Fraction
 from bia.analysis.compiler import compile_request
 from bia.analysis.decompose import (FLOAT_TOL, decompose_ratio,
                                    sign_with_tol, snap_share_boundary)
-from bia.analysis.engine import run_plan
+from bia.analysis.engine import execute
 from bia.analysis.errors import AnalysisRefused
-from bia.analysis.frame import Observation
+from bia.analysis.frame import Frame, Observation
 from bia.analysis.registry import register
 from bia.analysis.request import AnalysisRequest, PeriodComparison
 from bia.analysis.spec import DomainSpec, MetricSpec
@@ -309,7 +309,7 @@ class OverallDenominatorZeroRefusalTests(unittest.TestCase):
             _iobs(_I_CUR, "a", sessions=10, orders=5),
         ]
         with self.assertRaises(AnalysisRefused) as ctx:
-            run_plan(_iplan("rate_free"), rows)
+            execute(_iplan("rate_free"), Frame.of(rows))
         self.assertEqual(ctx.exception.stage, "aggregate")
         self.assertIn("sessions", ctx.exception.reason)
         self.assertIn("current=10", ctx.exception.reason)
@@ -330,7 +330,7 @@ class BoundedNumeratorRefusalTests(unittest.TestCase):
             _iobs(_I_CUR, "b", sessions=100, orders=10),
         ]
         with self.assertRaises(AnalysisRefused) as ctx:
-            run_plan(_iplan("cvr_bounded"), rows)
+            execute(_iplan("cvr_bounded"), Frame.of(rows))
         self.assertEqual(ctx.exception.stage, "integrity")
         reason = ctx.exception.reason
         self.assertIn("'channel': 'a'", reason)
@@ -354,7 +354,7 @@ class GroupDenominatorZeroWithPositiveNumeratorTests(unittest.TestCase):
             _iobs(_I_CUR, "b", sessions=100, orders=10),
         ]
         with self.assertRaises(AnalysisRefused) as ctx:
-            run_plan(_iplan("rate_free"), rows)
+            execute(_iplan("rate_free"), Frame.of(rows))
         self.assertEqual(ctx.exception.stage, "integrity")
         reason = ctx.exception.reason
         self.assertIn("'channel': 'a'", reason)
@@ -392,7 +392,7 @@ class OverallBranchInvariantTests(unittest.TestCase):
             comparison=PeriodComparison(current=_I_CUR, baseline=_I_BASE),
             rank_by="net_contribution",
         ))
-        self.result = run_plan(plan, rows)
+        self.result = execute(plan, Frame.of(rows))
 
     def test_overall_branch_has_a_single_group(self):
         breakdown = self.result.breakdowns[0]

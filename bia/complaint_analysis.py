@@ -19,12 +19,15 @@ from __future__ import annotations
 from typing import Dict, List, Literal, Optional, Protocol, Sequence
 
 from .adapters.complaints import complaint_view
+from .adapters.complaints import legacy_views
 from .analysis.compiler import compile_request
 from .analysis.engine import run_plan
+from .analysis.frame import Frame
+from .analysis.qualification import ExecutableQualification, qualify
 from .analysis.request import RANK_NET_CONTRIBUTION, AnalysisRequest, PeriodComparison
 from .domains.complaints import SPEC as COMPLAINTS_SPEC
 from .integrity import _row_to_observation
-from .types import METRIC_COMPLAINT_COUNT, CellDelta, GroupDelta, MetricRow, Period
+from .types import METRIC_COMPLAINT_COUNT, CellDelta, GroupDelta, Period
 
 # Annotation only. The runtime values stay `types.DIM_PRODUCT` / `types.DIM_COMPLAINT_TYPE`.
 ComplaintDimension = Literal["product", "complaint_type"]
@@ -69,17 +72,25 @@ class ComplaintAnalysis(Protocol):
     def as_dict(self) -> Dict[str, object]: ...
 
 
-def analyze_complaints(
-    rows: List[MetricRow], current_window: Period, baseline_window: Period
-) -> ComplaintAnalysis:
+def _plan(current_window: Period, baseline_window: Period):
     # Declared order, not a re-spelled tuple: the adapter accepts the joint
     # breakdown only in `SPEC.dimensions` order.
-    plan = compile_request(AnalysisRequest(
+    return compile_request(AnalysisRequest(
         domain=COMPLAINTS_SPEC.name,
         metric=METRIC_COMPLAINT_COUNT,
         breakdowns=tuple(COMPLAINTS_SPEC.dimensions),
         comparison=PeriodComparison(current=current_window, baseline=baseline_window),
         rank_by=RANK_NET_CONTRIBUTION,
     ))
-    result = run_plan(plan, [_row_to_observation(row) for row in rows])
-    return complaint_view(result)
+
+
+def qualify_complaints(rows, current_period: Period, baseline_period: Period):
+    """요청 구간으로 판정하고, 제품 경로가 직렬화하는 기존 두 객체를 함께 돌려준다."""
+    qualification = qualify(_plan(current_period, baseline_period),
+                            Frame.of(_row_to_observation(row) for row in rows))
+    current, baseline, comparability = legacy_views(qualification)
+    return qualification, current, baseline, comparability
+
+
+def analyze_complaints(executable: ExecutableQualification) -> ComplaintAnalysis:
+    return complaint_view(run_plan(executable))

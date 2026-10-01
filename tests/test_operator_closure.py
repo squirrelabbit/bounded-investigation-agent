@@ -48,7 +48,8 @@ NON_OPERATOR_FUNCTIONS = {
     "bia/analysis/operators.py": frozenset(),
     "bia/analysis/decompose.py": frozenset(("sign_with_tol", "snap_share_boundary",
                                             "_assert_invariants")),
-    "bia/analysis/engine.py": frozenset(("run_plan", "_ratio_branch")),
+    # `execute` 는 연산자가 아니라 실행 입구다 — qualify 후 run_plan 을 부를 뿐이다.
+    "bia/analysis/engine.py": frozenset(("run_plan", "_ratio_branch", "execute")),
 }
 
 
