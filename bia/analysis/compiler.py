@@ -21,6 +21,9 @@ class PlanBranch:
     dimensions: Tuple[str, ...]
     cross: bool
 
+    def __post_init__(self):
+        object.__setattr__(self, "dimensions", tuple(self.dimensions))
+
 
 @dataclass(frozen=True)
 class ExecutionPlan:
@@ -29,6 +32,9 @@ class ExecutionPlan:
     comparison: PeriodComparison
     branches: Tuple[PlanBranch, ...]
     rank_by: str
+
+    def __post_init__(self):
+        object.__setattr__(self, "branches", tuple(self.branches))
 
 
 def compile_request(request: AnalysisRequest) -> ExecutionPlan:

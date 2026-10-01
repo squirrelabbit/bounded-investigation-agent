@@ -1,9 +1,16 @@
 from __future__ import annotations
 
 import ast
+import dataclasses
 import datetime as dt
+import os
 import pathlib
+import tempfile
 import unittest
+
+from bia import store
+from bia.complaint_analysis import qualify_complaints
+from bia.integrity import _row_to_observation
 
 from bia.analysis.compiler import compile_request
 from bia.analysis.engine import run_plan
@@ -233,6 +240,83 @@ class FixRoundTests(unittest.TestCase):
     def test_non_conflict_refusal_stage(self):
         q = qualify(_plan(STRICT), _frame(range(30), range(28)))
         self.assertEqual(q.as_refusal().stage, "qualification")
+
+
+class FinalReviewTests(unittest.TestCase):
+    def test_null_flag_false_when_non_null_rows_already_conflict(self):
+        extra = [_obs(CUR_START, g=UNKNOWN, v=1), _obs(CUR_START, g=UNKNOWN, v=2),
+                 _obs(CUR_START, g=UNKNOWN, v=1, nulls=("g",))]
+        q = qualify(_plan(ALIGN), _frame(range(30), range(30), extra))
+        self.assertEqual(q.reason_code, REASON_CONFLICTING_DUPLICATE)
+        (v,) = q.facts.violations
+        self.assertEqual(v.grain_key, (CUR_START.isoformat(), UNKNOWN))
+        self.assertFalse(v.caused_by_null_normalization)
+
+    def test_null_flag_true_when_only_the_blank_row_disagrees(self):
+        extra = [_obs(CUR_START, g=UNKNOWN, v=1), _obs(CUR_START, g=UNKNOWN, v=2, nulls=("g",))]
+        q = qualify(_plan(ALIGN), _frame(range(30), range(30), extra))
+        (v,) = q.facts.violations
+        self.assertTrue(v.caused_by_null_normalization)
+
+    def test_hand_built_plan_with_misordered_windows_is_a_programming_error(self):
+        plan = _plan(STRICT)
+        swapped = PeriodComparison(current=plan.comparison.baseline, baseline=plan.comparison.current)
+        overlap = PeriodComparison(current=plan.comparison.current,
+                                   baseline=Period(BASE_START, CUR_START))
+        for comparison in (swapped, overlap):
+            bad = dataclasses.replace(plan, comparison=comparison)
+            with self.assertRaises(ValueError) as caught:
+                qualify(bad, _frame(range(30), range(30)))
+            self.assertIn("current period must start after the baseline period ends",
+                          str(caught.exception))
+
+
+class ProductPathBlankDimensionTests(unittest.TestCase):
+    """제품 경로(`store.load_metric_rows` → `_row_to_observation`)의 빈 차원값 동작을 고정한다.
+
+    도메인의 `null_dimension_policy` 는 `load_frame` 입력에서만 효력이 있다. 제품 경로에서는
+    빈 product 가 `""` 그대로 남고 `null_dimensions` 도 없다 — 외부 입력 검증이 그 경로의 빈칸을
+    거부한다. 이 테스트는 그 동작을 바꾸지 않고 기록한다."""
+
+    PERIOD_CUR = Period(dt.date(2026, 7, 1), dt.date(2026, 7, 7))
+    PERIOD_BASE = Period(dt.date(2026, 6, 1), dt.date(2026, 6, 7))
+
+    def _rows(self, extra_lines):
+        lines = ["day,product,complaint_type,count"]
+        for period in (self.PERIOD_BASE, self.PERIOD_CUR):
+            for day in period.dates():
+                lines.append("%s,card,fee,3" % day.isoformat())
+        lines.extend(extra_lines)
+        handle = tempfile.NamedTemporaryFile("w", suffix=".csv", delete=False,
+                                             encoding="utf-8", newline="")
+        handle.write("\n".join(lines) + "\n")
+        handle.close()
+        try:
+            return store.load_metric_rows(handle.name)
+        finally:
+            os.unlink(handle.name)
+
+    def test_two_blank_products_at_one_grain_conflict_without_null_provenance(self):
+        rows = self._rows(["2026-07-02,,fee,1", "2026-07-02,,fee,2"])
+        self.assertTrue(all(_row_to_observation(r).null_dimensions == () for r in rows))
+        q, _, _, comparability = qualify_complaints(rows, self.PERIOD_CUR, self.PERIOD_BASE)
+        self.assertIsInstance(q, RejectedQualification)
+        self.assertEqual(q.reason_code, REASON_CONFLICTING_DUPLICATE)
+        (v,) = q.facts.violations
+        self.assertEqual(v.grain_key, ("2026-07-02", "", "fee"))
+        self.assertFalse(v.caused_by_null_normalization)
+        self.assertEqual(q.facts.null_profile, ())
+
+    def test_single_blank_product_is_an_empty_string_group(self):
+        rows = self._rows(["2026-07-02,,fee,4"])
+        q, _, _, _ = qualify_complaints(rows, self.PERIOD_CUR, self.PERIOD_BASE)
+        self.assertIsInstance(q, ExecutableQualification)
+        keys = set()
+        for breakdown in run_plan(q).breakdowns:
+            if breakdown.dimensions == ("product",):
+                keys = {g.key["product"] for g in breakdown.groups}
+        self.assertIn("", keys)
+        self.assertNotIn(UNKNOWN, keys)
 
 
 def _names_factory(source):

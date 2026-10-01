@@ -10,7 +10,8 @@ from typing import Dict, List, Optional, Tuple
 from ..analysis.operators import CROSS_CELL_LIMIT, order_groups
 from ..analysis.qualification import (
     ACTION_ACCEPT, REASON_CONFLICTING_DUPLICATE, REASON_EMPTY_PERIOD,
-    REASON_INSUFFICIENT_COMMON_WINDOW, SCOPE_BASELINE, SCOPE_CURRENT, WINDOW_NO_OVERLAP,
+    REASON_INSUFFICIENT_COMMON_WINDOW, SCOPE_BASELINE, SCOPE_CURRENT, WINDOW_BELOW_MINIMUM,
+    WINDOW_NO_OVERLAP,
     ExecutableQualification, RejectedQualification,
 )
 from ..analysis.request import RANK_GROUP_DELTA
@@ -276,7 +277,9 @@ def legacy_views(q):
         d = dict(q.detail)
         if d["kind"] == WINDOW_NO_OVERLAP:
             reason = "no_comparable_window: no day-offset is present in both periods"
-        else:
+        elif d["kind"] == WINDOW_BELOW_MINIMUM:
             reason = ("no_comparable_window: longest aligned window is %d day(s), below the required %d"
                       % (d["length"], d["threshold"]))
+        else:
+            raise ValueError("unknown insufficient_common_window kind %r" % (d["kind"],))
     return current, baseline, Comparability(MODE_BLOCKED, reason)

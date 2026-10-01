@@ -136,6 +136,11 @@ class ExecutableQualification:
 
 
 def qualify(plan: ExecutionPlan, frame: Frame) -> Union[RejectedQualification, ExecutableQualification]:
+    if plan.comparison.current.start <= plan.comparison.baseline.end:
+        # compile_request 가 이미 막는 모양이다. 손으로 만든 plan 의 프로그래밍 오류다.
+        raise ValueError("current period must start after the baseline period ends: "
+                         "current starts %s, baseline ends %s"
+                         % (plan.comparison.current.start, plan.comparison.baseline.end))
     facts = _observe(plan, frame)
     return _decide(plan, frame, facts)
 
@@ -159,14 +164,18 @@ def _observe(plan: ExecutionPlan, frame: Frame) -> QualificationFacts:
         clean, duplicates, conflicts = dedupe_observations(rows, grain)
         keyed: Dict[str, Tuple[str, ...]] = {}
         null_keys = set()
+        plain_measures: Dict[Tuple[str, ...], set] = {}
         for r in rows:
             k = observation_key(r, grain)
             keyed.setdefault("|".join(k), k)
             if r.null_dimensions:
                 null_keys.add(k)
+            else:
+                plain_measures.setdefault(k, set()).add(r.measures)
         for label in conflicts:
             key = keyed[label]
-            from_nulls = key in null_keys
+            # 빈칸 없는 행끼리 이미 충돌하면 정규화가 만든 충돌이 아니다.
+            from_nulls = key in null_keys and len(plain_measures.get(key, ())) < 2
             violations.append(IntegrityViolation(REASON_CONFLICTING_DUPLICATE, scope, key, from_nulls))
         if scope != SCOPE_OUTSIDE:
             period = dict(windows)[scope]

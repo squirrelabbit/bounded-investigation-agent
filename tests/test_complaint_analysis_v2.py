@@ -10,7 +10,6 @@ on `json.dumps` bytes (insertion order included) and on the type of every field.
 from __future__ import annotations
 
 import ast
-import datetime as dt
 import json
 import os
 import random

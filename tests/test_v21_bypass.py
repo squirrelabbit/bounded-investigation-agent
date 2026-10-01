@@ -5,6 +5,7 @@ import datetime as dt
 import inspect
 import unittest
 
+from bia.analysis.compiler import ExecutionPlan, PlanBranch
 from bia.analysis.engine import run_plan
 from bia.analysis.frame import Frame, Observation
 from bia.analysis.qualification import ACTION_ALIGN, ExecutableQualification, RejectedQualification, qualify
@@ -53,6 +54,44 @@ class BypassTests(unittest.TestCase):
             q.plan.domain.metrics["x"] = None
         with self.assertRaises(TypeError):
             ExecutableQualification(object(), q.plan, q.frame, q.effective, q.action, q.facts, q.detail)
+
+
+class SealedDataMutationTests(unittest.TestCase):
+    """판정을 통과한 데이터는 호출자가 쥔 원본 list 를 바꿔도 실행 결과가 바뀌지 않는다."""
+
+    def test_frame_rows_list_is_copied_into_a_tuple(self):
+        rows = list(_frame(range(30), range(30)).rows)
+        q = qualify(_plan(STRICT), Frame(rows=rows))
+        self.assertIsInstance(q, ExecutableQualification)
+        self.assertIsInstance(q.frame.rows, tuple)
+        before = run_plan(q).as_dict()
+        rows.append(_obs(CUR_START, v=99))
+        rows.extend(_obs(CUR_START + dt.timedelta(i), g="late", v=7) for i in range(30))
+        self.assertEqual(run_plan(q).as_dict(), before)
+
+    def test_observation_sequences_become_tuples(self):
+        obs = Observation(day=CUR_START, keys=[("g", "a")], measures=[("v", 1)], null_dimensions=["g"])
+        self.assertIsInstance(obs.keys, tuple)
+        self.assertIsInstance(obs.measures, tuple)
+        self.assertIsInstance(obs.null_dimensions, tuple)
+        self.assertEqual(obs, _obs(CUR_START))
+        self.assertEqual(hash(obs), hash(_obs(CUR_START)))
+
+    def test_frame_rejects_a_non_observation_row(self):
+        with self.assertRaises(TypeError):
+            Frame(rows=[_obs(CUR_START), ("2026-07-01", "a", 1)])
+        with self.assertRaises(TypeError):
+            Frame.of([None])
+
+    def test_hand_built_plan_branches_become_a_tuple(self):
+        compiled = _plan(STRICT)
+        branches = list(compiled.branches)
+        plan = ExecutionPlan(domain=compiled.domain, metric=compiled.metric,
+                             comparison=compiled.comparison, branches=branches,
+                             rank_by=compiled.rank_by)
+        self.assertIsInstance(plan.branches, tuple)
+        branches.append(PlanBranch(dimensions=("g",), cross=True))
+        self.assertEqual(plan.branches, compiled.branches)
 
 
 if __name__ == "__main__":

@@ -23,6 +23,10 @@ class Observation:
     measures: Tuple[Tuple[str, int], ...]
     null_dimensions: Tuple[str, ...] = field(default=(), compare=False)
 
+    def __post_init__(self):
+        for name in ("keys", "measures", "null_dimensions"):
+            object.__setattr__(self, name, tuple(getattr(self, name)))
+
     def key_of(self, dimension: str) -> str:
         for name, value in self.keys:
             if name == dimension:
@@ -97,6 +101,13 @@ class Frame:
     """판정과 실행이 함께 쓰는 불변 행 묶음. 행 자체도 frozen 이다."""
 
     rows: Tuple[Observation, ...]
+
+    def __post_init__(self):
+        rows = tuple(self.rows)
+        for row in rows:
+            if not isinstance(row, Observation):
+                raise TypeError("Frame rows must be Observation, got %r" % type(row).__name__)
+        object.__setattr__(self, "rows", rows)
 
     @staticmethod
     def of(rows) -> "Frame":
