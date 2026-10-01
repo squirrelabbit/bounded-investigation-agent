@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import ast
 import datetime as dt
+import pathlib
 import unittest
 
 from bia.analysis.compiler import compile_request
@@ -162,7 +164,7 @@ class ReviewFocusTests(unittest.TestCase):
 class SealTests(unittest.TestCase):
     def test_executable_cannot_be_built_outside_the_factory(self):
         with self.assertRaises(TypeError):
-            ExecutableQualification(None, None, None, None, None, None, None, None)
+            ExecutableQualification(object(), None, None, None, None, None, None)
 
     def test_executable_attributes_cannot_be_replaced(self):
         q = qualify(_plan(STRICT), _frame(range(30), range(30)))
@@ -181,6 +183,85 @@ class SealTests(unittest.TestCase):
         refusal = q.as_refusal()
         self.assertEqual(refusal.stage, "integrity")
         self.assertIn("conflicting duplicate rows at grain", refusal.reason)
+
+
+class FixRoundTests(unittest.TestCase):
+    def test_pipe_in_grain_value_keeps_key_and_null_provenance(self):
+        extra = [_obs(CUR_START, g="x|y", v=1, nulls=("g",)), _obs(CUR_START, g="x|y", v=2, nulls=("g",))]
+        q = qualify(_plan(ALIGN), _frame(range(30), range(30), extra))
+        self.assertEqual(q.reason_code, REASON_CONFLICTING_DUPLICATE)
+        (v,) = q.facts.violations
+        self.assertEqual(v.grain_key, (CUR_START.isoformat(), "x|y"))
+        self.assertTrue(v.caused_by_null_normalization)
+        self.assertIn(CUR_START.isoformat() + "|x|y", q.as_refusal().reason)
+
+    def test_null_provenance_counted_before_dedupe(self):
+        extra = [_obs(CUR_START, nulls=("g",))]
+        q = qualify(_plan(STRICT), _frame(range(30), range(30), extra))
+        self.assertEqual(q.reason_code, REASON_MISSING_REQUIRED_VALUE)
+
+    def test_conflict_beats_empty_period(self):
+        extra = [_obs(BASE_START, v=99)]
+        q = qualify(_plan(ALIGN), _frame(range(30), [], extra))
+        self.assertEqual(q.reason_code, REASON_CONFLICTING_DUPLICATE)
+
+    def test_threshold_boundary_at_limit_30(self):
+        ok = qualify(_plan(ALIGN), _frame(range(30), list(range(15)) + [20]))
+        self.assertEqual(ok.action, ACTION_ALIGN)
+        low = qualify(_plan(ALIGN), _frame(range(30), list(range(14)) + [20]))
+        self.assertEqual(low.reason_code, REASON_INSUFFICIENT_COMMON_WINDOW)
+        d = dict(low.detail)
+        self.assertEqual((d["kind"], d["length"], d["threshold"]), (WINDOW_BELOW_MINIMUM, 14, 15))
+
+    def test_min_days_dominates_ratio(self):
+        q = qualify(_plan(ALIGN, 10, 10), _frame(range(10), range(6)))
+        d = dict(q.detail)
+        self.assertEqual((d["kind"], d["length"], d["threshold"]), (WINDOW_BELOW_MINIMUM, 6, 7))
+        self.assertEqual(qualify(_plan(ALIGN, 10, 10), _frame(range(10), range(7))).action, ACTION_ALIGN)
+
+    def test_plain_conflict_not_caused_by_nulls(self):
+        q = qualify(_plan(STRICT), _frame(range(30), range(30), [_obs(CUR_START, v=99)]))
+        self.assertFalse(any(v.caused_by_null_normalization for v in q.facts.violations))
+
+    def test_tie_picks_earlier_run(self):
+        from bia.analysis.qualification import _longest_common_run
+        cur = list(range(2, 7)) + list(range(10, 15))
+        self.assertEqual(_longest_common_run(cur, range(30), 30), (2, 6))
+        self.assertEqual(_longest_common_run([], range(30), 30), (-1, -1))
+
+    def test_non_conflict_refusal_stage(self):
+        q = qualify(_plan(STRICT), _frame(range(30), range(28)))
+        self.assertEqual(q.as_refusal().stage, "qualification")
+
+
+def _names_factory(source):
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Name) and node.id == "_FACTORY":
+            return True
+        if isinstance(node, ast.Attribute) and node.attr == "_FACTORY":
+            return True
+        if isinstance(node, ast.alias) and node.name == "_FACTORY":
+            return True
+    return False
+
+
+class FactoryTokenLeakTests(unittest.TestCase):
+    def test_scanner_detects_references(self):
+        self.assertTrue(_names_factory("from x import _FACTORY"))
+        self.assertTrue(_names_factory("y = m._FACTORY"))
+        self.assertTrue(_names_factory("z = _FACTORY"))
+        self.assertFalse(_names_factory("s = '_FACTORY'  # _FACTORY"))
+
+    def test_no_other_module_references_factory(self):
+        root = pathlib.Path(__file__).resolve().parent.parent / "bia"
+        own = (root / "analysis" / "qualification.py").resolve()
+        scanned = 0
+        for path in root.rglob("*.py"):
+            if path.resolve() == own:
+                continue
+            scanned += 1
+            self.assertFalse(_names_factory(path.read_text(encoding="utf-8")), str(path))
+        self.assertGreater(scanned, 5)
 
 
 if __name__ == "__main__":

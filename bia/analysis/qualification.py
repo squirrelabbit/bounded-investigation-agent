@@ -110,7 +110,7 @@ class ExecutableQualification:
 
     __slots__ = ("_plan", "_frame", "_effective", "_effective_plan", "_action", "_facts", "_detail")
 
-    def __init__(self, token, plan, frame, effective, action, facts, detail, _unused=None):
+    def __init__(self, token, plan, frame, effective, action, facts, detail):
         if token is not _FACTORY:
             raise TypeError("ExecutableQualification is issued only by qualify()")
         for name, value in (("_plan", plan), ("_frame", frame), ("_effective", effective),
@@ -157,9 +157,16 @@ def _observe(plan: ExecutionPlan, frame: Frame) -> QualificationFacts:
     for scope in (SCOPE_CURRENT, SCOPE_BASELINE, SCOPE_OUTSIDE):
         rows = buckets[scope]
         clean, duplicates, conflicts = dedupe_observations(rows, grain)
+        keyed: Dict[str, Tuple[str, ...]] = {}
+        null_keys = set()
+        for r in rows:
+            k = observation_key(r, grain)
+            keyed.setdefault("|".join(k), k)
+            if r.null_dimensions:
+                null_keys.add(k)
         for label in conflicts:
-            key = tuple(label.split("|"))
-            from_nulls = any(observation_key(r, grain) == key and r.null_dimensions for r in rows)
+            key = keyed[label]
+            from_nulls = key in null_keys
             violations.append(IntegrityViolation(REASON_CONFLICTING_DUPLICATE, scope, key, from_nulls))
         if scope != SCOPE_OUTSIDE:
             period = dict(windows)[scope]
