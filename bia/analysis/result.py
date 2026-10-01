@@ -54,6 +54,7 @@ class BreakdownResult:
     status: str = STATUS_OK
     reason: Optional[str] = None
     observed_cells: Optional[int] = None
+    group_transition: Optional[Dict[str, int]] = None
 
     def as_dict(self) -> Dict[str, object]:
         out: Dict[str, object] = {
@@ -69,6 +70,8 @@ class BreakdownResult:
         out["ranking"] = dict(self.ranking)
         out["flags"] = dict(self.flags)
         out["non_comparable_groups"] = [dict(k) for k in self.non_comparable_groups]
+        if self.group_transition is not None:
+            out["group_transition"] = dict(self.group_transition)
         return out
 
 

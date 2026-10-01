@@ -268,11 +268,14 @@ def additive_breakdown(current: Dict[Tuple[str, ...], Dict[str, int]],
     entries: List[Tuple[Tuple[str, ...], Dict[str, Optional[Fraction]]]] = []
     gross = Fraction(0)
     total = Fraction(0)
+    transition = {"entered": 0, "exited": 0, "persisted": 0, "inactive": 0}
     for key in universe:
         # 한쪽 기간에 없는 그룹은 그 기간의 합계가 0 이다(유효 기간 안의 부재).
         cur_value = current.get(key, {}).get(column, 0)
         base_value = baseline.get(key, {}).get(column, 0)
         delta = Fraction(cur_value - base_value)
+        was, now = base_value != 0, cur_value != 0
+        transition["persisted" if was and now else "exited" if was else "entered" if now else "inactive"] += 1
         groups["|".join(key)] = {
             "expect_net_contribution": float(delta),
             "expect_group_delta": int(delta),
@@ -314,6 +317,7 @@ def additive_breakdown(current: Dict[Tuple[str, ...], Dict[str, int]],
                          "heavy_cancellation": heavy,
                          "suppress_top_contributor": suppress},
         "expect_ranking": _rank(entries, dimensions, rank_by),
+        "expect_group_transition": dict(transition),
         "groups": groups,
     }
 

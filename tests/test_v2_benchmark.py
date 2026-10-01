@@ -502,6 +502,10 @@ class BenchmarkTests(unittest.TestCase):
         self.assertEqual(frozenset(want["expect_totals"]), EXPECTED_TOTALS[kind],
                          where)
         self.assertIn("expect_ranking", want, where)
+        if kind == "additive":
+            self.assertIn("expect_group_transition", want, where)
+        else:
+            self.assertNotIn("expect_group_transition", want, where)
         self.assertEqual(sorted(want["expect_ranking"]), sorted(want["groups"]),
                          where)
         for label, entry in want["groups"].items():
@@ -522,6 +526,11 @@ class BenchmarkTests(unittest.TestCase):
             [_label(breakdown, g) for g in breakdown.ranking["groups"]],
             want["expect_ranking"], where)
         self.assertEqual(breakdown.ranking["by"], case.rank_by, where)
+        if "expect_group_transition" in want:
+            self.assertEqual(breakdown.group_transition,
+                             want["expect_group_transition"], where)
+        else:
+            self.assertIsNone(breakdown.group_transition, where)
 
         for group in breakdown.groups:
             label = _label(breakdown, group.key)

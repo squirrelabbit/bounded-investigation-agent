@@ -174,3 +174,22 @@ class AdditiveCancellationFlagTests(unittest.TestCase):
         for flags in (self._flags(rows()),):
             for name in self.RATIO_ONLY:
                 self.assertNotIn(name, flags)
+
+
+class GroupTransitionTests(unittest.TestCase):
+    """활동 여부는 값이 0 이 아닌가로 본다. 그룹 범위는 유효 구간 안의 합집합."""
+
+    def test_counts_and_invariant(self):
+        result = execute(plan(), Frame.of(rows()))
+        for breakdown in result.breakdowns:
+            if breakdown.status != "ok":
+                continue
+            t = breakdown.group_transition
+            self.assertEqual(set(t), {"entered", "exited", "persisted", "inactive"})
+            self.assertEqual(sum(t.values()), len(breakdown.groups))
+            expected = {"entered": 0, "exited": 0, "persisted": 0, "inactive": 0}
+            for g in breakdown.groups:
+                b, c = g.baseline_value != 0, g.current_value != 0
+                expected["persisted" if b and c else "exited" if b else "entered" if c else "inactive"] += 1
+            self.assertEqual(t, expected)
+            self.assertEqual(breakdown.as_dict()["group_transition"], t)

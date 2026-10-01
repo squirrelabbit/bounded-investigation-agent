@@ -125,6 +125,13 @@ def _additive_branch(plan, branch, current, baseline, universe) -> BreakdownResu
     )
 
     out = BreakdownResult(dimensions=branch.dimensions, cross=branch.cross, groups=groups)
+    transition = {"entered": 0, "exited": 0, "persisted": 0, "inactive": 0}
+    for g in groups:
+        was, now = g.baseline_value != 0, g.current_value != 0
+        transition["persisted" if was and now else "exited" if was else "entered" if now else "inactive"] += 1
+    if sum(transition.values()) != len(groups):
+        raise AssertionError("group_transition does not partition %d groups: %r" % (len(groups), transition))
+    out.group_transition = transition
     out.totals = {"gross_movement": gross}
     # `composition_dominant` 와 `simpson_strict` 는 rate/mix 분해가 있어야 정의되는
     # 비율 전용 개념이다. 합 metric 에는 그 분해 자체가 없으므로 **키를 싣지 않는다.**

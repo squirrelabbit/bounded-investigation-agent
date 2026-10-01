@@ -146,6 +146,7 @@ def main():
             checks += 2
 
             total = Fraction(0)
+            recount_transition = {"entered": 0, "exited": 0, "persisted": 0, "inactive": 0}
             for key in universe:
                 net = net_of(key, current, baseline)
                 group = breakdown["groups"][key]
@@ -166,6 +167,10 @@ def main():
                             "%s %s %s: current_value - baseline_value != net"
                             % (case_id, name, key))
                     checks += 1
+                    was = baseline.get(key, {}).get(columns[0], 0) != 0
+                    now = current.get(key, {}).get(columns[0], 0) != 0
+                    recount_transition["persisted" if was and now else "exited" if was
+                                       else "entered" if now else "inactive"] += 1
                 else:
                     for field in ("expect_current_value", "expect_baseline_value"):
                         require(field not in group,
@@ -173,6 +178,16 @@ def main():
                                 % (case_id, name, key, field))
                         checks += 1
             close(total, entry["expect_delta"], "%s %s partition" % (case_id, name))
+            checks += 1
+            if entry["kind"] == "additive":
+                require(breakdown.get("expect_group_transition") == recount_transition,
+                        "%s %s: recomputed group_transition %s but the oracle says %s"
+                        % (case_id, name, recount_transition,
+                           breakdown.get("expect_group_transition")))
+            else:
+                require("expect_group_transition" not in breakdown,
+                        "%s %s: ratio breakdown carries expect_group_transition"
+                        % (case_id, name))
             checks += 1
 
         recorded_omitted = entry["expect_omitted_observed_cells"]

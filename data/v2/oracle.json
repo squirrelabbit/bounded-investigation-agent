@@ -717,6 +717,12 @@
             "heavy_cancellation": false,
             "suppress_top_contributor": false
           },
+          "expect_group_transition": {
+            "entered": 0,
+            "exited": 0,
+            "inactive": 0,
+            "persisted": 2
+          },
           "expect_ranking": [
             "__UNKNOWN__",
             "paid"
@@ -820,6 +826,12 @@
             "heavy_cancellation": true,
             "suppress_top_contributor": true
           },
+          "expect_group_transition": {
+            "entered": 0,
+            "exited": 0,
+            "inactive": 0,
+            "persisted": 5
+          },
           "expect_ranking": [
             "ct3",
             "ct0",
@@ -877,6 +889,12 @@
             "decomposition_complete": true,
             "heavy_cancellation": true,
             "suppress_top_contributor": true
+          },
+          "expect_group_transition": {
+            "entered": 0,
+            "exited": 0,
+            "inactive": 0,
+            "persisted": 26
           },
           "expect_ranking": [
             "ch03",
@@ -1103,6 +1121,12 @@
             "decomposition_complete": true,
             "heavy_cancellation": true,
             "suppress_top_contributor": true
+          },
+          "expect_group_transition": {
+            "entered": 0,
+            "exited": 0,
+            "inactive": 0,
+            "persisted": 8
           },
           "expect_ranking": [
             "dv3",
@@ -1332,6 +1356,12 @@
             "heavy_cancellation": false,
             "suppress_top_contributor": false
           },
+          "expect_group_transition": {
+            "entered": 0,
+            "exited": 0,
+            "inactive": 0,
+            "persisted": 5
+          },
           "expect_ranking": [
             "delivery_delay",
             "app_crash",
@@ -1390,6 +1420,12 @@
             "heavy_cancellation": false,
             "suppress_top_contributor": false
           },
+          "expect_group_transition": {
+            "entered": 0,
+            "exited": 0,
+            "inactive": 0,
+            "persisted": 4
+          },
           "expect_ranking": [
             "P-Beta",
             "P-Alpha",
@@ -1440,6 +1476,12 @@
             "decomposition_complete": true,
             "heavy_cancellation": false,
             "suppress_top_contributor": false
+          },
+          "expect_group_transition": {
+            "entered": 0,
+            "exited": 0,
+            "inactive": 0,
+            "persisted": 20
           },
           "expect_ranking": [
             "P-Beta|delivery_delay",
@@ -1656,6 +1698,12 @@
             "decomposition_complete": true,
             "heavy_cancellation": false,
             "suppress_top_contributor": false
+          },
+          "expect_group_transition": {
+            "entered": 1,
+            "exited": 0,
+            "inactive": 0,
+            "persisted": 2
           },
           "expect_ranking": [
             "toys",
@@ -2018,6 +2066,12 @@
             "heavy_cancellation": true,
             "suppress_top_contributor": true
           },
+          "expect_group_transition": {
+            "entered": 1,
+            "exited": 0,
+            "inactive": 0,
+            "persisted": 2
+          },
           "expect_ranking": [
             "urgent",
             "high",
@@ -2099,6 +2153,12 @@
             "decomposition_complete": true,
             "heavy_cancellation": true,
             "suppress_top_contributor": true
+          },
+          "expect_group_transition": {
+            "entered": 0,
+            "exited": 0,
+            "inactive": 0,
+            "persisted": 100
           },
           "expect_ranking": [
             "ch001",
@@ -2918,6 +2978,12 @@
             "decomposition_complete": true,
             "heavy_cancellation": true,
             "suppress_top_contributor": true
+          },
+          "expect_group_transition": {
+            "entered": 500,
+            "exited": 500,
+            "inactive": 0,
+            "persisted": 0
           },
           "expect_ranking": [
             "ch001|dv003",
@@ -10937,6 +11003,12 @@
             "heavy_cancellation": true,
             "suppress_top_contributor": true
           },
+          "expect_group_transition": {
+            "entered": 5,
+            "exited": 5,
+            "inactive": 0,
+            "persisted": 0
+          },
           "expect_ranking": [
             "dv003",
             "dv009",
@@ -11069,6 +11141,12 @@
             "decomposition_complete": true,
             "heavy_cancellation": true,
             "suppress_top_contributor": true
+          },
+          "expect_group_transition": {
+            "entered": 0,
+            "exited": 0,
+            "inactive": 0,
+            "persisted": 91
           },
           "expect_ranking": [
             "ch011",
@@ -11815,6 +11893,12 @@
             "decomposition_complete": true,
             "heavy_cancellation": true,
             "suppress_top_contributor": true
+          },
+          "expect_group_transition": {
+            "entered": 0,
+            "exited": 0,
+            "inactive": 0,
+            "persisted": 11
           },
           "expect_ranking": [
             "dv003",
